@@ -1,0 +1,66 @@
+\label{sec:intro}
+There are benefits to slowing down network driven workloads.
+
+Two types of slowing down:
+\begin{itemize}
+    \item Slow down when to process packets from NIC
+    \item Slow down processor clock speed
+\end{itemize}
+
+How do application behave under two types of network driven workloads:
+\begin{itemize}
+    \item Close-loop: Increase utilization of machines during diurnal troughs, the system controls the amount of admitted work. Faster time to completion == lower energy
+    \item Open-loop: Focused on tail latency combined with SLA objectives
+\end{itemize}
+
+What are the types of benefits:
+\begin{itemize}
+    \item A combination of lower time + lower energy to complete some fixed work + (trade-offs that exist within this combination)
+    \item A combination of tail latency + lower energy while meeting SLA objectives + (trade-offs that exist within this combination)
+\end{itemize}
+
+How is slowing down beneficial dependent on OS structure (os path length):
+\begin{itemize}
+    \item Linux - monolithic kernel, interrupt driven
+    \item LibOS - unikernel, run-to-completion
+\end{itemize}
+
+Further questions and discussions:
+\begin{itemize}
+    \item Race-to-halt vs slowing down. Right now it is heuristics/black box, can this paper help to say when you should do this and why?
+    \item Why is this benefit useful for the system policy designer/os designer? You should do this or that
+    \item If we care about performance, why not just poll? Why is polling not enough?
+    \item Having different ways to trade off performance+energy is a useful tool to have
+\end{itemize}
+
+% There are benefits to slowing down network driven processing.
+
+% Race-to-halt vs slowing down. Right now it is heuristics/black box, can this paper help to say when you should do this and why?
+
+% Two ways to slow down:
+% 1) Delay when to process packets, 2)Slow down processor speed
+
+% Two types of network driven workloads + justifying this:
+% Close-loop - Netpipe, NodeJS web server
+% Open-loop - Memcached, Memcached-Silo
+
+% Types of benefit: 
+% Lower time + lower energy+tradeoffs
+% Lower tail latency + lower energy + SLA+tradeoffs
+% Trade-off in performance-energy
+% Energy Performance Product (EPP)?
+% Benefit compared to what?
+
+% The benefits differ dependent on OS structure (os path length efficiency):
+% Linux
+% EbbRT
+
+% Why is this benefit useful for the system policy designer/os designer? You should do this or that**
+% Energy Performance Product
+% Why is this metric of performance+energy important? To who? 
+
+% If we care about performance, why not just poll? Why is polling not enough?
+
+% What is the combination of performance and energy as an additional metric that is useful?
+% Having different ways to trade off performance+energy is a useful tool to have.
+% If we can lower performance and energy at the same time that is even better.
