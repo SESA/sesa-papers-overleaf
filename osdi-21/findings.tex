@@ -1,0 +1,303 @@
+\section{Findings}
+
+This study grew out of our effort in developing and
+studying bare-metal library OS ({\em libOS}) use for data-center workloads.
+While our particular libOS is designed for both virtual and bare-metal
+operation the majority of our experience had been studying it virtualized.  
+Once we completed a port of a more sophisticated standard Network Interface
+Card (NIC) we were in a position to more extensively study the possible impacts
+bare-metal library OS use could have on both performance and energy consumption.  
+See section~\cref{sec:exp_setup} for details regarding the NIC and our support
+for it.  
+However, we quickly realized that given the simple nature of our
+systems and pre-dominate prior use in virtualized environments, we had no
+policies, neither static nor dynamic for many hardware settings.  
+The NIC alone has thousands of registers.  
+%todo: Han, fix above sentance
+After some research and experimentation we identified the NIC's interrupt delay
+register (ITR), processor sleep states, processor dynamic frequency and voltage
+scaling settings (DVFS) and package level power capacity limits (RAPL) to be of
+priority to explore. 
+
+Our first thought was to simply inherit the default values that Linux uses for
+our same hardware platform -- static defaults and the dominate or
+mean value for dynamically adjusted parameters when running the same workload. 
+%We quickly discovered Linux's behaviour with respect to these setting was a
+%complex mixture of dynamic and administrator controlled parameters.  
+However, it became clear that the actual impact and optimality of Linux's
+defaults on the energy consumption and realized performance was not discernible
+though inspection and reasoning.  Nor was it clear, through causal
+reasoning, what Linux's behaviour would be when manually overriding the
+defaults with static values. 
+
+As such we embarked on this detailed study to experimentally evaluate how both
+Linux, as an exemplar of an established data-center OS, and our libOS
+behaves with an exhaustive sweep of the identified parameters.  To our surprise
+even on the simple library OS that we developed, and have full knowledge of its
+code, the behaviour the system entered with respect to both energy and
+performance at different parameters values was not obvious and required
+detailed analysis to explain.  
+
+\subsection{Workload configurations and Landscape Plots}
+\begin{table}[h]
+\centering
+\begin{tabular}{l|c|c}
+  Name & Variants & Total  \\
+  \hline
+  Netpipe & 64b,8k,64k,512k & 4\\ \hline
+
+  NodeJS &  none & 1\\ \hline
+  MCD & 200k,400k,600k, & 3\\ \hline
+  Silo50K & 50k,100k,200k & 3\\ \hline
+\end{tabular}
+\caption{Workload configurations evaluated.}
+\label{table:wrkcfgs}	
+\end{table}
+
+Table~\ref{table:wrkcfgs} summarizes all the workload configurations we evaluate.  In total there are eleven configurations each having an energy-performance landscape plot that summarizes our data for the configuration, 
+ four of which are illustrated in Figures~\ref{fig:netpipe8Kov}-~\ref{fig:mcdsiloov}.  Given the three OS configurations and range of parameters swept and repetitions done in total the eleven landscapes summarize over X experiments. 
+These energy-performance landscapes can be evaluated from two perspectives; 1) Identification of "best" performance and energy states and 2) Exposure of how the software and hardware broadly react to sweeping the parameters explored. 
+
+\subsubsection{Identifying best performance and energy states}
+From the first perspective all that one really cares about is finding the best performance achievable for a given energy consumption.  After all from this perspective if there exists a setting that yields better performance for a particular energy consumption then one can ignore all other settings that yield worse performance at that same energy consumptions. 
+
+Given that we use total time for a fixed amount of work in the close loop settings and we use 99\% tail latency in the open loop settings as performance metrics, better in all cases is indicated by a lower value.  Best performance and energy states thus form a pareto-optimal energy-performance curve of points that are closest to the origin in the landscape plots.  The relative value of one point versus another on the energy-performance curve depends on what value/utility one places on the importance/cost of time versus energy.   To aid in analysis, and be independent of such relative value, we at times will use the product of  Energy and Performance  (EPP), as single quantity ($Joules \times Performance$) to rank points.  EPP is one simple way of comparing individual results as points with lower EPP represent a systems ability to achieve a better fixed points in the tradeoff space.  But it is important to always consider the full shape of the energy-performance curve that a system can achieve.  A system with only one point with at a lower EPP may not be as useful as a system that has many distinct points at the same EPP.  Having many points with equal EPP allows tuning for one's utility and cost or changes in utility and costs.    
+
+\subsubsection{Exposing software and hardware interaction}
+
+Using the energy-performance landscapes to expose the interaction of the software and hardware for a given workload configuration and thus the impacts of the OS on the emergent behaviour is less straight forward.  While the energy-performance landscapes can expose structure in the behaviour  they do not expose details of the settings or other metrics associated with a particular points or what is changing from point to point.  Interactive exploration, plotting landscapes of other values and and use of detailed time series plots of the raw logs is necessary.  Given the limits of space and paper formatting the remainder of this section summarize our findings without additional visualizations.  However, if interested the reader can use ~\cite{dashboard} to interactively explore our data set.
+
+%\subsection{Finding: ITR Delay synchronicity}
+
+\subsection{Finding: Transmit Completion Interrupts}
+The network device interrupt handling code is written in a event agnostic manner. The irq vector is bound to both receive and transmit events, and the interrupt handling function mapped to the irq vector 1) tries to see if it can clean up any transmit resources (i.e. free memory/descriptors) and then 2) proceeds to process additional received packets sitting in the device. 
+
+
+\subsection{Finding: Tuning Headroom and OS impact}
+
+Perhaps it is not a surprise that on the same hardware when running a fixed
+workload a particular software stack can yield better performance with less
+energy when the right settings hardware settings are chosen.  But we found the
+magnitude of to be quite startling along with impact that the choice of
+software stack can have.  
+ 
+\subsubsection{Tuning matters: Best Energy-Performance curves}
+
+Examining all eleven landscape we see a similar structure to what is visible in figures~\ref{fig:netpipe8Kov}-~\ref{fig:mcdsiloov}.  When looking at the landscapes for the open loop workloads, figures ~\ref{fig:mcdov} ~\ref{fig:mcdsilioov}, it is important to remember that these plots only show settings for which the system obtained performance that was below the requisite SLA threshold of 500 microseconds.  A lack of density in these plots indicates that the majority of setting explored lead to performance violations.
+
+Broadly we see that both OS's have a relatively clear energy-performance curve that arises and identifies the settings for which the software obtains its best energy performance tradeoffs.  However it is also clear that the choice of settings matters as the majority of points do not exist on the pareto-optimal curve.  These means that one must carefully restrict what settings are used if best case behaviour is to be achieved -- statically or dynamically.  
+
+\begin{table*}[h]
+\centering
+\begin{tabular}{|c||l||l|l||l|l|}
+\hline
+\multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Workload \\ Configuration\end{tabular}} & \multicolumn{1}{c||}{Linux Default} & \multicolumn{2}{c||}{Linux Tuned}                                                                                                             & \multicolumn{2}{c|}{LibOS}                                                                                                                    \\ \cline{2-6} 
+                                                                                   & Min                      & \begin{tabular}[c]{@{}l@{}}min (stdev)\\ (itr,dvfs,rapl)\end{tabular} & \begin{tabular}[c]{@{}l@{}}max(\#,stdev)\\ (itr,dvfs,rapl)\end{tabular} & \begin{tabular}[c]{@{}l@{}}min (\#,stdev) \\ (itr,dvfs,rapl)\end{tabular} & \begin{tabular}[c]{@{}l@{}}max(\#,stdev)\\ (itr,dvfs,rapl)\end{tabular} \\ \hline
+Netpipe 64B                                                                       &            0.93                       &   0.48 (2, 0x1500, *)              &   12.87 (80, 0x1b00, *)             &    0.28 (6, 0x1c00, *)          &     11.78 (80, 0x1a00, *)        \\ \hline
+
+Netpipe 8KB                                                                         &           2.94                       &      2.06 (10, 0x1400, *)            &     17.06 (80, 0x1d00, *)           &   1.02 (6, 0x1600, *)           &    11.82 (80, 0x1a00, *)         \\ \hline
+
+Netpipe 64KB                                                                        &           48.02                      &   19.8 (10, 0x1400, *)              &    98.38 (80, 0x1b00, *)            &   9.41 (6, 0xc00, *)          &   30.61 (80, 0x1700, *)          \\ \hline
+
+Netpipe 512KB                                                                       &           615.84                     &   492.3 (28, 0xc00, *)              &     774.95 (80, 0x1d00, *)           &     409.82 (26, 0xc00, *)          &    617.85 (6, 0x1d00, *)         \\ \hline \hline
+
+NodeJS                                                                             &           2278.76                         &   1906.12 (2, 0x1d00, 135)              &    9058.46 (80, 0xd00, 135)            &   1022.7 (4, 0x1900, 135)           &    7016.15 (80, 0x1d00, 55)         \\ \hline \hline
+Memcached 200k                                                                     &                                    &                 &                &              &             \\ \hline
+Memcached 400k                                                                     &                                    &                 &                &              &             \\ \hline  \hline
+Memcached 600k                                                                     &                                    &                 &                &              &             \\ \hline
+MCD-Silo 50k                                                                       &                                    &                 &                &              &             \\ \hline
+MCD-Silo 100k                                                                      &                                    &                 &                &              &             \\ \hline
+MCD-Silo 200k                                                                      &                                    &                 &                &              &             \\ \hline  \hline
+\end{tabular}
+\caption{Energy Performance Product (EPP) Summary. Min and Max values indicate the smallest and largest EPP observed across the range of hardware parameters swept and the parameter settings for which this value was achieved.  The min EPP is a value on the system's best energy-performance curve.}
+\label{table:eppsum}
+\end{table*}
+
+To this point we see that Linux's default behaviour can vary quite dramatically  from Linux's best case curve.  Table~\ref{tbl:eppsum} summarizes the EPP behaviour of the systems.  Comparing the Linux min EPP to the Linux default EPP we see that the default is only close to the best EPP Linux could obtain in MCD under lighter loads.  Looking at the figures one notes that the default is also a fixed point  despite Linux's Tuned results showing that the software  does support a  tradeoff that a user might want to exploit to either bias towards performance or energy consumption.
+
+
+Examining detailed data we find that choosing a point on the best case curve is often a matter of varying ITR however the interactions can be more subtle. 
+%todo: This should be expanded by exploring the best case curve and see what if any relationships exist for all 11 plots. This is basically using your mouse over the optimal edge and for both systems and saying what is actually causing the impact; this may replace the todo's below when we have done this (i.e., the observation on correlation todo
+
+The EPP summary table and energy-performance landscape figures also indicate that choosing a bad point in the settings space, for either OS, can have a very dramatic negative impact. As such the design of any control strategy, manual or automatic, needs to careful restrict its behaviour so that it will stay on the best case curve.  
+
+
+\subsubsection{The OS matters}
+
+Not only is there a win when optimizing the settings for a particular workload given an OS software stack  the library OS's tuning behaviour is almost always better.  While there is overlap in the energy and performance achieved tuning the two OS stacks leads to quite distinct behaviour with lib OS realizing better results both with respect to time and energy.  In the following four paragraphs we summarizes these differences in more detail.
+
+\paragraph{NetPIPE}
+
+%% General remarks
+From the datapoints listed in Table~\ref{table:eppsum}, Linux tuned outperforms default Linux across all four message sizes in EPP by X\%, further, the LibOS outperforms Linux tuned across all four message sizes by X\%. We find in all cases, this is achieved by reducing both time and energy to complete the workload. It should also be noted that the LibOS uses a NetPIPE inspired reimplementation of its underlying protocol to take advantage of zero copying and run-to-completion model of the LibOS. We found RAPL to play a minimal role in power tuning for this application given it is not a processor nor memory intensive workload and runs on a single core. In order to observe general trends of hardware tuning effects on Linux and the LibOS, we examined the data from a set of top minimum EPP configurations. We found that at smaller message sizes (64 B, 8 KB), ITR plays a pivotal role in reducing EPP given that vast majority of ITR values were less than 10 \micro s, however, there was wide variations in DVFS values for us to make a statement about its usefulness at low message sizes, we suspect the system is largely too lightly loaded for it to play a role. At a message size of 64 KB, the ITR values have largely moved to the 8 - 30 \micro s range, and at 512 KB to the 26 - 38 \micro s range - this is due to packet transmission becoming a larger bottleneck, the larger ITRs used by both Linux tuned and LibOS imply a form of artificial packet coalescing is being induced. At these larger message sizes, DVFS plays a more profound role as we see values between \texttt{0x1000 - 0x1500} being consistently applied by Linux tuned and \texttt{0xc00 - 0x1000} being used by the LibOS. LibOS is able to set its DVFS at a lower processor frequency due to its smaller overall codebase and NetPIPE protocol, we find that at across all message sizes, the instruction usage of LibOS is 43\% - 80\% less than Linux and suffered 71\% - 97\% less last-level cache misses. These instruction level efficiences enable the LibOS to support the workload while drastically lowering its energy usage through reduced processor frequency; this is also supported by the fact that the LibOS's energy usage fell by a greater percentage than time used in the larger message sizes. Section~\ref{sec:results:netpipe} uses one of the four message sizes and from the fine-grained log data collected, we detail the EPP savings of Linux tuned and how it differs from the LibOS.
+
+%% RSC remark
+NetPIPE is the only benchmark in this work that uses the Receive-Side-Coalescing (RSC) feature of the NIC to accelerate packet processing. RSC is typically disabled by default in Linux as it drops potential header information in the process of combining multiple Ethernet frames into a single buffer for software to process. In our experiments, we found for workloads that transfer small packets, RSC largely had no effect and even decreased the overall throughput of Memcached. In the hardware, RSC requires two timer information to be set up, 1)  RSC delay value and 2) the ITR delay value. These two values dictate a low to high threshold for which the NIC is willing to wait to ensure enough packets arrive for coalescing, further, the ITR delay value must be set strictly greater than RSC delay. From examing Linux's device driver code, RSC can be enabled when Linux's dynamic ITR delay algorithm is enabled or only at a static ITR delay value of greater than 24 \micro s. In the LibOS' implementation of the NIC device driver, we customized RSC's initialization routine such that a lower static ITR delay value of greater than 4 \micro s can be used instead. In all of the LibOS' NetPIPE results, we enabled RSC and explored ITR delay values above 4 \micro s. In default Linux, we ran with both RSC enabled and disabled and reported whichever gave lower EPP. For tuned Linux, we only ran RSC enabled for 512 KB messages, at lower messages the high ITR delay value dicated by the RSC policy resulted in poor EPP performance. For default Linux, we found that RSC did not make a difference in EPP for 64 B messages. At 8 KB, RSC actually lowered EPP by 8.5X, we believe this is because default Linux's dynamic ITR delay algorithm generate a significant amount of variance in time (~28\%) at the 8 KB message size, this variance has also been shown by past researchers who have benchmarked NetPIPE~\cite{ix, ebbrt}. In addition, enabling RSC increased the number of interrupts from a mean of 9000 (stdev 2000), to a mean of 20500 (stdev 141). This is a 227\% increase in interrupts, which now puts it on par with tuned Linux, along with a reduction of variance by 93\%. This suggests enabling RSC for 8 KB messages is helping to reduce the noisiness of Linux's dynamic ITR algorithm. Surprinsgly at 64 KB, default Linux performed worse when RSC was enabled by 12\%, further, the variance in both cases for Linux default was in the region of ~26\%, much higher than the 0.01\% when Linux was tuned to use a static ITR delay value. At 512 KB, enabling RSC was able to lower EPP of tuned Linux by 7.1\%, however, similarly to 64 KB messages, default Linux's EPP was worst when RSC was enabled such that energy consumption stayed the same in both but the time to finish the work increased by 5\%. We suspect at larger message sizes RSC actually starts to kick in, however, the dynamic behavior of Linux's ITR delay algorithm might be impacting its efficacy. We also noticed that whenever RSC was enabled, the received bytes fell by ~3.5\% across the message sizes; due to the fact that header packets are now being dropped on a per-frame basis for packet coalescing. While RSC is potentially another avenue for exploration of hardware tuning given that it exposes a low to high threshold for when packet coalescing should happen, it is still currently a experimental feature in the device driver and its performance impact on NetPIPE and implications of its usage in other workloads is outside the realm of this study.
+
+
+%Examining the netpipe rows in the EPP summary table and the associated four landscape plots we find several distinctions.  Across all packet sizes the library OS achieves EPP's that are 0.58, 0.49, 0.47 and 0.78 as a fraction of the best EPP for tuned linux for packet sizes of 64 bytes, 8 Kb, 64 Kb, and 512 Kb respectively.  Thus one could save close to half the time or energy using a library OS even at a 64 Kb packet size. It is also surprising that for the largest packet sizes, where one expects only marginal gains can be obtained, we still see 30\% gain. 
+
+% gain over default
+%It is worth noting, as stated in the sections above, that for all packet sizes the default Linux behaviour is significantly worse that it's Tuned counterpart and thus even further separated from the library OS behaviour.  We observed that with 64 Kb packets Linux default has very large variance, where the EPP ranges from around 12 to close to 60 -- tuning with a fixed setting for the hardware parameters, for both Linux and the library OS,  generally does not suffer this kind of variance in emergent behaviour.  
+
+% Linux:  (64b:4,0x1500,135), (8k:8,0x1900,135), (64k:12,0x1200,135), (512k: 36,0x1000,135) 
+% EbbRT:  (64b:6,0x1D00,135), (8k:6,0x1600,135), (64k:6,0xC00,135), (512k:24,0xC00,135) 
+% Writting here for now, to observe what the parameters that have impact, move this to relavent section as an explanation
+%When considering the optimal EPP we see that the optimal behaviour for each packet size is obtained with a unique settings.  In Linux's case the optimal behaviour is achieved by scaling the ITR and seeking a DVFS value that optimize the behavriour at that ITR.  However, with the library OS for all but the largest packet size a single ITR value of 6 microseconds is the best and the DVFS values scale inversely proportional with packet size.  These effects are discussed in more detail in section~\ref{sec:osbehaviour}.  
+
+
+
+%For netpipe, we find that with 64 byte packets, Linux and library OS tuned are respectively around 2x and 3.3 times better EPP than Linux default.  
+%With 8k it is around 14 times better and 28 times better for library OS
+%With 64K Linux default has enormous variance, where the EPP variability goes from around 12 to close to 60, and in the best case linux tuned is just slightly better than linux default and library OS is still over twice as good; note, that there is very little variability in the tuned results for either linux or libraryOS.  
+%Finally, for very large 512 K packets, Linux and library OS tuned are around 30\% and 50\% better than default linux respectively.
+
+
+\paragraph{NodeJS} In contrast to NetPIPE, with the move to a processing heavier workload, we found the top minimum EPP points all used ITR delay values of 2 and 4 \micro s for both tuned Linux and the libOS. The efficiency of the libOS over Linux is more dramatic here as the minimum EPP for Linux tuned all required setting DVFS at the higher frequencies (0x1b00-0x1d00), whereas the libOS is still able to lower its processor frequency (0x1900-0x1b00) to conserve additional energy. For the minimum EPP of Linux tuned, DVFS was set at the highest setting along with RAPL while ITR delay was set at lowest value of 2 \micro s. Given these settings, tuning Linux was able to lower its EPP over Linux default by 16\%, the libOS was able to lower its EPP of Linux default by 55\%. In both tuned settings, it was a combination of both savings in energy and time that contributed to the overall EPP. Section~\ref{sec:results:nodejs} details how these settings impact each OS and provides supporting graphs to explain the difference in EPP.
+
+%todo: - how does library OS do better than linux
+%Examining the results for the NodeJS closed loop workload we see similar structure as the netpipe results.   The separation in the minimum EPP is again around 52\% between the best case tuned behaviour of the library OS and Linux.  
+%todo: - how does linux tuned do better than default
+%todo: - observations on correlations to settings (this probably gets moved later)
+
+
+\paragraph{Memcached}
+%todo: - how does library OS do better than linux
+%todo: - how does linux tuned do better than default
+%todo: - observations on correlations to settings (this probably gets moved later)
+
+
+
+\paragraph{Memcached-Silo}
+%todo: - how does library OS do better than linux
+%todo: - how does linux tuned do better than default
+%todo: - observations on correlations to settings (this probably gets moved later)
+
+\subsection{Finding: Significance of OS Design and Implementation}
+
+Using more detailed data such as instruction counts, cycles executing instructions, number of interrupts, etc. along with the energy-performance landscape plots we can discern various ways in which aspects of OS design and implementation affected the emergent energy-performance behaviour.  
+
+Given the nature of network centric workloads execution is transactional and episodic in nature.  That is to say there is an inbound set of packets that represent a request that starts a transaction.   The request induces work on the server that generates a corresponding set of outbound response packets which are transmitted back to the requesting client, ending the transaction.  The work done breaks down into an OS and application portion.  Where the OS component includes devices driver operation, network protocol stack operation, scheduling and attendant memory management functionality.   The application component is a mixture of ALU instructions, memory accesses and additional IO transactions as necessary to full fill the application specific service being provided.   Note that the two components maybe mixed together over the lifetime of a transaction to more or lesser degree depending on the OS behaviour.   
+
+The two close loop workloads netpipe and nodeJS are intentionally run sequentially with only one client issuing a new request only after reception of a response to its prior request.  As such theses workload stresses the OS paths and ability to stream line back to back requests through the software stack over a single persistent connection.  They differ, however, in the complexity of the application component of the work.  In netpipe  the application portion of the work is minimal simply sending the application logical request message back to the client. In contrast, while the request and response data exchanged in NodeJS workload is minimal, a few hundred bytes at most, application processing is considerably more complex due to the V8 based nodeJS runtime used to satisfy a static http request for a minimal hardcoded html index page.  
+
+As such we expect these workloads to stress and expose the critical OS paths without the need for complex multiplexing while also allowing us to compare the impact of these paths given differing application component complexity.  Of course the closed loop nature will magnify the impact of the per-transaction latency as the faster a response is generated the time the for the  next request to arrive will shrink, up to the limit of the network transmission time and time for the client to process the reply and generate the next request.  As such we expect both the ability to process a request and to minimize energy to be important in optimizing EPP behaviour.  In particular there will be a tradeoff between the energy spent executing instructions and the time between request arrivals.  As we sweep the hardware parameters there should be tunings that interact with the software stack that uniquely optimize its time-energy tradeoff.  The use of multiple message sizes with netpipe further allow us to see expose the stacks response to tuning as transmission times will vary with message size.  Finally with the netpipe experiment we configure the client with identical software and tunings to factor out differences on both sides of the connection. 
+
+In the case of Memcached (MCD) and Memecached-Silo (MCD-Silo) we have a similar contrast in terms of the application component.  In MCD each request is handled via application code written in C that largely implements a concurrent hash table where as in MCD-Silo the requests are handled via an in memory database that requires considerably more computation and variable computation per request.   Unlike the closed loop workloads these workloads are open loop that we explore with varying degrees of concurrent load measured in queries per second (QPS).  All cores of the server will are used to service the load and the OS's ability to schedule and multiplex will have an impact on the realized performance and energy consumption.   At lighter loads one hopes to be able to find settings that will result in lower energy consumption in comparison to the higher load settings.   How this is realized will of course be a unique combination of how the software execution results in  busy to idle rations and efficiency of both.  
+
+\subsubsection{Path length and instruction efficiency effects}
+
+%todo:  Short OS path lengths changes the sweet-spot for tuning... in some sense adds fidelity however halt behaviour will lead to a different degree of control.  Not having a spectrum of halt means that optimal point will be modulated around fix halt state constants via dvfs and rapl (after ITR tuning). Add discussion of system specific sweet spot as a function of load: rapl,dvfs and number of halts sweet-spot. And what happens as you speedup or slowdown the processor from this point.  I suspect this likely explains CPI results -- EbbRT has one fixed halt behaviour but shorter path length so around the tradeoff point to halting (that will go down under heavier computational load) one can slow the processor down rather than using various halts -- add more halt states would add an additional degree of freedom but considerable complexity.
+
+A core proposed value for customized application specific software stacks is a reduction in the path lengths required to do the requisite processing.  
+Our data reveals both some expected and unexpected results from this perspective both in terms of performance and in terms of energy consumption. 
+
+While, as expected, generally tuning Linux has modest impact for both instructions executed or CPI, tuned Linux does execute 30\% more instructions for medium (65K) requests with netpipe and  the instructions it  executes for memcached silo at light load have 20\% lower CPI.
+%we may not want explanation here
+For the former, we see that the tuned linux has a small ITR that results in over twice the number of interrupts as linux default, which makes sense for a highly latency sensitive OS intensive workload.
+For the latter, we do not have a clear explanation from the data.
+
+
+For the libOS when focusing on the two workloads with low application processing, netpipe and mecached,  we find as expected a reduced instruction footprint.  
+The size of the difference is quite startling. 
+Netpipe, varies between 24\% of Linux's instructions for small packets up to just over 50\% at large packets and Memcached across all loads uses only around 30\% of the instructions of Linux.
+We also see that the CPI for both workloads is up to 70\% worse with libOS than with Linux.  
+This increase in CPI may be explained by the fact that libOS currently only goes into the deepest level of sleep, while the majority of sleep states for linux are at lower levels, but it may be more fundamental, in that the libOS is executing less wasted instructions that tend to be executed with a low CPI. 
+
+For more CPU intensive nodeJS, LibOS has 10\% less instructions to execute the code, and those instructions are noticably more efficient, consuming around 70\% of the cycles of linux.  
+Similarely, with Memcached SILO, LibOS has only a modest instruction advantage at high load, but at low load using less than 80\% the instructions of linux. 
+However, and in contrast to the low CPU applications, libOS has a substantial CPI advantage, especially at high load using less than 70\% the cycles per instruction.
+%todo: this is key point, put in intro to section and in intro
+These surprising result suggest that, contrary to conventional understanding, operating system behavior can have substantial impact on the efficiency of even the time spent in application compute.  
+That is, removing boundary crossing, running application work to completion, and dispatching application code directly from an interrupt, may have a secondary effect on the efficiency of that applciation code that was not previously observed. 
+
+%todo: calculate if the cycle advantage translates into most of the EPP gain
+%todo: add here something about variability
+
+
+
+  
+ 
+%\paragraph{Netpipe and Memcached}
+%
+%
+%\paragraph{NodeJS and MCD-Silo}
+%
+%Surprisingly in both NodeJS and MCD-Silo, for which both stacks are running a large and similar faction of application code, we see the OS has a measurable impact on IPC.
+
+\subsubsection{Emergent Race-to-Halt and Crawl-to-Rendevous behaviour}
+
+As many have observed there is a tension between using controls like DVFS and RAPL to throttle energy consumption versus the saving that can be had by finishing work quick and halting into lower energy consuming processor sleep states between the requests for work.  The later strategy is often referred to as "race-to-halt" (r2h) while we will refer to the former as "slow-to-stay-busy" (s2sb).  
+
+% todo might want to remove or soften the "common wisdom" message
+It is has become common wisdom that r2h is the preferred behaviour to achieve energy proportional computing.  
+Using maximum energy for shorter bursts, shrinks compute time and enables larger idle gaps in which deeper sleep states can be entered, globally making energy consumption proportional with demand.  
+However, the precise tradeoffs between r2h and s2sb in reality must depend on the various energy and time constants associated with the particular hardware and software paths. 
+
+We find that while these two modes of behaviour, and modulation between them  are easy to understand, it not easy to pin down when and why a system may or may not effectively conform to them.  We found r2h, s2sb and mixtures to subtly arise as we swept the values of ITR, DVFS and RAPL.  
+
+We found s2sb is only uniquely applicable to the run-to-completion model in the libOS. This was discovered by noticing dramatic decreases in number of interrupts (up to 100X) in NodeJS as DVFS was set to a very low processor frequency. Moreover, we found the bytes transmitted and received did not differ as dramatically from Linux. Upon closer examination of the libOS' receive path, we found the effect of a low DVFS setting is such that on the firing of a receive interrupt, the payload goes through the network stack, application and eventually transmits a reply back. It then has to rewind all the back to the original receive handling code, the lowered processor frequency causes this entire process to be slowed down. Moreover, the libOS' receive code is written such that it will poll the NIC for additional packets up to a certain limit, this limit is based upon values used in~\cite{arrakis,debianixgbe}. Therefore, once the code has slowly returned to the receive interrupt handler, it is possible that new packets have already arrived from the client-side and the libOS begins the process anew. 
+
+
+%\subsection{Finding: Efficiency of libOS code paths makes a difference}
+%\subsubsection{Improved IO paths shift importance of CPU Energy controls}
+%\subsubsection{Fewer and more efficient instructions on libOS paths}
+%\subsubsection{Application IPC is improved by libOS}
+%Despite largely the same number of instructions and the same number of last
+%level cache misses IPC is improved by L,M,N and P. This results in ...
+%
+%
+%
+%\subsection{Finding: Emergent Race-to-Halt and Crawl-to-Rendevous behaviour}
+%\subsubsection{Complex Support for Adaptive polling does not always work}
+%
+%\subsubsection{Race-To-Halt is emergent interaction of many local behaviours}
+%It can't be easily tuned in general purpose OS as it is a splintered
+%interaction of several local mechanisms.
+%
+%\subsubsection{Race-To-Halt may not always be the winner}
+%\subsubsection{Run-to-completion can enable Crawl-to-Rendevous}
+%\subsubsection{Emergent Adaption between Race-To-Halt and Crawl-to-Rendevous}
+%
+%\subsection{Finding: ITR as tool}
+%\subsubsection{Closed Loop: Approximating Application end-of-transmission
+%Marker}
+%\subsubsection{Open Loop: Admission control to maximize software performance}
+%
+%\subsection{Finding: Local policies don't necessary lead to Global behaviour}
+
+
+
+
+
+
+
+
+% Old text commenting out until I read it later
+%Summary of findings (needs heavy fix not final version):
+%\begin{itemize}
+%\item netpipe: For this workload, having a low packet interrupt value means
+%faster response time in Linux tuned and therefore results in a faster turn
+%around time and gets the work done faster, therefore saving energy. Dynamic
+%Linux wastes energy idling for long periods. Library OS efficiency means quick
+%response time and instruction efficiency translates to ability to idle also,
+%therefore uses least amount of energy.
+%\item nodejs: For linux tuned and default, I suspect the processor intensive
+%nature of nodejs webserver, means its difficult to get signficant energy
+%savings for Linux tuned. The non-idling data indicates there is a form of
+%polling within nodejs. Library OS base efficiency means both faster response
+%time and using lower energy. Not sure about idle costs.
+%\item memcached: Speculation: best energy saving from a combination of high
+%interrupt delay and low dvfs and rapl. High interrupt delay is because in a
+%SLA
+%of 500 us, there is more room to aggressively do poacket coalescing and save
+%instruction/energy there and ability to idle and sleep for long periods of
+%time
+%while waiting for interrupt to fire. Low dvfs + rapl depends on OS system
+%efficiency, how much can Linux/library OS get away with decreased processor
+%frequency.
+%    
+%    \item memcached-silo: Speculation: no idea at this point
+%\end{itemize}
+%\textbf{Addendum: basically, how much should we talk about EDP efficiency vs
+%insights of hardware tuning and system structure, i.e. }

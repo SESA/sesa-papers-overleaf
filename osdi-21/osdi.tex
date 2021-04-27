@@ -1,0 +1,50 @@
+While we expected the design and implementation of the OS to matter, to tuning performance and energy consumption, we were surprised to what extent and the subtly.    
+We find that the design and mechanisms advocated in the past, by systems such as Synthesis\ref{synthesis}, for achieving high performance on the modest hardware of its day, are perhaps as important now in light of optimizing the energy-performance tradeoff.   
+Supporting integrated application and system logic in direct response to interrupts can provide a foundation for efficiency gains that in turn magnify the effects of tuning hardware settings.    
+
+It may not be surprising that when running a fixed workload the defaults settings and policies of a general purpose OS do not result in its optimal behaviour, as perhaps they were designed for mixed workloads and the average case.  
+Manually tuning the three hardware settings we consider significantly improves the energy-performance behaviour of the general purpose OS, x-y improvement across our experiments.  
+However the complexity of the functionality and implementation of the general purpose OS limits it ability to fully expose the energy-performance than can be achieved for these workloads on the same hardware using an library OS.  
+Simpler OS code paths, elimination of complex control behaviors and design and implementation choices, possible in a library OS, result in a body of software that demonstrates X-Y improvements in the energy-performance tradeoff achievable.    
+
+
+
+Perhaps unsurprisingly, the use of library OS, designed and implemented to run a single dedicated application, results a dramatic reduction (50-75\%) in the number of instructions required in the two workloads with small application instruction footprints.  
+But surprisingly, the net effect of the choices made in this code can result a X-Y\% improvement in the energy and performance tradeoff for the application-cpu centric workloads. 
+
+This is not just about improving the OS hot-path via shortening and better code quality through the elimination of checks and functionality necessary in a general purpose OS. As a matter of fact the IPC of the remaining OS instructions have a lower IPC in our library OS compared to the general purpose OS.  
+Complex policies and attendant mechanisms have also been eliminated.  Such as those designed to estimate and optimize interrupt arrival rates to modulate the use of polling versus interrupt IO or prediction of when to sleep the processor and into what hardware sleep state.  
+It is a combined emergent effect of the design and implementation for dedicated work that permit the library OS to achieve a better energy-performance responsiveness to the turning of the hardware settings we study. 
+ 
+Our results demonstrate a surprisingly large net energy-performance benefit to:
+\begin{itemize}
+\item elimination of protection domain crossings
+\item strict use of event-driven non-preemptive processing 
+\item a simple halt to deepest sleep state on idle policy along with a fixed poll count directly implemented within a device driver
+\item compiling the OS functionality and the app code together to produce a single optimized binary
+\end{itemize}
+The combination of these choices results in some obvious functional behaviour but also to our surprise  interesting emergent energy consumption behavior when combined with the net shortening of the code paths.  
+
+The dedicated nature of the design, running only one transactional application, allows shortened OS implementation that tightly merges interrupt, device, protocol processing and application code.  
+Application code can effectively be stitched into the disabled interrupt handling paths of the OS, running out of pinned memory and to completion on a single core in response to network packet arrival.    
+This approach has the potential to elimnatinate architecural hazards and improve the IPC of the unified provessing path.   
+We found, however, other aspects at play.   
+
+% the path length being short has huge impact that compensates for other stupid things
+% perhaps the stupid things are needed to get the short path, and in fact if we started adding complexity
+
+
+We observed that while the library OS lacks a cost model for the choice of what type sleep state to use on halt the improved end-to-end processing path, reduced os length and better net application IPC results in temporal head room for tuning energy and compensating.   
+Shortening the time spent servicing a request on a core can open a larger window idle window between requests in which he processor can be halted into a sleep state.  
+However while deeper sleep states of the processor can significantly reduce energy consumption it comes at increased latency in waking up and potentially reduced subsequent performance if architectral state such as caches have to be reestablished.  
+This tradeoff needs to be factored in if a race to halt stategy is to be effective.  
+
+%1) memcached 600k : If we optimize for minimum tail latency (not best energy under SLA) then using the smallest ITR=50 and lowest power setting (0xD00,55) with the library OS minimizes the number of times it halt (~539 thousand).  Speeding up the core, race to halt, increases our halts as expected,  but increases our tail latency from ~101.9 to ~109.7 microseconds, likely due to our fixed use of the deepest sleep state on halt.  But as indicated the minimal number of instructions used provides the library OS head room to use a lower power settings to compensate.
+
+%And more broadly we can observe that with the library OS there there is a diverse tradeoff in using racing-to-halt even at higher loads.  While slowing down the core and capping power can be use to fine tune for the lowest energy consumption while still achiving very high performance.  In contrast the general purpose OS on the same workload (memcached 600k) at the same aggressive ITR of 50 that minimizes its tail latency (~114.5 microseconds) it must use a higher power setting just to ensure that it can complete its larger number of instructions (0x1D00,75).  This results in it consuming ~2.5  times more energy (2649J vs 1059J) to achieve a competitive tail latency as the library OS while it is sleeping considerably more than library OS (~8 million times vs the ~539 thousand the libOS slept) while its dynamic sleep policy predominately using far less aggressive sleep states (7 Million at C1 and 800 thousand at C1e with only a few hundred in the deepest state that the library OS uses C7 for all its sleeps).  Decreasing the processor settings from here to 0x1b00,75 (and down to 0x1300,55) immediately increases tail latency to ~119 (and ~283 respectively) microseconds. Decreasing beyond this point leads to SLA violations in constrast the library OS can run at the lowest possible power setting and achieve lower energy consumption and better tail latency.  
+%2) nodejs slow to rendezvous 
+
+
+ 
+
+ 

@@ -1,0 +1,201 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Template for USENIX papers.
+%
+% History:
+%
+% - TEMPLATE for Usenix papers, specifically to meet requirements of
+%   USENIX '05. originally a template for producing IEEE-format
+%   articles using LaTeX. written by Matthew Ward, CS Department,
+%   Worcester Polytechnic Institute. adapted by David Beazley for his
+%   excellent SWIG paper in Proceedings, Tcl 96. turned into a
+%   smartass generic template by De Clarke, with thanks to both the
+%   above pioneers. Use at your own risk. Complaints to /dev/null.
+%   Make it two column with no page numbering, default is 10 point.
+%
+% - Munged by Fred Douglis <douglis@research.att.com> 10/97 to
+%   separate the .sty file from the LaTeX source template, so that
+%   people can more easily include the .sty file into an existing
+%   document. Also changed to more closely follow the style guidelines
+%   as represented by the Word sample file.
+%
+% - Note that since 2010, USENIX does not require endnotes. If you
+%   want foot of page notes, don't include the endnotes package in the
+%   usepackage command, below.
+% - This version uses the latex2e styles, not the very ancient 2.09
+%   stuff.
+%
+% - Updated July 2018: Text block size changed from 6.5" to 7"
+%
+% - Updated Dec 2018 for ATC'19:
+%
+%   * Revised text to pass HotCRP's auto-formatting check, with
+%     hotcrp.settings.submission_form.body_font_size=10pt, and
+%     hotcrp.settings.submission_form.line_height=12pt
+%
+%   * Switched from \endnote-s to \footnote-s to match Usenix's policy.
+%
+%   * \section* => \begin{abstract} ... \end{abstract}
+%
+%   * Make template self-contained in terms of bibtex entires, to allow
+%     this file to be compiled. (And changing refs style to 'plain'.)
+%
+%   * Make template self-contained in terms of figures, to
+%     allow this file to be compiled. 
+%
+%   * Added packages for hyperref, embedding fonts, and improving
+%     appearance.
+%   
+%   * Removed outdated text.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[letterpaper,twocolumn,10pt]{article}
+\usepackage{usenix-2020-09}
+
+% abstract.sty  adjustbox.sty  cleveref.sty    couriers.sty  filecontents.sty
+%hyphenat.sty  SIunits.sty     subfigure.sty  trackchanges.sty  ulem.sty
+%usenix-2020-09.sty  wrapfig.sty
+% adjcalc.sty   breakurl.sty   collectbox.sty  etoolbox.sty  flushend.sty
+%multirow.sty  subcaption.sty  titling.sty    trimclip.sty
+%usenix2019_v3.sty  usenix.sty
+
+% to be able to draw some self-contained figs
+\usepackage{usenix}
+\usepackage{graphics}
+\usepackage{cleveref}
+\usepackage{titling}
+\usepackage{trackchanges}
+\usepackage{subcaption}
+%\usepackage{subfigure}
+\usepackage{tikz}
+\usepackage{amsmath}
+%\usepackage{abstract}
+\usepackage{adjcalc}
+\usepackage{adjustbox}
+\usepackage{breakurl}
+\usepackage{collectbox}
+\usepackage{couriers}
+\usepackage{etoolbox}
+%\usepackage{filecontents}
+\usepackage{flushend}
+\usepackage{hyphenat}
+\usepackage{multirow}
+\usepackage{SIunits}
+%\usepackage{trimclip}
+%\usepackage{ulem}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{xargs}     % Use more than one optional parameter in a new commands
+\usepackage{xcolor}  % Coloured text etc.
+% 
+\usepackage{graphicx}
+\usepackage{subcaption}
+%\usepackage{mwe}
+\usepackage{paralist}
+\usepackage[]{todonotes}
+\usepackage{cleveref}
+\crefformat{section}{\S#2#1#3} 
+\crefformat{subsection}{\S#2#1#3}
+\crefformat{subsubsection}{\S#2#1#3}
+
+%\usepackage[subtle]{savetrees}
+
+% inlined bib file
+% \usepackage{references}
+
+%-------------------------------------------------------------------------------
+\begin{document}
+%-------------------------------------------------------------------------------
+%don't want date printed
+\date{}
+% make title bold and 14 pt font (Latex default is non-bold, 16 pt)
+\title{\Large \bf OS Joules : A Study of Energy Efficiency and Operating
+Systems}
+
+%for single author (just remove % characters)
+%\author{
+%{\rm Your N.\ Here}\\
+%Your Institution
+%\and
+%{\rm Second Name}\\
+%Second Institution
+% copy the following lines to add more authors
+% \and
+% {\rm Name}\\
+%Name Institution
+%} % end author
+
+\maketitle
+
+%-------------------------------------------------------------------------------
+\begin{abstract}
+  Optimizing energy and performance in a OS is tricky because there is a wide array of mechanisms and policies that could both individually and collaboratively impact the entire system. In this paper, we present findings from a detailed study of four network-driven workloads to explore in a grid of different dynamics in order to demonstrate the impact of hardware tuning on a general purpose OS and a application specific library OS. We find when tuning a general purpose OS, one can achieve improvements up to 48\% in energy and performance, and when tuning the library OS, we demonstrate improvements up to 74\%. Moreover, we built infrastructure in both systems to collect detailed time series log data on every hardware interrupt of various hardware and software information. The results in this paper include data from tens of thousands of experiments, each with detailed logs. Using these logs, we are able to better explain energy and performance improvements as well as demonstrate how hardware tuning can have both interesting and profound impacts on different OSes and its design and implementation.
+  
+%-------------------------------------------------------------------------------
+%------------------------------------------------------------------------------
+\end{abstract}
+
+\section{Introduction}
+\input{intro6}
+
+\section{Related Work and Motivation}
+\input{rel}
+
+\section{Experimental Setup and Workloads}
+\label{sec:exp}
+\input{exp}
+
+
+%	\section{Data}
+
+%\input{epptable.tex}
+\input{epp_data}
+\input{metric_data}
+\input{idle_data}
+\input{joule_data}
+
+\section{Observations}
+
+In this section,
+we present observations from our curated study.
+We begin with a discussion of broad overview observations.
+This overview utilizes four landscape plots (see Figures ~\ref{fig:netpipe64Kov} -~\ref{fig:mcdsiloov}) that each summarize thousands of related  experiments.
+We then move on to detailed observations that use log data from each workload
+to construct interesting analysis points.
+To ease comprehension, we have included the bulk of data plots we refer to.  
+%Each figure is composed of four subplots arranged in a manner to make cross workload analysis easier.
+This section will often refer back to the questions posed in the introduction
+as our observations shed light on them.
+
+\subsection{Overview}
+\label{sec:resoverview}
+\input{resoverview}
+
+\subsection{Results and Analysis}
+\label{sec:analysis}
+
+\input{q1_2}
+%\input{q2}
+%\input{q3}
+%\input{q4}
+
+%\section{Discussion}
+%\input{discussion}
+
+\section{Concluding remarks}
+\input{conc}
+
+
+\newpage
+%-------------------------------------------------------------------------------
+\bibliographystyle{plain}
+\interlinepenalty=10000
+\bibliography{references}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%  LocalWords:  endnotes includegraphics fread ptr nobj noindent
+%%  LocalWords:  pdflatex acks

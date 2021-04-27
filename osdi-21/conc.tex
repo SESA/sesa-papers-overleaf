@@ -1,0 +1,37 @@
+%Lower QPS rates of 50K, 100K, and 200K are targeted here due to its increased computation load per request. Similarly, per QPS rate is run on all three systems 5 times each.
+
+We ported our libOS to run on physical hardware, and wanted  to understand how to set the complex physical settings to optimize both performance and energy used for single application environments.
+Given the complexity of Linux's settings, we developed instrumentation for both Linux and our libOS to extract a large set of metrics at every interrupt, and did a study that collected a time series log of the metrics across a sweep of a large set of hardware settings for a variety of simple open and closed loop workloads.
+We discuss a number of the insights and implications that our analysis of the data shows or suggests.
+We had some strong hypotheses that this study quantified and demonstrated; for example, the impact of short code paths on energy.  
+However, a number of the insights, such as the unexpected optimal OS adaptations for some settings, where unexpected, and arose from hundreds of hours exploring interactive 3D visualizations of the data.
+
+We believe that, in addition to the specific insights discussed, the  methodology used to obtain those insights is a valuable contribution.
+The insights from this study has led to re-design of aspects of our library OS, which we will pursue in the future.    
+Moreover, we believe that it raises interesting broad questions about operating system design and implementation.
+Does it make sense to expose controls over not only HW and OS policy, but even OS mechanisms (e.g., run to commpletion) to external controllers?  
+How can we do that for OS mechanisms?
+Can we further integrate with application requirements (e.g., SLO)  metrics and policies to further improve efficiency?
+
+%Our study started with a desire to understand how a
+%baremetal library OS can respond to hardware tuning via
+%power and NIC parameters. We wished to statically find
+%optimal energy-performance points for our target work-
+%loads as they execute within our library OS. Naturally,
+%this exploration led us to explore hardware-driven power
+%management in Linux as a relevant comparison point.
+%Furthermore, the complexity of Linux’s default dynamic
+%power management policies let us to explore static con-
+%figuration of hardware power settings on Linux as well.
+%Consequently, we built an interrupt-centric log collec-
+%tion methodology that enables us to collect power and
+%workload-specific statistics at the granularity of receive
+%and transmit NIC interrupts. After exhaustively explor-
+%ing ranges of hardware parameter settings for each of our
+%OS/workload, we began an analysis of our plethora of
+%fine-grain logs and drew several fascinating observations
+%and conclusions about the reciprocal impact of OS soft-
+%ware and power management policies and configurations.
+%The insights we gather from this study raise interesting
+%open questions about operating system design and imple-
+%mentation.

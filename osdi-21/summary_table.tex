@@ -1,0 +1,126 @@
+\begin{table*}[t]
+\begin{center}
+%\begin{adjustbox}{angle=90}
+\begin{tabular}{|l|cc|cc|cc||cc|cc} \hline
+\multirow{2}{*}{Workload} & \multicolumn{6}{c|}{Linux} & \multirow{2}{*}{}\\ 
+& \multicolumn{2}{c}{Default} & \multicolumn{2}{c}{Tuned: DVFS} & \multicolumn{2}{c|}{Tuned: DVFS + ITR} \\
+\hline
+
+ & EDP (Js)& TPUT & EDP (Js) & TPUT & EDP (Js) & TPUT \\  
+ \hline
+
+Netpipe: 64 B & $0.486 \pm 0.005$ & $0.150 \pm 0.001$ & $0.349 \pm 0.003$ & $0.185 \pm 0.001$ & $0.240 \pm 0.008$ & $0.226 \pm 0.003$ \\ \hline
+Netpipe: 8 KB & $14.653 \pm 0.206$ & $3.195 \pm 0.023$ & $13.388 \pm 3.604$ & $3.548 \pm 1.043$ & $1.033 \pm 0.007$ & $14.752 \pm 0.046$ \\ \hline
+Netpipe: 64 KB & $28.311 \pm 6.267$ & $19.940 \pm 1.971$ & $26.498 \pm 11.608$ & $21.567 \pm 5.069$ & $10.034 \pm 0.356$ & $36.154 \pm 0.611$ \\ \hline
+Netpipe: 512 KB & $308.329 \pm 1.496$ & $50.855 \pm 0.056$ & $274.978 \pm 0.938$ & $50.485 \pm 0.064$ & $263.681 \pm 0.426$ & $52.422 \pm 0.026$ \\ \hline
+\hline
+\end{tabular}
+%\end{adjustbox}
+\end{center}
+\label{tab:netpipe_linux}
+\end{table*}
+
+%% netpipe ebbrt
+\begin{table*}[t]
+\begin{center}
+%\begin{adjustbox}{angle=90}
+\begin{tabular}{|l|cc|cc|cc||cc|cc||c|} \hline
+
+\multirow{2}{*}{Workload} & \multicolumn{4}{c|}{ebbrt} & \multirow{2}{*}{Net Savings}\\ 
+& \multicolumn{2}{c}{BaseLine} & \multicolumn{2}{c|}{Tuned} &\\
+\hline
+ & EDP (Js)& $TPUT$ & EDP (Js) & $TPUT$ & \\  \hline
+
+Netpipe: 64 B & $0.246 \pm 0.003$ & $0.196 \pm 0.001$ & $0.140 \pm 0.005$ & $0.287 \pm 0.002$ \\ \hline
+Netpipe: 8 KB & $0.597 \pm 0.022$ & $17.625 \pm 0.280$ & $0.511 \pm 0.004$ & $18.961 \pm 0.063$ \\ \hline
+Netpipe: 64 KB & $6.248 \pm 0.013$ & $42.264 \pm 0.034$ & $4.691 \pm 0.009$ & $45.761 \pm 0.026$ \\ \hline
+Netpipe: 512 KB & $224.042 \pm 0.100$ & $54.385 \pm 0.007$ & $206.815 \pm 0.087$ & $54.769 \pm 0.013$ \\ \hline
+
+\hline \hline
+\end{tabular}
+%\end{adjustbox}
+\end{center}
+\label{tab:netpipe_ebbrt}
+\end{table*}
+
+%% nodeJS linux
+\begin{table*}[t]
+\begin{center}
+%\begin{adjustbox}{angle=90}
+\begin{tabular}{|l||cc|cc||cc||c|} \hline
+\multirow{2}{*}{Workload} & \multicolumn{6}{c|}{Linux} & \multirow{2}{*}{Net Savings}\\ 
+& \multicolumn{2}{c}{Default} & \multicolumn{2}{c}{Tuned: DVFS} & \multicolumn{2}{c|}{Tuned: DVFS + ITR} &\\
+\hline
+
+ & EDP (Js)& RPS & EDP (Js) & RPS & EDP (Js) & RPS & \\  \hline
+
+NodeJS: & $14701.049 \pm 124.418$ & $11.932 \pm 0.070$ & $12864.951 \pm 122.798$ & $11.119 \pm 0.086$ & $14766.383 \pm 162.696$ & $13.126 \pm 0.059$ \\ \hline
+
+\hline \hline
+\end{tabular}
+%\end{adjustbox}
+\end{center}
+\end{table*}
+
+%%nodeJS ebbrt
+\begin{table*}[t]
+\begin{center}
+%\begin{adjustbox}{angle=90}
+\begin{tabular}{|l|cc|cc|cc||cc|cc||c|} \hline
+
+\multirow{2}{*}{Workload} & \multicolumn{4}{c|}{ebbrt} & \multirow{2}{*}{Net Savings}\\ 
+& \multicolumn{2}{c}{BaseLine} & \multicolumn{2}{c|}{Tuned} &\\
+\hline
+ & EDP (Js)& RPS & EDP (Js) & RPS & \\  \hline
+
+NodeJS: & $14200.412 \pm 73.321$ & $16.919 \pm 0.601$ & $12634.927 \pm 7.875$ & $16.576 \pm 0.165$ \\ \hline
+
+\hline \hline
+\end{tabular}
+%\end{adjustbox}
+\end{center}
+\end{table*}
+
+
+%% memcached linux
+\begin{table*}[t]
+\begin{center}
+%\begin{adjustbox}{angle=90}
+\begin{tabular}{|l||cc|cc||cc||c|} \hline
+\multirow{2}{*}{Workload} & \multicolumn{6}{c|}{Linux} & \multirow{2}{*}{Net Savings}\\ 
+& \multicolumn{2}{c}{Default} & \multicolumn{2}{c}{Tuned: DVFS} & \multicolumn{2}{c|}{Tuned: DVFS + ITR} &\\
+\hline
+
+ & EDP (Js)& RPS & EDP (Js) & RPS & EDP (Js) & RPS & \\  \hline
+
+Memcached: 200000 rps & $29824.673 \pm 7.121$ & $1987.914 \pm 0.672$ & $37880.483 \pm 36.185$ & $2524.524 \pm 2.412$ & $23855.600 \pm 35.121$ & $1590.373 \pm 2.341$ \\ \hline
+Memcached: 400000 rps & $43064.080 \pm 121.605$ & $2869.982 \pm 8.104$ & $43732.463 \pm 39.602$ & $2914.526 \pm 2.639$ & $26362.600 \pm 45.517$ & $1757.507 \pm 3.034$ \\ \hline
+Memcached: 600000 rps & $58008.190 \pm 69.067$ & $3865.924 \pm 4.603$ & $48437.701 \pm 7.348$ & $3228.104 \pm 0.490$ & $37388.963 \pm 4509.272$ & $2492.597 \pm 300.618$ \\ \hline
+
+
+\hline \hline
+\end{tabular}
+%\end{adjustbox}
+\end{center}
+\end{table*}
+
+%%memcached ebbrt
+\begin{table*}[t]
+\begin{center}
+%\begin{adjustbox}{angle=90}
+\begin{tabular}{|l|cc|cc|cc||cc|cc||c|} \hline
+
+\multirow{2}{*}{Workload} & \multicolumn{4}{c|}{ebbrt} & \multirow{2}{*}{Net Savings}\\ 
+& \multicolumn{2}{c}{BaseLine} & \multicolumn{2}{c|}{Tuned} &\\
+\hline
+ & EDP (Js)& RPS & EDP (Js) & RPS & \\  \hline
+
+Memcached: 200000 rps & $21185.300 \pm 9.297$ & $1412.353 \pm 0.620$ & $21109.500 \pm 33.851$ & $1407.300 \pm 2.257$ \\ \hline
+Memcached: 400000 rps & $22205.150 \pm 27.923$ & $1480.343 \pm 1.862$ & $22132.200 \pm 65.861$ & $1475.480 \pm 4.391$ \\ \hline
+Memcached: 600000 rps & $26413.000 \pm 309.029$ & $1760.867 \pm 20.602$ & $23201.900 \pm 16.807$ & $1546.793 \pm 1.120$ \\ \hline
+
+\hline \hline
+\end{tabular}
+%\end{adjustbox}
+\end{center}
+\end{table*}

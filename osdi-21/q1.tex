@@ -1,0 +1,32 @@
+\subsection{Closed Loop}
+\label{sec:q1}
+\begin{itemize}
+\item Q3: How do different OSes exploit idle periods to halt and save energy?
+\item Q4: How do different tuning impact different OSes?
+\end{itemize}
+
+%Netpipe and nodejs are both single connection closed loop workloads where a dependent relationship exists such that the client can't send the next request until the server responds and vice versa.
+%Figures~\ref{fig:jl_netpipe64}~\ref{fig:jl_nodejs}, demonstrate that for both workloads, minimizing time to finish the work also minimizes energy use given that the amount of work is a fixed constant, further, we find hardware tuning is able to both speed up the time to complete the work and also save energy.
+
+%Using 64 KB message size of netpipe as an example, we found that in tuned Linux, configurations with ITR delay value of 12 \micro s exhibited overall lowest energy uses and one of the lowest times used. We found DVFS did decrease energy as its value decreased but at the expense of increased time. Linux tuned with an ITR delay of 12 \micro s, and DVFS of 0x1400 achieved the minimum EPP for 64 KB message size with a savings of 17\% over default Linux.
+In netpipe at 64 KB message size, we found setting Linux at a ITR, DVFS, and RAPL of (12, 0x1400, 135) was able to achieve EPP savings of 17\% and on the libOS with settings of (6, 0xc00, 135) was able to achieve EPP savings of 60\% over Linux default. While setting a ITR of 12 \micro s in Linux tuned caused a 38\% jump in interrupts (figure~\ref{fig:metrics_netpipe64}), it also increased Linux's C1 sleep state count by 27\%, an indication that quickly finishing each request allowed tuned Linux to idle more. Figure~\ref{fig:joule_netpipe64} also shows that a lowered DVFS value of 0x1400 allows tuned Linux to operate at a energy consumption rate just under Linux default. We believe the majority of libOS' EPP savings over Linux can be attributed to its efficiency and OS path length reductions, which will be further expanded in Section~\ref{sec:q4} below. %
+
+At the other message sizes in netpipe, Linux tuned achieves lower EPP by 16\%-48\%, and the libOS achieves lower EPP by 37\%-70\%. We find that as message size increases, the ITR delay increases from 2 \micro s to a high of 30 \micro s for both systems due to the application bottleneck being moved to the network. The higher ITR delays at the largest message size of 512 KB imply a form of packet coalescing is also being induced in both systems. We found RAPL to play a minimal role in netpipe given its processing light nature and only running on a single core whereas RAPL applies power limiting to the entire processor package.
+
+%While decreasing DVFS does decrease energy, it also increases time, 
+
+%In contrast to Linux, for the libOS we find an ITR delay of 6 \micro s to be where configurations where overall lowest energy use was concentrated, further,
+
+%we find while decreasing DVFS did decrease energy use, it did not result in increases in time. The min EPP of libOS has savings of 60\% over Linux default. 
+Simiarly in the nodejs workload, the ITR delays of the min EPP configurations of Linux tuned and libOS are set at 2 \micro s and 4 \micro s respectively. Given these settings, tuning Linux was able to lower its EPP over Linux default by 16\%, the libOS was able to lower its EPP by 55\%. In both tuned settings, it was a combination of both savings in energy and time that contributed to the overall EPP. We find that in nodejs, effectively polling to finish the work resulted in the min EPP for both tuned Linux and libOS. This is illustrated in figure~\ref{fig:metrics_nodejs}, which shows that the number of halt instructions executed in tuned Linux and libOS was 99\% fewer than Linux default, this implies both tuned systems rarely idled. We found behaviors of polling that were induced differently in Linux and the libOS. In tuned Linux, figure~\ref{fig:metrics_nodejs} shows a increase of interrupts by 50\% over Linux default, we believe these extra interrupts are interferring with Linux's idling algoirthm and is preventing it from going into any sleep states at all, for example, the CPU's C1 sleep state is defined to have a residency value of 2 \micro s, which is the same ITR delay value set for Linux tuned.
+
+%. Past researchers have observed there is a tension between using controls like DVFS and RAPL to throttle energy consumption at some budget versus the savings that can be gained by finishing work quick and halting into idle states between the requests for work \cite{} -this latter strategy is often referred to as "race-to-halt" (r2h).
+
+In order to understand how the libOS polls, we discovered the \textbf{slow-to-stay-busy (s2sb)} effect which uses low processor frequencies as a way to induce polling in run-to-completion paths. This was discovered by noticing dramatic decreases in number of interrupts (up to 100X) in nodejs as DVFS was set to a very low processor frequency. Moreover, we found the bytes transmitted and received did not differ as dramatically from Linux. Upon closer examination of the libOS' receive path, we found the effect of a low DVFS setting is such that application code directly invoked off of an interrupt is being slowed down. Therefore once the code has slowly returned to the interrupt handler, it is possible that new packets have already arrived from the client and ready to be processed. We believe the polling behavior in libOS is both induced by its low ITR of 4 \micro s and the s2sb effect.
+%Moreover, the libOS' receive code is written such that it will poll the NIC for additional packets up to a certain limit. 
+
+
+
+%The effect of low DVFS on a run-to-completion based OS is inducing this form of polling, which is based outside of its original intended design. 
+
+%At the other message sizes in netpipe(6 B, 8 KB, 512 KB), Linux tuned achieves lower EPP by 16\%- 48\%, and the libOS achieves lower EPP by 37\%-70\%. We find that as message size increases, the ITR delay increases from a low of 2 \micro s to a high of 30 \micro s for both systems due to the application bottleneck being moved to the network. The higher ITR delays at the largest message size of 512 KB imply a form of packet coalescing is also being induced in both systems. We found RAPL to play a minimal role in netpipe given its processing light nature and only running on a single core whereas RAPL applies power limiting to the entire processor package.

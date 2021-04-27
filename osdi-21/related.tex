@@ -1,0 +1,44 @@
+\section{Related Work}
+\label{sec:related}
+
+Tuning hardware parameters such as RAPL and DVFS and studying the energy saving potential on various workloads have been the focus of past studies. In~\cite{10.1145/3177754, zhang2015quantitative}, the authors measured the application of RAPL power limiting under various processor and memory bound applications. In another study~\cite{10.1145/3302424.3303981}, the authors did a combination sweep of DVFS and RAPL values on a set of workloads with the goal of delivering power proportionality on co-located applications. While these studies did not focus on network bound application, they helped to the motivate our decisions to study these two parameters.
+
+Recent works have also studied energy proportional computing under strict SLA objectives when applied to in-memory key-value stores~\cite{10.1145/2678373.2665718, 10.1145/2806777.2806848}. They developed dynamic policies, such as fine tuning CPU frequency via DVFS or via statically searching a large space and removing CPU cores alongside RAPL to lower overall power usage while maintaing SLA objectives during periods of low system load.
+Similarly, rubik~\cite{rubik} dynamically changes DVFS values on a per request basis in memcached to satisfy SLA objectives while using minimum energy. Our study in tuning memcached takes advantage of this by per packet interrupt-delay mechanism to further trade-off tail latency and SLA. The authors in ~\cite{10.1145/2806777.2806848} also looked at energy savings in the context of a specialized library OS for memcached, however, their measurements were taken in a virtualized environment while we used a baremetal library OS. Compared to these previous studies, one of our main contributions is on developing a new way to understand the impact of hardware tuning on systems and systems software when under a network load at a fine granularity on a per interrupt basis.
+
+Other works also emphasized the importance of taking advantage of sleep states to save energy. In powernap~\cite{powernap}, the authors built a system that rapidly transitions from high performance mode to sleep mode. Unfortunately, this requires hardware features that are mostly found in mobile processors, and required new hardware features such as new sleep states, DRAM self-refresh ability, NIC Wake-On-LAN features, and tuning variable speed fans. In~\cite{10.1145/2024723.2000103}, the authors characterized energy use from a web search example under a set of different DVFS values and sleep states. Using this model, they explored power-performance trade-offs. The authors hypothesized that there should be holistic system optimization of processors, memory and storage towards this energy proportional goal. Our results in tuning processor and NIC parameters lends credence to their proposal, further, the efficiency of the library OS to transition rapidly to deeper states shows that the OS will play an important role.
+
+%There is a proliferation of new \textit{smart} hardware, such as NICs~\cite{netronome, mellanoxsnic}, SSDs~\cite{biscuit}, and memory~\cite{dpu}, that bring computation closer to the data~\cite{neardataprocess, ndp1} and potentially improve overall application energy efficiency. Subsequently, these devices are expected to join the existing plethora of programmable accelerators~\cite{msrfpga, tpu} within a modern datacenter~\cite{silberstein1}. One potential problem posed by this diversity is the number of new knobs that are exposed to developers and how to better specialize towards their application. In this work, the benefits we show in tuning three hardware parameters stresses the importance in exposing more of these hardware knobs.
+
+%Modern hardware has many setting that can interact with the software to affect power consumption and performance. Ideally one wants to find an optimal point for your hardware, software and workload that minimizes the energy to achieve the desired work with requisite time constraints. 
+
+%Others have demonstrated the value of tuning hardware to improve the energy efficiency. 
+
+
+%Measure RAPL under various benchmarks, not network based application~\cite{}. Did a sweep of DVFS + RAPL on a set of workloads CPU, memory workload. Goal to deliver proportional power to different workloads co-located on same server ~\cite{}
+
+%History of energy proportional computing -- race to halt vs other strategies.
+
+%Provide a brief tutorial on hardware knobs and meters -- rack level versus board, versus socket. power capping, dvfs, etc.
+
+%Provide a brief review of what folks have done to explore how to optimize by changing settings.
+
+%Acknowledge that clearly one might also take more aggressive approaches to rewriting the software to improve energy efficiency.  This is of course an important and fruitful approach it is however not our focus.  Rather todays system software expose hardware setting and also have built in policies for optimizing energy.  Eg.  Policies for selecting sleep states when idill, Attempting to delay interrupts to adjust to rate of offered load, etc.
+
+
+
+%Our work leads credence to their proposal by demonstrating a new aspect of NIC tuning that can be used. Overall, we do believe our work can co-exist with these other approaches as another layer on top of enabling better system efficiency while meeting SLA objectives in OLDI workloads.
+
+%There has been a large body of work in understanding complexity of device drivers~\cite{Kadav:2012:UMD:2150976.2150987} and various aspects of their reliability~\cite{Ball:2006:TSA:1217935.1217943, LeVasseur:2004:UDD:1251254.1251256, Ryzhyk:2009:DTD:1519065.1519095}, configuration~\cite{Renzelmann:2009:DMD:1855807.1855821, Ryzhyk:2014:UDD:2685048.2685101, Schupbach:2011:DLA:1950365.1950382}, and performance~\cite{Ganapathy:2008:DIM:1346281.1346303, Ryzhyk:2010:CAD:1851276.1851283}. The focus is mainly on device driver interface exposed to systems software, usually in order to provide a unified way to synthesize device drivers across different hardware and reduce code complexity while improving fault tolerance. While we do not address the inherent complexity in device drivers, our work shows the benefits if device driver interfaces are more accessibile towards application writers by exposing more hardware knobs that are easily tunable.
+
+%Similarly, there have been past projects to enable developers to make better use of NIC features by exposing NICs in a programmable way: FlexNIC~\cite{flexnic} enables dynamic modification of RSS rules to better load balance in Memcached, Affinity-Accept~\cite{affinityaccept} uses the Flow Director capability on IXGBE NICs in order to ensure TCP connections are always affinitized to the same core. Our work is inspired by these approaches in taking an advantage of another feature on the same Intel 82599 family of NICs and using it in a way that is more amenable towards an applications' energy goal.
+
+%\begin{itemize}
+%    \item Lo et al~\cite{10.1145/2678373.2665718} - Dynamic RAPL policy to reduce energy usage of Memcached without violating SLA objectives. Did not use DVFS dynamic policy as p-state transitions caused latency spikes.
+%    \item Meisner et al~\cite{powernap} - 
+%    \item Meisner et al~\cite{10.1145/2024723.2000103} - Characterized energy use of a web search example under a set of different DVFS and sleep states. Using this model, explored power-performance tradeoffs in OLDI workloads. Seems main conclusion is that there needs to be coordinated approach of CPU, memory, storage, NIC to achieve power portionality in OLDI workloads.
+%    \item Prekas et al~\cite{10.1145/2806777.2806848} - Explored up to 224 possible configurations of core allocation, hyperthreads, DVFS, Turbo Boost to measure energy usage of Memcached. Developed a dynamic policy to adjust settings above to maintain SLA while decreasing energy usage in Memcached. Implemented policy in Linux and IX (a virtualized unikernel) and compared both.
+ %   \item Kasture et al~\cite{rubik} - System that dynamic changes DVFS setting on a per request basis in Memcached to satisfy SLA while using minimal power.
+%    \item Measure RAPL under various benchmarks, not network based application~\cite{10.1145/3177754, zhang2015quantitative}
+%    \item Guliani et al~\cite{10.1145/.3303981} - Did a sweep of DVFS + RAPL on a set of workloads CPU, memory workload. Goal to deliver proportional power to different workloads co-located on same server.
+%\end{itemize}

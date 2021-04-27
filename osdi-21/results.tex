@@ -1,0 +1,121 @@
+\section{Results}
+\label{sec:results}
+
+For every application used in our experiments, we label results from the  three \textit{systems} as:
+%In our results below, we present data points for three main systems in each application workload:
+\begin{itemize}
+    \item \textbf{Linux Default} refers to normal Linux where both the interrupt-delay and DVFS values are set by their dynamic policy.
+    \item \textbf{Linux Tuned} and \textbf{Library OS Tuned} refer to Linux and the libOS where the hardware parameters are statically tuned such that EPP is minimized.
+\end{itemize}
+
+\subsection{Netpipe}
+\label{sec:results:netpipe}
+\input{netpipe_results}
+
+\subsection{NodeJS}
+\label{sec:results:nodejs}
+\input{nodejs}
+
+\subsection{Memcached}
+\label{sec:results:mcd}
+\input{memcached_results2}
+
+\subsection{Memcached-Silo}
+\label{sec:results:mcdsilo}
+\input{memcachedsilo_results}
+
+%% \begin{figure}
+%%   \includegraphics[width=\columnwidth]{asplos2021_figures/mcdsilo_sla.pdf}
+%%   \label{fig:mcdsilo_sla}
+%%   \caption{Memcached-Silo 99\% tail latency < 500 us SLA}
+%% \end{figure}
+
+
+%% \begin{figure}
+%%   \includegraphics[width=\columnwidth]{asplos2021_figures/mcdsilo_edp_aggregated_qps50000.png}
+%%   \label{fig:mcdsilo50K}
+%% \end{figure}
+
+%% \begin{figure}
+%%   \includegraphics[width=\columnwidth]{asplos2021_figures/mcdsilo_edp_aggregated_qps100000.png}
+%%   \label{fig:mcdsilo100K}
+%% \end{figure}
+
+%% \begin{figure}
+%%   \includegraphics[width=\columnwidth]{asplos2021_figures/mcdsilo_edp_aggregated_qps200000.png}
+%%   \label{fig:mcdsilo200K}
+%% \end{figure}
+
+%\begin{figure}
+%	\includegraphics[width=\columnwidth]{asplos2021_figures/netpipe_energy_8192.png}
+%\vspace{in}
+	%\caption{netpipe 64 KB energy plot}
+%	\label{fig:netpipe8K}
+%	\vspace{-.2in}
+%\end{figure}	
+%\begin{figure}%
+	%\includegraphics[width=\columnwidth]{asplos2021_figures/netpipe_instructions_8192.png}
+	%\caption{netpipe Linux 64K Message }
+	%\label{fig:netpipe64K}
+%	\vspace{-.2in}
+%\end{figure}
+%\begin{figure}
+	%\includegraphics[width=\columnwidth]{asplos2021_figures/netpipe_instructionsperjoule_8192.png}
+	%\label{fig:}
+%\end{figure}
+%\begin{figure}
+%	\includegraphics[width=\columnwidth]{asplos2021_figures/netpipe_txbytes_8192.png}
+%	\label{fig:}
+%\end{figure}
+
+%\begin{itemize}
+    
+%\item Tables~\ref{tab:netpipe_linux} and \ref{tab:netpipe_ebbrt} summarizes the tuned results for NetPipe in Linux and EbbRT. This table demonstrates the EDP efficiencies when tuning the aforementioned hardware knobs. Figure~\ref{fig:netpipe_tput} also shows that tuning itr-delay results in improved performance gains in a workload where there exists a tightly bound nature of ping-ponging fixed sized packets between two nodes. 
+    
+%\item For any of the experimental configurations (Default, Tuned: DVFS, Tuned: DVFS + ITR), as MSG increases, both EDP and TPUT increase. This is expected since for larger MSG sizes, more packets are processed resulting in both a higher time, T and higher energy consumption, E. Throughput is defined to be the total amount of data transferred divided by the total time. Since our network bandwidth is greater than the bandwidth required by the highest message size to transmit, and since NetPipe involves almost no compute-heavy work, the time taken doesn't scale linearly with MSG resulting in higher throughput values. [MAKE CLEAR, REF TO TPUT SCAN]
+    
+%\item For Linux, tuning DVFS results in significant improvements over the Default case and tuning both ITR and DVFS results in even more EDP gains. These improvement either maintain or significantly improve the workload efficiency metric, which in this case is Throughput.
+%    \begin{itemize}
+    
+%        \item For 64B, tuning DVFS results in an EDP improvement of XX\% and tuning both ITR and DVFS results in an EDP improvement of YY\% over the Default case. These gains not only do not make the TPUT worse (lower) but actually lead to a more efficient queueing system with a TPUT improvement of XX\% (DVFS) and YY\% (ITR + DVFS).
+        
+%        \item For 8KB, tuning DVFS results in an EDP improvement of XX\% and tuning both ITR and DVFS results in an EDP improvement of YY\% over the Default case. These gains not only do not make the TPUT worse (lower) but actually lead to a more efficient queueing system with a TPUT improvement of XX\% (DVFS) and YY\% (ITR + DVFS).
+        
+%        \item For 64KB, tuning DVFS results in an EDP improvement of XX\% and tuning both ITR and DVFS results in an EDP improvement of YY\% over the Default case. These gains not only do not make the TPUT worse (lower) but actually lead to a more efficient queueing system with a TPUT improvement of XX\% (DVFS) and YY\% (ITR + DVFS).
+        
+%        \item For 512KB, tuning DVFS results in an EDP improvement of XX\% and tuning both ITR and DVFS results in an EDP improvement of YY\% over the Default case. TPUT does get a bit worse by tuning DVFS but the effect is negligible at -0.7\%. Furthermore, tuning ITR and DVFS leads to an improved TPUT.
+%        \item
+%    \end{itemize}
+    
+ %   \item For EbbRT
+  %      \begin{itemize}
+   %         \item Running the same configuration as the best (lowest EDP) Linux configuration (BaseLine), results in lower EDP values for all but the 64B case. This strongly demonstrates the advantages of a simpler OS structure in tuning performance. For the 64B case, the OS structure is less relevant given the negligible processing [MAKE CLEAR]. The same gains can be seen in TPUT values [GIVE SOME NUMBERS].
+            
+    %        \item Tuning and searching across both ITR and DVFS values always leads to savings in EDP ranging from XX\% at the lower end (512KB) to YY\% at the higher end (64B). TPUT also sees improvements from XX\% (KB) to YY\% (KB).
+     %   \end{itemize}
+%\end{itemize}
+
+%NOTE about additional impact of ITR not just DVFS -> compare to previous results?
+
+
+
+
+%\subsection{NodeJS}
+
+
+%\begin{figure}
+%	\includegraphics[width=\columnwidth]{figures/nodejs_c1_dyn_stat.png}
+%	\vspace{-.3in}
+%	\caption{EDP: Node.js Linux 1 Connection }
+%	\label{fig:netpipe}
+%	\vspace{-.2in}
+%\end{figure}
+
+%\subsection{Memcached}
+
+
+
+%\input{baselines}
+
+%\input{tuning}
+
