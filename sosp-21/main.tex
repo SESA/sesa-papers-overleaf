@@ -1,0 +1,39 @@
+\documentclass[sigplan,10pt]{acmart}
+\renewcommand\footnotetextcopyrightpermission[1]{}
+\pagestyle{plain}
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    \normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
+    
+%%
+%% end of the preamble, start of the body of the document source.
+\begin{document}
+
+%%
+%% The "title" command has an optional parameter,
+%% allowing the author to define a "short title" to be used in page headers.
+\title{Trade-offs in slowing down network driven workloads}
+
+\settopmatter{printfolios=true}
+
+%%
+%% This command processes the author and affiliation and title
+%% information and builds the first part of the formatted document.
+\maketitle
+
+\section{Introduction}
+
+\section{Experiment Setup}
+\input{exp_setup}
+
+\section{Related Work}
+\input{related}
+
+%%
+%% The next two lines define the bibliography style to be used, and
+%% the bibliography file.
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+
+\end{document}
+\endinput

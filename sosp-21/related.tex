@@ -1,0 +1,143 @@
+\label{sec:related}
+
+% we ask questions regarding OS role in energy proportional computation
+The questions that our investigation sparked
+fall within a wider space of research
+on the impact of OS design
+and hardware and software policies
+on the incessant goal of energy proportional computation in datacenters
+%cite energy proportionality pioneer work:
+~\cite{energyproportion, warehouse-power}.
+Much of this research stems from
+the challenges of improving the performance of
+network-bound datacenter workloads
+like MapReduce~\cite{large-scale-mapreduce}
+and in-memory key-value stores~\cite{mica, zygos}
+while keeping energy consumption at bay.
+These challenges can be attributed to
+the complex diurnal trends
+that are characteristic of datacenter-level utilization,
+whereby idle time is common and must be optimized for
+~\cite{hotpower2008, powernap, napsac}
+while simultaneously maintaining the ability to support high-utilization peaks and strict latency constraints
+~\cite{Dynamo, SmoothOperator, oldi-pegasus, adrenaline, ixcp, rubik, eurosys14, zygos}.
+%smoothoperator
+%characterize power fragmentation
+%design clstering based approach 
+
+
+
+There is a wide range of work
+that targets energy proportionality
+with a focus on designing OS policies and mechanisms for power management.
+Most of this work presents hardware level optimizations
+that manipulate active power states (P-states) %cite: p states
+and idle power states (C-states) %cite: c states
+by applying feedback control mechanisms %cite
+and relying on activity models. %cite
+%p-states: active power states
+Dynamo~\cite{Dynamo}, IX Control Plane~\cite{ixcp}, Pegasus~\cite{oldi-pegasus}, Adrenaline~\cite{adrenaline}, and Rubik~\cite{rubik}
+present implementations
+that use DVFS %cite
+and RAPL %cite
+to tune power-draw.
+%smoothoperator?
+The authors of ~\cite{heracles} and ~\cite{PerAppPower} go a step further,
+exploring and characterizing the interference of co-located
+latency-critical versus best-effort tasks
+and high versus low CPU demand tasks
+when subject to energy tuning via DVFS and RAPL.
+In doing so,
+they highlight limitations
+in using hardware features alone for power management.
+Similarly, the authors of ~\cite{hotpower2008}
+identify a need to step away
+from relying entirely on hardware solutions
+and focusing instead on software optimizations,
+such as VM migration controllers for power management of an ensemble of nodes.
+%c-states: idle power states
+
+
+
+%notable limitations of p-states and c-states
+\cite{oldi-study} presents some of the limitations of
+restricting power management to hardware tuning,
+and \cite{powercap} compares the merits and limitations of
+different hardware and software power management techniques.
+These results led us to question
+the power management of OS-centric and application-centric tasks
+during idle and active utilization
+and the majority of time spent in between.
+The system is often not idle but only slightly busy,
+yet system sleep states present a challenge in
+resuming high activity in response to sudden bursts
+while system polling maintains support for high activity
+but degrades energy efficiency.
+%Such challenges motivate research
+%on hybrid OS solutions for energy proportional datacenter computation.
+In response to this paradox,
+the authors of \cite{oldi-pegasus} define an iso-latency policy
+that aims to maintain energy proportionality
+at variable, dynamically shifting activity levels
+via OS-level optimizations.
+
+Though research efforts present significant energy savings
+from well designed dynamic policies
+and carefully chosen static configurations,
+we are driven to explore the space beyond current findings,
+with a focus on unveiling the role of the OS
+in exploiting activity and idleness.
+We find that this exploration is timely
+given the range of work on optimizing software components,
+from NIC driver mechanisms~\cite{flexnic, affinityaccept, network-latency}
+to the OS network stack~\cite{mtcp, sandstorm, network-latency}
+and dataplane~\cite{ix, ixOS, arrakis},
+for energy-efficient large-scale computation.
+%INJECT MOTIVATION
+Hence we consider an OS-level study
+with an interrupt-centric experimental methodology (see \S~\ref{sec:log_collect}) 
+for exploring idleness, activity, and the dynamic lapses in between.
+
+
+
+%INJECT CONTRIBUTION
+This work
+started with a motivation to study the impact
+of a NIC hardware parameter, ITR-delay,
+alongside well studied DVFS and RAPL parameters~\cite{rapl2015, rapl2018},
+on energy consumption
+of a baremetal libOS in contrast to general purpose Linux.
+We wished to quantify the benefits that a libOS,
+specialized and optimized for network-bound work,
+can have on energy proportionality.
+Our efforts concluded with several interesting findings,
+one of which is the realization of a potential hybrid solution
+for manipulating system idle time in our libOS,
+whereby the OS switches from interrupt-driven
+%(which assumes clear separation of idle and busy activity)
+to polling-driven execution
+%(which takes a more intermediary position)
+under particular hardware energy configurations.
+%add result: less interrupts? more energy saving? better performance?
+These findings would not have come to light
+were it not for the structure of the libOS
+and its particular event-driven execution model~\cite{seda, unikernels}.
+%ebbrt
+They help us assert that we cannot disregard the OS
+as a constituent contributer to application performance and overall cycles-per-instruction (CPI).
+
+%			
+%when limitations are reached,
+%OS level software optimizations
+%--> vm migration
+%--> nic controllers
+%--> network stacks (libOSes and appliances)
+%--> dataplane separation from control plane (ix, arrakis)
+
+
+%INJECT MOTIVATION
+%now the impact of OS path lengths and low level OS behavior becomes primary target for research
+%--> hence our motivation for this detailed study of libOS performance vs general purpose linux performance
+%--> particularly with emphasis on network and data bound performance
+
+ 
