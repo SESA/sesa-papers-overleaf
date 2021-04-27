@@ -339,7 +339,13 @@ We posit that application execution can benefit greatly from eliminating the int
 
 \subsubsection{Library OS}
 \label{sec:OS_libos}
-We use an existing libOS with specialized components\footnote{ All components are multi-core functional and optimized to aggressively use per-core memory and fine grain locking.}, including a NIC driver, a custom TCP/IP stack, virtual and physical memory allocators\footnote{Memory allocators make aggressive use of large pages and pinned memory to avoid page-faults.}, and a generic I/O buffer\footnote{I/O buffers are designed to enable zero-copy application data processing.} The library OS is packaged as a library of configurable modules and \textit{gcc-5.3.0}-based tool-chain targeting the base components of the OS. Applications are ported to it by configuring the necessary OS components and compiling the application source along with any dependent libraries using this tool-chain. This process generates a single application-specific binary that is source and link-optimized with the OS code. Prior studies have indicated the benefits of both compile-time and link-time optimization on library OS function dispatching~\cite{ebbrt}. We built a baremetal port of the libOS by writing a network device driver for the Intel 82599 NIC. Our bare-metal port enables application-specific binaries to boot directly on our hardware platform. Once booted, OS and application code is executed under a single supervisor privilege domain. The library OS strictly adopts a run-to-completion, event-driven execution model\footnote{All event handlers are run with interrupts disabled and are expected to return back to the event loop.} and bears similarity to other library OSes designed for high-performance network services\cite{ix,seda,arrakis,ebbrt}. Given the design and implementation for single-application, non-preemptive processing via an optimized OS and application binary, the library OS components can avoid many checks and streamline execution, ranging from interrupt dispatch to application logic. The NIC device driver totals over 3000 lines of code and interfaces with the library OS multicore TCP/IP network stack\footnote{The device driver programs the NIC using per-cpu queues and interrupts, maintaining the affinity of TCP connections to their respective cores.}. It inherently does not have a dynamic policy for updating ITR-delay values, but does provide an interface for statically setting them. We use this interface in our study as we sweep across hardware parameter values. The baremetal library OS follows a simple implementation and idling behavior. If no interrupt events or software events exist, the event-loop of the library OS infers that the system is idle and halts the core to enter the deepest sleep state supported by our hardware (C7). In contrast, upon receival of a packet, the device driver management code, protocol processing code, and application code can be dispatched and run to completion on a single event triggered by a NIC interrupt. The NIC driver also exposes a configurable constant (set to 64 for all our experiments) that is used to control how many packets can be processed in a single interrupt invocation before returning to the event-loop of the core on which the interrupt was processed. This behaviour, in turn, introduces a simple bounded per-cpu device-level poll. The libOS idling and device-polling policies are simple compared to Linux policies. Our study reveals the contrast between these library OS policies and those applied by Linux through presenting a detailed quantification of execution trends and power events. It uncovers surprising impacts of OS functionality on overall system execution and yields insight on OS-level adaptations for energy-performance goals.
+We use an existing libOS with specialized components\footnote{ All components are multi-core functional and optimized to aggressively use per-core memory and fine grain locking.}, including a NIC driver, a custom TCP/IP stack, virtual and physical memory allocators\footnote{Memory allocators make aggressive use of large pages and pinned memory to avoid page-faults.}, and a generic I/O buffer\footnote{I/O buffers are designed to enable zero-copy application data processing.} The library OS is packaged as a library of configurable modules and \textit{gcc-5.3.0}-based tool-chain targeting the base components of the OS. 
+
+Applications are ported to it by configuring the necessary OS components and compiling the application source along with any dependent libraries using this tool-chain. This process generates a single application-specific binary that is source and link-optimized with the OS code. Prior studies have indicated the benefits of both compile-time and link-time optimization on library OS function dispatching~\cite{ebbrt}. We built a baremetal port of the libOS by writing a network device driver for the Intel 82599 NIC. Our bare-metal port enables application-specific binaries to boot directly on our hardware platform. Once booted, OS and application code is executed under a single supervisor privilege domain. The library OS strictly adopts a run-to-completion, event-driven execution model\footnote{All event handlers are run with interrupts disabled and are expected to return back to the event loop.} and bears similarity to other library OSes designed for high-performance network services\cite{ix,seda,arrakis,ebbrt}. 
+
+Given the design and implementation for single-application, non-preemptive processing via an optimized OS and application binary, the library OS components can avoid many checks and streamline execution, ranging from interrupt dispatch to application logic. The NIC device driver totals over 3000 lines of code and interfaces with the library OS multicore TCP/IP network stack\footnote{The device driver programs the NIC using per-cpu queues and interrupts, maintaining the affinity of TCP connections to their respective cores.}. It inherently does not have a dynamic policy for updating ITR-delay values, but does provide an interface for statically setting them. We use this interface in our study as we sweep across hardware parameter values. 
+
+The baremetal library OS follows a simple implementation and idling behavior. If no interrupt events or software events exist, the event-loop of the library OS infers that the system is idle and halts the core to enter the deepest sleep state supported by our hardware (C7). In contrast, upon receiving a packet, the device driver management code, protocol processing code, and application code can be dispatched and run to completion on a single event triggered by a NIC interrupt. The NIC driver also exposes a configurable constant (set to 64 for all our experiments) that is used to control how many packets can be processed in a single interrupt invocation before returning to the event-loop of the core on which the interrupt was processed. This behaviour, in turn, introduces a simple bounded per-cpu device-level poll. The libOS idling and device-polling policies are simple compared to Linux policies. %Our study reveals the contrast between these library OS policies and those applied by Linux through presenting a detailed quantification of execution trends and power events. It uncovers surprising impacts of OS functionality on overall system execution and yields insight on OS-level adaptations for energy-performance goals.
 
 
 %-----------------------------
@@ -384,94 +390,94 @@ and {\em CPU} indicates application CPU demand.}
 \label{table:wrkcfgs}	
 \end{table}
 
-\subsection{Application Software and Workloads}
-\label{sec:apps}
-%\input{performance_data}
-In this subsection, we describe in greater detail the four network-bound workloads that we target and their respective attributes. We present netpipe and nodejs as closed-loop experiments due to the fact that their performance (i.e. throughput) is dependent on the responsiveness of constituent server and client threads. In contrast, we present memcached and memcached-silo as open-loop experiments, as their performance boils down to the ability of their server threads to maintain a 99\% response tail latency under 500 {\micro}s under some offered load. Netpipe and memcached are OS-centric workloads by virtue of their computationally light application logic and reliance on OS functionality. In contrast, nodejs and memcached-silo as application-centric workloads, as their runtime and application logic are more computationally intensive.
+% \subsection{Application Software and Workloads}
+% \label{sec:apps}
+% %\input{performance_data}
+% In this subsection, we describe in greater detail the four network-bound workloads that we target and their respective attributes. We present netpipe and nodejs as closed-loop experiments due to the fact that their performance (i.e. throughput) is dependent on the responsiveness of constituent server and client threads. In contrast, we present memcached and memcached-silo as open-loop experiments, as their performance boils down to the ability of their server threads to maintain a 99\% response tail latency under 500 {\micro}s under some offered load. Netpipe and memcached are OS-centric workloads by virtue of their computationally light application logic and reliance on OS functionality. In contrast, nodejs and memcached-silo as application-centric workloads, as their runtime and application logic are more computationally intensive.
 
-\subsubsection{NetPIPE}
-NetPIPE~\cite{snell1996netpipe} 
-involves sending messages of identical size between two systems via a single network connection for a fixed number of iterations. We fix the iteration count at 5000 and show results for a range of message sizes\footnote{We found that the 10 GB link is close to saturation when a message of size greater 700 KB is exchanged.}.
+% \subsubsection{NetPIPE}
+% NetPIPE~\cite{snell1996netpipe} 
+% involves sending messages of identical size between two systems via a single network connection for a fixed number of iterations. We fix the iteration count at 5000 and show results for a range of message sizes\footnote{We found that the 10 GB link is close to saturation when a message of size greater 700 KB is exchanged.}.
 
-%Using various message sizes with the netpipe application and configuring both sides with the same OS and hardware parameters allows one to expose the OS impacts on network communications in a controlled fashion.
+% %Using various message sizes with the netpipe application and configuring both sides with the same OS and hardware parameters allows one to expose the OS impacts on network communications in a controlled fashion.
 
-\subsubsection{NodeJS}
+% \subsubsection{NodeJS}
 
-NodeJS~\cite{nodejs} runs a JavaScript HTTP Webserver and consists of a single client, running the \textit{wrk}~\cite{wrk} benchmark\footnote{We modified \textit{wrk} to place a fixed request load of 100K.}, that sends web requests to a server thread for a fixed period of time via a single network connection. The server responds to each request with a small static payload of size 148 bytes. The library OS was ported to support baremetal NodeJS by providing OS interfaces that link with the V8~\cite{v8} JavaScript engine and libuv~\cite{libuv}.
+% NodeJS~\cite{nodejs} runs a JavaScript HTTP Webserver and consists of a single client, running the \textit{wrk}~\cite{wrk} benchmark\footnote{We modified \textit{wrk} to place a fixed request load of 100K.}, that sends web requests to a server thread for a fixed period of time via a single network connection. The server responds to each request with a small static payload of size 148 bytes. The library OS was ported to support baremetal NodeJS by providing OS interfaces that link with the V8~\cite{v8} JavaScript engine and libuv~\cite{libuv}.
 
-%In contrast to netpipe, the workload is not fixed and performance is measured
-%in requests-per-second once the benchmark has finished running. Further, a
-%nodejs web server is computationally heavier than netpipe.
+% %In contrast to netpipe, the workload is not fixed and performance is measured
+% %in requests-per-second once the benchmark has finished running. Further, a
+% %nodejs web server is computationally heavier than netpipe.
 
-\subsubsection{Memcached}
-Memcached~\cite{mcd} is a multi-threaded workload that runs on all 16 cores of any one of our server nodes. It consists of an unloaded client node running mutilate~\cite{mutilate}. This client (1) coordinates with five other mutilate agent nodes in order to generate requests to the server and (2) measures tail latency of all requests made. All five agent nodes are 16-core machines, whereby each core creates 16 connections, for a total of 1280 connections. This setup is able to saturate the single 16-core server\footnote{Mutilate is configured to pipeline up to four connections to further increase its request rate.}. Our library OS uses a re-implemented version of memcached, written to the OS's interfaces, which supports the standard memcached binary protocol. To alleviate lock contention, an RCU hashtable is used to store key-value pairs. We run a representative load from Facebook~\cite{workloadanalysisfacebook} (ETC) which represents the highest capacity deployment. It uses 20 - 70 byte keys and 1 byte to 1 KB values and contains 75\% GET requests.
+% \subsubsection{Memcached}
+% Memcached~\cite{mcd} is a multi-threaded workload that runs on all 16 cores of any one of our server nodes. It consists of an unloaded client node running mutilate~\cite{mutilate}. This client (1) coordinates with five other mutilate agent nodes in order to generate requests to the server and (2) measures tail latency of all requests made. All five agent nodes are 16-core machines, whereby each core creates 16 connections, for a total of 1280 connections. This setup is able to saturate the single 16-core server\footnote{Mutilate is configured to pipeline up to four connections to further increase its request rate.}. Our library OS uses a re-implemented version of memcached, written to the OS's interfaces, which supports the standard memcached binary protocol. To alleviate lock contention, an RCU hashtable is used to store key-value pairs. We run a representative load from Facebook~\cite{workloadanalysisfacebook} (ETC) which represents the highest capacity deployment. It uses 20 - 70 byte keys and 1 byte to 1 KB values and contains 75\% GET requests.
 
-%While the library OS's implementation does lack some additional features,
-%such as authentication and other commands,
-%it is functional enough to support the mutilate benchmark.
+% %While the library OS's implementation does lack some additional features,
+% %such as authentication and other commands,
+% %it is functional enough to support the mutilate benchmark.
 
-\subsubsection{Memcached-Silo}
-Memcached-silo~\cite{mcdsilo, zygos} is a workload built on top of the normal memcached protocol. It is computationally complex as it encorporates both latency-sensitive network compute and memory-intensive TPC-C style transaction processing. We port the memcached-silo implementation to our library OS. The configuration and SLA constraints of memcached-silo follow from those of memcached. Given its computationally heavier nature, we only needed two 16-core server nodes at 16 connections per core to saturate our memcached-silo server.
+% \subsubsection{Memcached-Silo}
+% Memcached-silo~\cite{mcdsilo, zygos} is a workload built on top of the normal memcached protocol. It is computationally complex as it encorporates both latency-sensitive network compute and memory-intensive TPC-C style transaction processing. We port the memcached-silo implementation to our library OS. The configuration and SLA constraints of memcached-silo follow from those of memcached. Given its computationally heavier nature, we only needed two 16-core server nodes at 16 connections per core to saturate our memcached-silo server.
 
 
-\subsection{Hardware Parameter Sweeping}
-\label{sec:hw_tuning}
-Section~\ref{sec:knobs} lists the ranges of values with which we tune hardware parameters. For each application, we further reduce the set of thse values based on small experiments that we run a priori. This experimental customization allows us to ensure that (1) increasing ITR-delay and lowering DVFS processor frequency does not bring about SLA violations for the memcached applications, and (2) lowering RAPL power limits does not cause the application and/or overall system to crash. Table~\ref{table:wrkcfgs} lists all different hardware configurations for every target workload. For NodeJS, Memcached, and Memcached-Silo, we apply hardware configuration on the server side only. For all target hardware configurations, we repeat every experiment 10 times to ensure statistical stability. \textbf{Netpipe}: We select four representative message sizes (64B, 8KB, 64KB, and 512KB) with a fixed round trip of 5000 iterations.  As NetPIPE consists of the same binary running as a client and a server, we configure ITR-delay to be the same in both client and server nodes. \textbf{NodeJS}: We use the \textit{wrk}~\cite{wrk} benchmark to place load on the nodejs server with 100K requests. \textbf{Memcached}: We use Mutilate~\cite{mutilate} to generate three different requests-per-second (QPS) rates of 200K, 400K and 600K, for a fixed period of 20 seconds each. \textbf{Memcached-Silo}: We use lower QPS rates of 50K, 100K, and 200K to account for increased computational load per request.
+% \subsection{Hardware Parameter Sweeping}
+% \label{sec:hw_tuning}
+% Section~\ref{sec:knobs} lists the ranges of values with which we tune hardware parameters. For each application, we further reduce the set of thse values based on small experiments that we run a priori. This experimental customization allows us to ensure that (1) increasing ITR-delay and lowering DVFS processor frequency does not bring about SLA violations for the memcached applications, and (2) lowering RAPL power limits does not cause the application and/or overall system to crash. Table~\ref{table:wrkcfgs} lists all different hardware configurations for every target workload. For NodeJS, Memcached, and Memcached-Silo, we apply hardware configuration on the server side only. For all target hardware configurations, we repeat every experiment 10 times to ensure statistical stability. \textbf{Netpipe}: We select four representative message sizes (64B, 8KB, 64KB, and 512KB) with a fixed round trip of 5000 iterations.  As NetPIPE consists of the same binary running as a client and a server, we configure ITR-delay to be the same in both client and server nodes. \textbf{NodeJS}: We use the \textit{wrk}~\cite{wrk} benchmark to place load on the nodejs server with 100K requests. \textbf{Memcached}: We use Mutilate~\cite{mutilate} to generate three different requests-per-second (QPS) rates of 200K, 400K and 600K, for a fixed period of 20 seconds each. \textbf{Memcached-Silo}: We use lower QPS rates of 50K, 100K, and 200K to account for increased computational load per request.
 
-\subsection{Performance Baselines}
-In order to create a context for analyzing our experimental results, we initially run the workloads in a more traditional manner: under hardware configurations that yield the best performance independent of energy consumption. For workloads running in tuned Linux and our library OS, we identify these performance-centric hardware configurations during our sweep of parameter values. This step is critical for establishing baseline energy-performance profiles for the different OS/workload pairs. Such baselines provide our study with relevant comparison points.
+% \subsection{Performance Baselines}
+% In order to create a context for analyzing our experimental results, we initially run the workloads in a more traditional manner: under hardware configurations that yield the best performance independent of energy consumption. For workloads running in tuned Linux and our library OS, we identify these performance-centric hardware configurations during our sweep of parameter values. This step is critical for establishing baseline energy-performance profiles for the different OS/workload pairs. Such baselines provide our study with relevant comparison points.
 
-%In order to put the results of our energy study into context we run
-%the workloads on the three OS configurations, Linux Default, Linux Tuned
-%and the library OS, in a more traditional manner to establish baseline
-%performance for each.  
-%For Linux tuned and the library OS we use our sweep data to identify, for each system, the hardware settings that yield the best performance independent of energy consumption for each of the message sizes.  
-\textbf{NetPIPE:} Figure~\ref{fig:perf_netpipe} shows the baseline performance of NetPIPE for message sizes of 64 bytes, 8 Kb, 64 Kb and 512 Kb. Due to the OS-centric nature of NetPIPE, Linux and our library OS show distinct performance profiles at lower message sizes. Moreover, the baseline performance of \textit{linux tuned} is significantly better than that of \textit{linux default}. To our knowledge we are the first to document these Linux best-case results. 
+% %In order to put the results of our energy study into context we run
+% %the workloads on the three OS configurations, Linux Default, Linux Tuned
+% %and the library OS, in a more traditional manner to establish baseline
+% %performance for each.  
+% %For Linux tuned and the library OS we use our sweep data to identify, for each system, the hardware settings that yield the best performance independent of energy consumption for each of the message sizes.  
+% \textbf{NetPIPE:} Figure~\ref{fig:perf_netpipe} shows the baseline performance of NetPIPE for message sizes of 64 bytes, 8 Kb, 64 Kb and 512 Kb. Due to the OS-centric nature of NetPIPE, Linux and our library OS show distinct performance profiles at lower message sizes. Moreover, the baseline performance of \textit{linux tuned} is significantly better than that of \textit{linux default}. To our knowledge we are the first to document these Linux best-case results. 
 
-%Using various message sizes with the netpipe application and configuring both sides with the same OS and hardware parameters allows one to expose the OS impacts on network communications in a controlled fashion.
-%As we will discuss in our analyzis,
-%the closed-loop and OS-centric nature of NetPIPE
-%results in proportional wins for both energy and performance.
+% %Using various message sizes with the netpipe application and configuring both sides with the same OS and hardware parameters allows one to expose the OS impacts on network communications in a controlled fashion.
+% %As we will discuss in our analyzis,
+% %the closed-loop and OS-centric nature of NetPIPE
+% %results in proportional wins for both energy and performance.
 
-%the fact that optimizing for performance will largely be equivalent to optimizing for energy albeit with some fascinating interactions that distinguish the two systems.  Given the limited space our later analysis will focus on 64Kb runs for analysis.  
+% %the fact that optimizing for performance will largely be equivalent to optimizing for energy albeit with some fascinating interactions that distinguish the two systems.  Given the limited space our later analysis will focus on 64Kb runs for analysis.  
 
-% see my closed loop load analysis
-% In Linux there is a sweet-spot ITR where above and below this value performance and energy goes back up
-% -- 64K example sweet-spot is between ITR=8-12 however must run the cpu hotest
-%    eg time and energy inversely proportional time does down as energy goes up
-% However their does not seem to be a particular sweet-spot for ebbrt lowering the itr we seem to plateau 
-% the performance and compensate the energy by slowing the processor
-% super interesting result see netpipe64kjoulesVSitr.png and netpipe64ktimeVSitr and then note that as 
-% you look at the sweetspot for linux and move away from the best time you will slow the processor down
-% however ebbrt does not have a sweetspot the lower the itr the better and processor can be slowed down to compensate
-% would be good to check what is going on with halts
+% % see my closed loop load analysis
+% % In Linux there is a sweet-spot ITR where above and below this value performance and energy goes back up
+% % -- 64K example sweet-spot is between ITR=8-12 however must run the cpu hotest
+% %    eg time and energy inversely proportional time does down as energy goes up
+% % However their does not seem to be a particular sweet-spot for ebbrt lowering the itr we seem to plateau 
+% % the performance and compensate the energy by slowing the processor
+% % super interesting result see netpipe64kjoulesVSitr.png and netpipe64ktimeVSitr and then note that as 
+% % you look at the sweetspot for linux and move away from the best time you will slow the processor down
+% % however ebbrt does not have a sweetspot the lower the itr the better and processor can be slowed down to compensate
+% % would be good to check what is going on with halts
 
-\textbf{NodeJS:}
-Given that there are no significant parameters for the NodeJS workload, the baseline result is simply the minimum time required to complete the 100K serial webpage requests. \textit{Linux default} requires 8.42 seconds (0.04 stddev) to complete the requests, while the baseline performance for \textit{linux tuned} is 7.68 seconds (0.04 stddev),  incurring approximately a 9\% improvement. \textit{LibOS tuned} yields a baseline time of 5.63 (0.06 stddev), a 26\% improvement over the best result for \textit{linux tuned} and a 33\% improvement over Linux's default performance.
+% \textbf{NodeJS:}
+% Given that there are no significant parameters for the NodeJS workload, the baseline result is simply the minimum time required to complete the 100K serial webpage requests. \textit{Linux default} requires 8.42 seconds (0.04 stddev) to complete the requests, while the baseline performance for \textit{linux tuned} is 7.68 seconds (0.04 stddev),  incurring approximately a 9\% improvement. \textit{LibOS tuned} yields a baseline time of 5.63 (0.06 stddev), a 26\% improvement over the best result for \textit{linux tuned} and a 33\% improvement over Linux's default performance.
 
-%Like NetPIPE the close loop nature of the workload leads to a general relationship in which minimizing time and energy are largely equivalent.  	
+% %Like NetPIPE the close loop nature of the workload leads to a general relationship in which minimizing time and energy are largely equivalent.  	
 
-% linux default: 8.42 (0.04)
-% linux tuned: 7.68 (0.04)  4 0x1d00 55
-% ebbrt: 5.63 (0.06)  4 0x1d00 55
+% % linux default: 8.42 (0.04)
+% % linux tuned: 7.68 (0.04)  4 0x1d00 55
+% % ebbrt: 5.63 (0.06)  4 0x1d00 55
 
-% todo: han please explain why 
-\textbf{Memcached:}
-Figure~\ref{fig:perf_mcd} shows the baseline performance of Facebook ETC Memcached. The standard benchmark progressively ramps up the load to ascertain the maximum load that a system can sustain under specified SLAs\footnote{ Later results in this paper focus on studying behaviour of the system at fixed static loads for a fixed period of time.
-}. For both \textit{linux tuned} and the library OS, we configure the processor to its highest performance DVFS and RAPL settings while configuring ITR-delay to a fixed value of 10 {\micro}s.
-%While \textit{linux default} and \textit{linux tuned} have similar behaviour, we note that \textit{linux tuned} yields better tail-latency results at lighter loads. Like NetPIPE, Memcached has a low application processing component and as such demands more OS functionality. Hence, it is not surprising that a baremetal library OS supports higher loads.
-%That being said, the difference in performance is quite dramatic.  
+% % todo: han please explain why 
+% \textbf{Memcached:}
+% Figure~\ref{fig:perf_mcd} shows the baseline performance of Facebook ETC Memcached. The standard benchmark progressively ramps up the load to ascertain the maximum load that a system can sustain under specified SLAs\footnote{ Later results in this paper focus on studying behaviour of the system at fixed static loads for a fixed period of time.
+% }. For both \textit{linux tuned} and the library OS, we configure the processor to its highest performance DVFS and RAPL settings while configuring ITR-delay to a fixed value of 10 {\micro}s.
+% %While \textit{linux default} and \textit{linux tuned} have similar behaviour, we note that \textit{linux tuned} yields better tail-latency results at lighter loads. Like NetPIPE, Memcached has a low application processing component and as such demands more OS functionality. Hence, it is not surprising that a baremetal library OS supports higher loads.
+% %That being said, the difference in performance is quite dramatic.  
 
-%As we will discuss in later sections  the lightly loaded behaviour is equally interesting  to study as  reducing energy consumption in these situations can significantly improve energy proportionality.
-%The improved low-load performance implies the possibility of also optimizing energy in this regime as well.
+% %As we will discuss in later sections  the lightly loaded behaviour is equally interesting  to study as  reducing energy consumption in these situations can significantly improve energy proportionality.
+% %The improved low-load performance implies the possibility of also optimizing energy in this regime as well.
 
-\textbf{Memcached-silo:}
-Figure~\ref{fig:perf_mcdsilo} shows the baseline peformance. The hardware parameters are configured identically to those in our Memcached baseline experiments. Again, we find that statically configured \textit{linux tuned} yields better performance at low load thant \textit{linux default}.
-%We note that,
-%unlike the Memcached benchmark,
-%Silo-TPCc has a considerably high application processing component
-%that is variable in nature.
-%Unlike ZygOS our library OS is more like IX, as it does not have support for pre-emption.  Our library OS does however, incorporate a novel multi-core TCP/IP stack and does not rely on another control plane OS.   
+% \textbf{Memcached-silo:}
+% Figure~\ref{fig:perf_mcdsilo} shows the baseline peformance. The hardware parameters are configured identically to those in our Memcached baseline experiments. Again, we find that statically configured \textit{linux tuned} yields better performance at low load thant \textit{linux default}.
+% %We note that,
+% %unlike the Memcached benchmark,
+% %Silo-TPCc has a considerably high application processing component
+% %that is variable in nature.
+% %Unlike ZygOS our library OS is more like IX, as it does not have support for pre-emption.  Our library OS does however, incorporate a novel multi-core TCP/IP stack and does not rely on another control plane OS.   
 
 
 
