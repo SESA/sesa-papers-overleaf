@@ -1,6 +1,13 @@
 \documentclass[sigplan,10pt]{acmart}
-\renewcommand\footnotetextcopyrightpermission[1]{}
-\pagestyle{plain}
+\usepackage{subcaption}
+% \crefformat{section}{\S#2#1#3} 
+% \crefformat{subsection}{\S#2#1#3}
+% \crefformat{subsubsection}{\S#2#1#3}
+
+\settopmatter{printacmref=false} % Removes citation information below abstract
+\renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference information in first column
+\pagestyle{plain} % removes running headers
+
 \AtBeginDocument{%
   \providecommand\BibTeX{{%
     \normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
@@ -14,12 +21,13 @@
 %% allowing the author to define a "short title" to be used in page headers.
 \title{Trade-offs in slowing down network driven workloads}
 
-\settopmatter{printfolios=true}
+\settopmatter{printfolios=false}
 
 %%
 %% This command processes the author and affiliation and title
 %% information and builds the first part of the formatted document.
 \maketitle
+\pagestyle{empty} 
 
 \section{Introduction}
 \input{intro}
@@ -30,6 +38,14 @@
 \section{Experiment Setup}
 \input{exp_setup}
 
+\section{Experimental Results}
+\input{mcd}
+\input{mcdsilo}
+\input{closed_loop}
+
+\section{Discussion}
+
+\section{Conclusion}
 %%
 %% The next two lines define the bibliography style to be used, and
 %% the bibliography file.
@@ -37,4 +53,3 @@
 \bibliography{references}
 
 \end{document}
-\endinput
