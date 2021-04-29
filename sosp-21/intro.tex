@@ -1,67 +1,72 @@
 \label{sec:intro}
-There are benefits to slowing down network driven workloads.
+%The hardware nodes of a cloud service provider are often each dedicated to running a single cloud service component~\cite{FB}.
+As latency-critical tasks become ubiquitous across data centers,
+deploying them on dedicated nodes is becoming a well studied and favored decision~\cite{ixcp, heracles, PerAppPower, twine}.
+Typically, this dedication prevents latency violations that might be triggered
+by the co-location of best-effort batch tasks.
+One hopes that this dedicated nature (i.e. fixed role in the service using a fixed software stack) can be exploited to obtain the required performance (e.g. 99\% tail latency) while minimizing the energy used, a key concern given the increasingly constrained energy budgets in data centers~\cite{ixcp, SmoothOperator, Dynamo, oldi-study, oldi-pegasus, NLP-energy}.
 
-Two types of slowing down:
-\begin{itemize}
-    \item Slow down when to process packets from NIC
-    \item Slow down processor clock speed
-\end{itemize}
+%General purpose OSes such as Linux have been designed to support a range of user software as well as the concurrent execution of competing applications, thus, they have evolved to include support for dynamically adjusting various hardware settings on modern CPUs and network interface cards (NICs). Past researchers have demonstrated that dedicating a node to a single application can attain dramatic performance gains~\cite{ix,arrakis, exokernel,ebbrt,rumpkernel, unikernels, aliraza}, these results also suggest that one may be able to cater a node's hardware parameters to obtain higher efficiency than allowing the OS to dynamically adjust them.
 
-How do application behave under two types of network driven workloads:
-\begin{itemize}
-    \item Close-loop: Increase utilization of machines during diurnal troughs, the system controls the amount of admitted work. Faster time to completion == lower energy
-    \item Open-loop: Focused on tail latency combined with SLA objectives
-\end{itemize}
+%While researchers have proposed application specific OSes in the past, their optimizations have mainly focused on OS level changes targeting performance.
 
-What are the types of benefits:
-\begin{itemize}
-    \item A combination of lower time + lower energy to complete some fixed work + (trade-offs that exist within this combination)
-    \item A combination of tail latency + lower energy while meeting SLA objectives + (trade-offs that exist within this combination)
-\end{itemize}
+%However, dedicating a node to a single application suggests that one may be able to manually tune the node's hardware settings to magnifiy the impact of such tuning. While researchers have proposed such systems in the past, referred to as library OSes~\cite{ix,arrakis, exokernel,ebbrt} or unikernels~\cite{rumpkernel, unikernels, aliraza}, this 
+%Dedicating a node to a single application suggests that one may be able to manually tune the node's hardware parameters to fixed values and obtain higher efficiency than allowing the OS to dynamically adjust them.  Furthermore, it is possible that the impact of hardware tuning can be magnified if one starts with an application specific OS that has been designed and implemented for running a single dedicated application. 
 
-How is slowing down beneficial dependent on OS structure (os path length):
-\begin{itemize}
-    \item Linux - monolithic kernel, interrupt driven
-    \item LibOS - unikernel, run-to-completion, interrupt driven
-    \item LibOS - unikernel, run-to-completion, poll-based
-\end{itemize}
+However, the performance and energy consumption of a system are complex emergent properties of the myriad of interactions between application software, operating systems, hardware, and offered loads. Interestingly, when we take a careful look at overall system execution under different energy profiles, we see that the consequences of tuning energy and performance reach far beyond directly observable quantities and impact the interactions between the aforementioned system components in subtle ways. There is a dizzying array of operating system mechanisms and policies one must consider that could both individually and collaboratively impact the performance and energy use of the system. Rather than focusing on the design and implementation of these mechanisms and policies, we find that we need a greater understanding of their underlying impacts and dynamics on energy and performance.
 
-Further questions and discussions:
-\begin{itemize}
-    \item Race-to-halt vs slowing down. Right now it is heuristics/black box, can this paper help to say when you should do this and why?
-    \item Why is this benefit useful for the system policy designer/os designer? You should do this or that
-    \item If we care about performance, why not just poll? Why is polling not enough?
-    \item Having different ways to trade off performance+energy is a useful tool to have
-\end{itemize}
+The trade-offs that exist in application performance and energy is a well studied field: the typical method is by slowing down processor frequencies such that application performance suffers, but with the added benefit of lower energy use~\cite{7349225,rapl2015, rapl2018,hotpower2008, PerAppPower}. These studies typically study Dynamic Voltage and Frequency Scaling (DVFS) and Running Average Power Limit (RAPL) knobs that are provided by modern processors. Furthermore, they also mainly focus on processor and/or memory-centric applications where a slowing processor frequency has a direct impact on application performance.
 
-% There are benefits to slowing down network driven processing.
+In contrast, datacenter applications tend to have more headroom in this trade-off space as they are typically governed by Service-Level Agreements (SLAs) that provide a ceiling of performance that majority of requests must meet. There have also been a wealth of research in using these SLA headrooms to lower datacenter energy use mainly by decreasing processor frequencies~\cite{Dynamo, SmoothOperator, oldi-pegasus, adrenaline, heracles, energyproportion, warehouse-power}.
 
-% Race-to-halt vs slowing down. Right now it is heuristics/black box, can this paper help to say when you should do this and why?
+In this paper, we study an additional parameter, along with processor frequencies, to further slow down network driven workloads - which is the time delay in interrupt notification of the device driver to start processing packets (ITR-Delay). Figure~\ref{fig:itr_delay_flowchart} is a transcription of the actual algorithm in the Intel 82599 NIC datasheet~\cite{82599} used in this study. 
 
-% Two ways to slow down:
-% 1) Delay when to process packets, 2)Slow down processor speed
+\textbf{Basically, all this can be cut if we replace with summary of findings.}
+While the algorithm itself is simplistic, it has interesting implications on application performance and energy, such as packet coalescing and sleep state usages - \textbf{elaborate.} Furthermore, it brings in new sets of questions of effectiveness when used together with lowered processor frequencies - \textbf{elaborate.}
 
-% Two types of network driven workloads + justifying this:
-% Close-loop - Netpipe, NodeJS web server
-% Open-loop - Memcached, Memcached-Silo
+Moreover, this paper broadens the study of performance-energy trade-offs of slowing down network applications from previous research by conducting a study in both a baremetal Linux and a library OS (LibOS). The system structure of the LibOS' run-to-completion model enables us to explore both a interrupt-driven and poll-based method for running network applications. The poll-based LibOS allows us to explore slowing down of processor frequency as well. There are three main motivations for this: 1) Understand effects of slowing down given different OS system structures, 2) how do OS policies affect this trade-off, and 3) what insights can be gleaned to make better policy designs and do they differ dependent on the OS.
 
-% Types of benefit: 
-% Lower time + lower energy+tradeoffs
-% Lower tail latency + lower energy + SLA+tradeoffs
-% Trade-off in performance-energy
-% Energy Performance Product (EPP)?
-% Benefit compared to what?
 
-% The benefits differ dependent on OS structure (os path length efficiency):
-% Linux
-% EbbRT
+\input{itr_flowchart}
 
-% Why is this benefit useful for the system policy designer/os designer? You should do this or that**
-% Energy Performance Product
-% Why is this metric of performance+energy important? To who? 
+% There are benefits to slowing down network driven workloads.
 
-% If we care about performance, why not just poll? Why is polling not enough?
+% Two types of slowing down:
+% \begin{itemize}
+%     \item Slow down when to process packets from NIC
+%     \item Slow down processor clock speed
+% \end{itemize}
 
-% What is the combination of performance and energy as an additional metric that is useful?
-% Having different ways to trade off performance+energy is a useful tool to have.
-% If we can lower performance and energy at the same time that is even better.
+% How do application behave under two types of network driven workloads:
+% \begin{itemize}
+%     \item Close-loop: Increase utilization of machines during diurnal troughs, the system controls the amount of admitted work. Faster time to completion == lower energy
+%     \item Open-loop: Focused on tail latency combined with SLA objectives
+% \end{itemize}
+
+% What are the types of benefits:
+% \begin{itemize}
+%     \item A combination of lower time + lower energy to complete some fixed work + (trade-offs that exist within this combination)
+%     \item A combination of tail latency + lower energy while meeting SLA objectives + (trade-offs that exist within this combination)
+% \end{itemize}
+
+% How is slowing down beneficial dependent on OS structure (os path length):
+% \begin{itemize}
+%     \item Linux - monolithic kernel, interrupt driven
+%     \item LibOS - unikernel, run-to-completion, interrupt driven
+%     \item LibOS - unikernel, run-to-completion, poll-based
+% \end{itemize}
+
+% Further questions and discussions:
+% \begin{itemize}
+%     \item Race-to-halt vs slowing down. Right now it is heuristics/black box, can this paper help to say when you should do this and why?
+%     \item Why is this benefit useful for the system policy designer/os designer? You should do this or that
+%     \item If we care about performance, why not just poll? Why is polling not enough?
+%     \item Having different ways to trade off performance+energy is a useful tool to have
+% \end{itemize}
+
+% \begin{itemize}
+%     \item Slowing down processor frequency to save energy is a well studied field.
+%     \item The combination of adding in slowing down of when to begin process network interrupts along with processor frequency is less known.
+%     \item What are the implications on benefits of idling in this case? 
+%     \item The main goal of the data collection and analysis in this work is to gain insights into the energy and performance interactions of slowing down both in terms of processor frequency and network interrupt delays and how those insights can guide better policy designs in optimizing performance and energy
+% \end{itemize}
