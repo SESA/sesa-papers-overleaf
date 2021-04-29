@@ -1,8 +1,11 @@
 \documentclass[sigplan,10pt]{acmart}
 \usepackage{subcaption}
-% \crefformat{section}{\S#2#1#3} 
-% \crefformat{subsection}{\S#2#1#3}
-% \crefformat{subsubsection}{\S#2#1#3}
+%\crefformat{section}{\S#2#1#3} 
+%\crefformat{subsection}{\S#2#1#3}
+%\crefformat{subsubsection}{\S#2#1#3}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
+
 \pagestyle{plain} % removes running headers
 
 \settopmatter{printacmref=false} % Removes citation information below abstract
@@ -34,6 +37,7 @@
 \input{intro}
 
 \section{Workflow Model}
+\input{workflow}
 
 \section{Related Work}
 \input{related}
