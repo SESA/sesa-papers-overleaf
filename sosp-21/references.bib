@@ -1,3 +1,52 @@
+@inproceedings{10.1109/CPSNA.2015.23,
+author = {Kim, David H. K. and Imes, Connor and Hoffmann, Henry},
+title = {Racing and Pacing to Idle: Theoretical and Empirical Analysis of Energy Optimization Heuristics},
+year = {2015},
+isbn = {9781467377850},
+publisher = {IEEE Computer Society},
+address = {USA},
+url = {https://doi.org/10.1109/CPSNA.2015.23},
+doi = {10.1109/CPSNA.2015.23},
+abstract = {The problem of minimizing energy for a performance constraint (e.g., Real-time deadline or quality-of-service requirement) has been widely studied, both in theory and in practice. Theoretical models have indicated large potential energy savings, but practical concerns have made these savings hard to realize. Instead, practitioners often rely on heuristic solutions, which achieve good results in practice but tend to be system-specific in efficacy. An example is the race-to-idle heuristic, which makes all resources available until a task completes and then idles. Theory predicts poor energy savings, but practitioners have reported good empirical results. To help bridge the gap between theory and practice, this paper presents a geometrical framework for analyzing the energy optimality of resource allocation under performance constraints. The geometry of the problem allows us to derive an optimal strategy and three commonly used heuristics: 1) race-to-idle, 2) pace-to-idle a near-optimal idling strategy, and 3) no-idle which never idles. We then implement all strategies and test them empirically for seven benchmarks on four different multicore systems, including both x86 and ARM. We find that race-to-idle is near optimal on older systems, but can consume as much as 3 more energy than the optimal strategy. In contrast, pace-to-idle is never more than 12% worse than optimal.},
+booktitle = {Proceedings of the 2015 IEEE 3rd International Conference on Cyber-Physical Systems, Networks, and Applications},
+pages = {78–85},
+numpages = {8},
+series = {CPSNA '15}
+}
+
+@inproceedings{10.1145/381677.381702,
+author = {Flautner, Kriszti\'{a}n and Reinhardt, Steve and Mudge, Trevor},
+title = {Automatic Performance Setting for Dynamic Voltage Scaling},
+year = {2001},
+isbn = {1581134223},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/381677.381702},
+doi = {10.1145/381677.381702},
+abstract = {The emphasis on processors that are both low power and high performance has resulted in the incorporation of dynamic voltage scaling into processor designs. This feature allows one to make fine granularity trade-offs between power use and performance, provided there is a mechanism in the OS to control that trade-off. In this paper, we describe a novel software approach to automatically controlling dynamic voltage scaling in order to optimize energy use. Our mechanism is implemented in the Linux kernel and requires no modification of user programs. Unlike previous automated approaches, our method works equally well with irregular and multiprogrammed workloads. Moreover, it has the ability to ensure that the quality of interactive performance is within user specified parameters. Our experiments show that as a result of our algorithm, processor energy savings of as much as 75% can be achieved with only a minimal impact on the user experience.},
+booktitle = {Proceedings of the 7th Annual International Conference on Mobile Computing and Networking},
+pages = {260–271},
+numpages = {12},
+location = {Rome, Italy},
+series = {MobiCom '01}
+}
+
+@ARTICLE{917539,
+  author={Mudge, T.},
+  journal={Computer}, 
+  title={Power: a first-class architectural design constraint}, 
+  year={2001},
+  volume={34},
+  number={4},
+  pages={52-58},
+  doi={10.1109/2.917539}
+}
+  
+
+  
+
+
+
 @ARTICLE{7349225,
   author={Hwang, Inkwon and Pedram, Massoud},
   journal={IEEE Transactions on Very Large Scale Integration (VLSI) Systems}, 
