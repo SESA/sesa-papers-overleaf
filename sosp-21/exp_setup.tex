@@ -18,13 +18,13 @@ and describe the application software and workloads we use to exercise this OS s
 %%   \label{fig:itr_figure}
 %% \end{figure}
 
-\subsection{Hardware Tuning Parameters}
-\label{sec:knobs}
-Below, we discuss the three hardware parameters studied,
-outline Linux's default policies for tuning them,
-and describe how we statically configure them. 
+%\subsection{Hardware Tuning Parameters}
+%\label{sec:knobs}
+%Below, we discuss the three hardware parameters studied,
+%outline Linux's default policies for tuning them,
+%and describe how we statically configure them. 
 
-\subsubsection{NIC Interrupt Delay (ITR-delay)}
+\subsection{NIC Interrupt Delay (ITR-delay)}
 \label{sec:knobs_itr}
 The Intel 82599 datasheet~\cite{82599}
 defines a time-based interrupt throttling mechanism
@@ -92,16 +92,16 @@ which we can use as a comparison point.
 %configurable value.
 
 
-\subsubsection{Running Average Power Limit (RAPL)}
-\label{sec:knobs_rapl}
-RAPL~\cite{intel_rapl} is a power limiting feature on Intel processors
-that can be used to throttle power-draw of different hardware components.
-It's utility has been investigated~\cite{rapl2015, rapl2018, PerAppPower},
-quantifying its accuracy and low performance overhead
-while illustrating per-workload power constraints.
-In our experiments, we use the RAPL model specific registers (MSR) to explicitly set power limits up to a default maximum of 135 Watts
-in a single package on our 2-package processor. After some initial experimentation, we
-found that our workloads continue to execute correctly at a minimum RAPL limiting value of around \texttt{55}.
+% \subsubsection{Running Average Power Limit (RAPL)}
+% \label{sec:knobs_rapl}
+% RAPL~\cite{intel_rapl} is a power limiting feature on Intel processors
+% that can be used to throttle power-draw of different hardware components.
+% It's utility has been investigated~\cite{rapl2015, rapl2018, PerAppPower},
+% quantifying its accuracy and low performance overhead
+% while illustrating per-workload power constraints.
+% In our experiments, we use the RAPL model specific registers (MSR) to explicitly set power limits up to a default maximum of 135 Watts
+% in a single package on our 2-package processor. After some initial experimentation, we
+% found that our workloads continue to execute correctly at a minimum RAPL limiting value of around \texttt{55}.
 %When applying power limits, care must be taken to ensure
 %there is a minimum RAPL value such that an application's continued execution
 %can be sustained in this limited power budget.
@@ -115,12 +115,12 @@ found that our workloads continue to execute correctly at a minimum RAPL limitin
 %at a minimum RAPL limiting value of around \texttt{55} \watt.
 
 
-\subsubsection{Dynamic Voltage/Frequency Scaling (DVFS)}
-\label{sec:knobs_dvfs}
-We use the term DVFS~\cite{cpufreq_governor} to describe the ability to set the processor's frequency.
-Linux by default contains a dynamic policy to adjust based on current processing load.
-Through experimentation, we found Linux's dynamic policy uses a range between
-a min frequency of \textbf{0xc00} and a max of \textbf{0x1D00}. We use this range of settings in our study
+% \subsubsection{Dynamic Voltage/Frequency Scaling (DVFS)}
+% \label{sec:knobs_dvfs}
+% We use the term DVFS~\cite{cpufreq_governor} to describe the ability to set the processor's frequency.
+% Linux by default contains a dynamic policy to adjust based on current processing load.
+% Through experimentation, we found Linux's dynamic policy uses a range between
+% a min frequency of \textbf{0xc00} and a max of \textbf{0x1D00}. We use this range of settings in our study
 
 %DVFS~\cite{cpufreq_governor} is an energy tuning dynamic policy,
 %built into Linux,
@@ -179,91 +179,91 @@ Additionally, to minimize system noise,
 we disable hyperthreads and Turbo Boost features on all processors.
 
 
-\subsection{Per-interrupt Log Collection}
-\label{sec:log_collect}
-%NAPI?
+% \subsection{Per-interrupt Log Collection}
+% \label{sec:log_collect}
+% %NAPI?
 
-%In order to better understand the interactions of ITR, DVFS, and
-%RAPL with a server that is under some load, we instrumented \textit{fine-grained per-interrupt} log collection in both Linux and libOS' network device
-%driver on the interrupt handling path.
-%In order to reveal novel information
-%about the interactions between the OS, application workloads, and hardware
-%under different energy profiles,
-%we find that it is constructive to place hardware events,
-%such as transitions in C-states and network I/O events,
-%on some form of timeline.
-%When such a temporal construct is backed by detailed experimental logs,
-%it allows us to draw conclusions about the impact of OS software
-%on full system execution: performance and power-draw.
-%It enables us to locate and analyze relevant power-events
-%in the span of execution of a workload that can be attributed
-%either to the involvement of OS software
-%to maintain energy proportionality
-%or lack thereof.
+% %In order to better understand the interactions of ITR, DVFS, and
+% %RAPL with a server that is under some load, we instrumented \textit{fine-grained per-interrupt} log collection in both Linux and libOS' network device
+% %driver on the interrupt handling path.
+% %In order to reveal novel information
+% %about the interactions between the OS, application workloads, and hardware
+% %under different energy profiles,
+% %we find that it is constructive to place hardware events,
+% %such as transitions in C-states and network I/O events,
+% %on some form of timeline.
+% %When such a temporal construct is backed by detailed experimental logs,
+% %it allows us to draw conclusions about the impact of OS software
+% %on full system execution: performance and power-draw.
+% %It enables us to locate and analyze relevant power-events
+% %in the span of execution of a workload that can be attributed
+% %either to the involvement of OS software
+% %to maintain energy proportionality
+% %or lack thereof.
 
-To study and effectively identify the role of the OS
-in affecting the global energy-performance behaviour,
-we found it critical to use an interrupt-centric methodology.
-This is because the OS interrupt and polling behavior partitions time
-into busy and idle periods,
-whereby the OS controls energy consumption behavior during idle time
-while its design and implementation have a significant impact
-on the instructions that compose busy time and their efficiency.
-As such,
-we found that local behavior of the OS, demarked between interrupts,
-combines to significantly influence global system behavior and performance.
-Interrupt-centric energy-performance logs
-enable us to locate and analyze relevant power events
-in the span of execution of a workload.
-These events can be attributed
-either to the involvement of OS software to maintain energy proportionality
-or lack thereof.
-Typical logging approaches,
-such as periodic PC sampling,
-can overlook these critical OS episodes.
+% To study and effectively identify the role of the OS
+% in affecting the global energy-performance behaviour,
+% we found it critical to use an interrupt-centric methodology.
+% This is because the OS interrupt and polling behavior partitions time
+% into busy and idle periods,
+% whereby the OS controls energy consumption behavior during idle time
+% while its design and implementation have a significant impact
+% on the instructions that compose busy time and their efficiency.
+% As such,
+% we found that local behavior of the OS, demarked between interrupts,
+% combines to significantly influence global system behavior and performance.
+% Interrupt-centric energy-performance logs
+% enable us to locate and analyze relevant power events
+% in the span of execution of a workload.
+% These events can be attributed
+% either to the involvement of OS software to maintain energy proportionality
+% or lack thereof.
+% Typical logging approaches,
+% such as periodic PC sampling,
+% can overlook these critical OS episodes.
 
 
-Motivated by this rationale,
-we designed an interrupt-centric data collection methodology
-that gathers fine-grain per-interrupt logs
-of hardware statistics relevant to
-the performance and energy profile
-of a particular workload
-and of the system overall
-\footnote{
-To ensure minimal overhead by our logging mechanism,
-we use non-temporal store instructions to store collected statistics
-into an in-memory array
-%We found that using non-temporal store instructions had more of an impact on
-%the performance of EbbRT versus that of Linux.
-%We believe that this could be due to the fact that EbbRT was built to be an
-%efficient library OS and hence its performance is more observably affected by
-%additional logging.
-}.
-As we target network-bound workloads,
-we decide log data at the event of NIC receive and transmit interrupts.
-We collect the following information at every interrupt:
-received and transmitted bytes,
-the current timestamp (via the \texttt{rdtsc} instruction),
-and various sleep state statistics.
-We also collect a set of hardware statistics
-from per-core performance monitoring counters (PMCs)
-at a maximum granularity of 1 millisecond\footnote{
-The MSR\_PKG\_ENERGY\_STATUS register allows software to query the energy consumption (in Joules) of a specific package. It conforms to a maximimum sampling frequency of 1 millisecond. Hence we only read from PCMs when the time elapsed between interrupts is at least 1 millisecond.
-}:
-instructions, cycles, last-level-cache misses, and the energy consumed,
-which we read from the MSR\_PKG\_ENERGY\_STATUS register.
-This set of statistics also helps us
-take a detailed look at the per-core behavior
-while acquiring a global perspective on overall resource usage
-when hardware settings are tuned in different ways (\S\ref{sec:knobs}).
+% Motivated by this rationale,
+% we designed an interrupt-centric data collection methodology
+% that gathers fine-grain per-interrupt logs
+% of hardware statistics relevant to
+% the performance and energy profile
+% of a particular workload
+% and of the system overall
+% \footnote{
+% To ensure minimal overhead by our logging mechanism,
+% we use non-temporal store instructions to store collected statistics
+% into an in-memory array
+% %We found that using non-temporal store instructions had more of an impact on
+% %the performance of EbbRT versus that of Linux.
+% %We believe that this could be due to the fact that EbbRT was built to be an
+% %efficient library OS and hence its performance is more observably affected by
+% %additional logging.
+% }.
+% As we target network-bound workloads,
+% we decide log data at the event of NIC receive and transmit interrupts.
+% We collect the following information at every interrupt:
+% received and transmitted bytes,
+% the current timestamp (via the \texttt{rdtsc} instruction),
+% and various sleep state statistics.
+% We also collect a set of hardware statistics
+% from per-core performance monitoring counters (PMCs)
+% at a maximum granularity of 1 millisecond\footnote{
+% The MSR\_PKG\_ENERGY\_STATUS register allows software to query the energy consumption (in Joules) of a specific package. It conforms to a maximimum sampling frequency of 1 millisecond. Hence we only read from PCMs when the time elapsed between interrupts is at least 1 millisecond.
+% }:
+% instructions, cycles, last-level-cache misses, and the energy consumed,
+% which we read from the MSR\_PKG\_ENERGY\_STATUS register.
+% This set of statistics also helps us
+% take a detailed look at the per-core behavior
+% while acquiring a global perspective on overall resource usage
+% when hardware settings are tuned in different ways (\S\ref{sec:knobs}).
 
-Our use of fine-grain interrupt-centric data logging
-has allowed us to break-down and analyze OS behaviours in our library OS
-that causally contribute to its realized energy-performance profile.
-We describe some of these behaviors in Section \S\ref{sec:OS_libos} 
-and refer to them throughout our analysis of experimental data
-(see Section\S\ref{sec:analysis}).
+% Our use of fine-grain interrupt-centric data logging
+% has allowed us to break-down and analyze OS behaviours in our library OS
+% that causally contribute to its realized energy-performance profile.
+% We describe some of these behaviors in Section \S\ref{sec:OS_libos} 
+% and refer to them throughout our analysis of experimental data
+% (see Section\S\ref{sec:analysis}).
 
 
 
