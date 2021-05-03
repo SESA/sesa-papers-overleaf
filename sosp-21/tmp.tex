@@ -1,0 +1,51 @@
+\documentclass[sigplan,10pt]{acmart}
+\usepackage{siunitx}
+\usepackage{subcaption}
+%\crefformat{section}{\S#2#1#3} 
+%\crefformat{subsection}{\S#2#1#3}
+%\crefformat{subsubsection}{\S#2#1#3}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
+
+\pagestyle{plain} % removes running headers
+
+\settopmatter{printacmref=false} % Removes citation information below abstract
+\renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference information in first column
+
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    \normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
+    
+%%
+%% end of the preamble, start of the body of the document source.
+\begin{document}
+
+%%
+%% The "title" command has an optional parameter,
+%% allowing the author to define a "short title" to be used in page headers.
+\title{Trade-offs in slowing down network driven workloads}
+
+\settopmatter{printfolios=false}
+
+%%
+%% This command processes the author and affiliation and title
+%% information and builds the first part of the formatted document.
+\maketitle
+%\pagestyle{empty} 
+\pagestyle{plain} % removes running headers
+
+\section{A Simple Timeline Model}
+\input{workflow}
+
+
+
+\section{Experimental Results}
+\input{mcd}
+
+%%
+%% The next two lines define the bibliography style to be used, and
+%% the bibliography file.
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+
+\end{document}

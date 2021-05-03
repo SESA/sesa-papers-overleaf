@@ -82,7 +82,7 @@ Memcached~\cite{mcd} is a multi-threaded workload that runs on all 16 cores of a
 %  	 FAST/SLOW= 5.0755
 \subsubsection{Finding-2: Ineffectiveness of sleep state energy savings at slow processor speeds.}
 \label{sec:f2}
-Figure~\ref{fig:mcd_detail_1}(a) shows that as a processor slows down, the energy savings from slow downing down interrupt rates also decreases (larger energy gap to smaller energy gap). Bold lines indicate the mean energy use at fastest interrupt rate, while dotted lines indicate mean energy use at slowest interrupt rate. We find that across the QPS loads and the two OSes, the average energy savings from slowing down interrupt rates at the \textit{slowest} processor speed is around \SI{52}{\joule} while at the \textit{fastest} processor speed we get a average energy savings of around \SI{342}{\joule}. Referring back to figure~\ref{fig:timeline}, the effect of slowing down the processor results in the lengthening of the application and OS work in memcached, thereby reducing the benefits of prolonged idle periods to take advantage of energy savings by sleep states, this is also further exacerbated by the SLA requirements which results in a strict time budget each request must adhere to. 
+Figure~\ref{fig:mcd_detail_1}(a) shows that as a processor slows down, the energy savings from slow downing down interrupt rates also decreases (larger energy gap to smaller energy gap). Bold lines indicate the mean energy use at fastest interrupt rate, while dotted lines indicate mean energy use at slowest interrupt rate. We find that across the QPS loads and the two OSes, the average energy savings from slowing down interrupt rates at the \textit{slowest} processor speed is an average of \SI{52}{\joule} while at the \textit{fastest} processor speed we get a average energy savings of \SI{342}{\joule}. Referring back to figure~\ref{fig:timeline}, the effect of slowing down the processor results in the lengthening of the application and OS work in memcached, thereby reducing the benefits of prolonged idle periods to take advantage of energy savings by sleep states, this is also further exacerbated by the SLA requirements which results in a strict time budget each request must adhere to. 
 
 Even though slowing down interrupt rates does not contribute to energy savings as much as slowing down the processor, figure~\ref{fig:mcd_overview} shows that it is in-fact with a combination of both that results in the lowest energy use across both Linux and libOS. Figure~\ref{fig:mcd_detail_1}(e) shows the effect of slowed interrupt delay rates as it causes a minimum tail latency threshold; the benefit of slowing down interrupt rates consists of 1) lowering the number of interrupts fired, which also lowers instruction use and potentially promotes better packet coalescing (see figures~\ref{fig:mcd_detail_1}(c)(d)), and 2) based off interrupt delay algorithm in figure~\ref{fig:itr_delay_flowchart}, this ensures a guaranteed period of idleness such that the processor can take advantage of potentially deeper sleep states. Based off these observations, one can assert that to optimize energy savings at a cost to tail latency for memcached involves slowing down both processor and interrupt rate, although the trade-offs involved will be different dependent on other factors such as an OS's packet processing efficiency and policies that govern the use of sleep states to maximize idleness. However, the benefit of slowing down interrupt rates versus processor is a more subtle consideration as the implications of slowing down processor will percolate to all software whereas the interrupt delay rate is an entirely hardware construct outside the purview of software other than knowing at some fixed point in the future to waking up to handle the interrupt.
 
@@ -91,7 +91,70 @@ Even though slowing down interrupt rates does not contribute to energy savings a
 \subsubsection{Finding-3: OS path length efficiency} \label{sec:f3}
 Even though figure~\ref{fig:mcd_overview} indicates the libOS uses lower energy than Linux across all QPS loads, we find that in both figures~\ref{fig:mcd_detail_1}(a)(b), Linux is always able to save more energy (1.02X to 3.6X) by slowing down processor and interrupt rates than the libOS. We believe this more a result of the base efficiency of libOS' (figure~\ref{fig:mcd_detail_1}(d) shows libOS using ~2.5X fewer instructions than Linux) and optimized OS path lengths (figure~\ref{fig:mcd_overview2} shows libOS can support higher QPS loads than Linux). This is further supported by the \textit{vertical-ness} of the libOS datapoints in figure~\ref{fig:mcd_overview}, which largely shows the ineffectiveness of slowing down the processor in causing a increase in the tail latency. We can see the opposite of this behavior in Linux where at 600K QPS, it is approach 75\% of the peak QPS it can support, there is a clear trade-off between slowing down processor speeds and an increase in tail latency (higher latency points tend to have darker gradient color). In figure~\ref{fig:mcd_overview2}, memcached is scaled higher to 1500K QPS, which is 75\% of the libOS' peak QPS it can support, at this QPS rate we can begin to see the processor speed and tail latency trade-off.
 
-\subsubsection{Finding-4: Fast interrupt rates induces behavior for low tail latency at high energy use.} \label{sec:f4}
+% MIN-TAIL linux_default 200000 1 3.0 135    103.3 1335.43
+% MIN-TAIL linux_tuned 200000 2 2.9 135       61.7 2174.6
+
+% MIN-TAIL linux_default 400000 1 3.0 135    111.9 1927.74
+% MIN-TAIL linux_tuned 400000 2 2.9 135       74.0 2532.51
+
+% MIN-TAIL linux_default 600000 1 3.0 135    137.5 2594.01
+% MIN-TAIL linux_tuned 600000 30 2.9 135     102.6 2730.61
+\subsubsection{Finding-4: Fast interrupt rates induces behavior for low tail latency at high energy use.} \label{sec:f4} Figure~\ref{fig:mcd_overview} also demonstrates the ability to use a fast interrupt rate in order to minimize tail latency. Linux's network driver contains a interrupt moderation algorithm is a generic algorithm used to cater the interrupt delay rate towards the current traffic pattern to maximize throughput. However, our results show that a static setting of a fast interrupt delay rate enables us to further lower tail latency as opposed to the dynamic algorithm by by 40\% at 200K QPS and down to 25\% at 600K QPS. This faster interrupt rate induces a form of polling on Linux's network processing by constantly waking up the processor to do the OS and application work, this results in a greater increase in energy as well, of 38\% at 200K QPS and increase of 5\% at 600K QPS. This also indicates that when a system is lightly loaded, there is greater flexibility in using interrupt rates to increase packet processing efficiency by inducing a poll-like behavior. While some prior research have used statically setting the interrupt delay rate at a low value for experimental stability~\cite{arrakis, shenango}, we are the first to detail its energy ramifications.
+
+% MIN-TAIL ebbrt_tuned 200000 2 0x1d00 135        65.9 1747.17
+% MIN-ENERGY ebbrt_tuned 200000 400 0xd00 55     444.3  935.44  
+% MIN-TAIL ebbrt_tuned 1500000 50 0x1500 135     100.4 1790.14
+% MIN-ENERGY ebbrt_tuned 1500000 100 0xf00 135   195.9 1375.67 
+
+% ebbrt_tuned c1 200000 2 0x1d00 135 47.1 1910.13 13115025 9645754
+% ebbrt_tuned c1e 200000 2 0x1d00 135 67.4 1772.53 10777190 9203709
+% ebbrt_tuned c3 200000 2 0x1d00 135 67.7 1780.14 10747417 9196942
+% ebbrt_tuned c7 200000 2 0x1d00 135 68.1 1774.63 10827352 9218834
+
+% ebbrt_tuned c1 200000 400 0xd00 135 442.8 948.19 3291640 781241
+% ebbrt_tuned c1e 200000 400 0xd00 135 445.1 941.39 2950100 781239
+% ebbrt_tuned c3 200000 400 0xd00 135 445.1 935.63 2676159 781228
+% ebbrt_tuned c7 200000 400 0xd00 135 443.8 943.83 3594352 781236
+
+% ebbrt_tuned c1 1500000 0 0x1d00 135 58.5 2633.76 33730121 318342
+% ebbrt_tuned c1e 1500000 0 0x1d00 135 59.3 2614.47 31964816 318347
+% ebbrt_tuned c3 1500000 0 0x1d00 135 58.9 2640.36 31464117 318348
+% ebbrt_tuned c7 1500000 0 0x1d00 135 57.7 2631.38 31876151 318346
+
+% ebbrt_tuned c1 1500000 100 0xf00 135 171.1 1343.02 3939748 312496
+% ebbrt_tuned c1e 1500000 100 0xf00 135 191.3 1343.54 3557152 312496
+% ebbrt_tuned c3 1500000 100 0xf00 135 196.1 1336.57 3599566 312488
+% ebbrt_tuned c7 1500000 100 0xf00 135 195.9 1375.84 3558380 312495
+\begin{table}[t]
+\centering
+\begin{tabular}{l|c|c|c|c|c|}
+  QPS & Type & Sleep State & Latency (\SI{}{\micro s}) & Energy (\SI{}{\joule})\\ \hline
+  200K & Min-Tail & C1 & 47 & 1910\\ \hline
+  200K & Min-Tail & C1E & 57 & 1772\\ \hline
+  200K & Min-Tail & C3 & 67 & 1770\\ \hline
+  200K & Min-Tail & C7 & 68 & 1774\\ \hline
+  200K & Min-Energy & C1 & 442 & 949\\ \hline
+  200K & Min-Energy & C1E & 445 & 941\\ \hline
+  200K & Min-Energy & C3 & 445 & 941\\ \hline
+  200K & Min-Energy & C7 & 443 & 937\\ \hline
+  1500K & Min-Tail & C1 & 58 & 2633\\ \hline
+  1500K & Min-Tail & C1E & 59 & 2614\\ \hline
+  1500K & Min-Tail & C3 & 59 & 2640\\ \hline
+  1500K & Min-Tail & C7 & 58 & 2631\\ \hline
+  1500K & Min-Energy & C1 & 171 & 1343 \\ \hline
+  1500K & Min-Energy & C1E & 191 & 1343\\ \hline
+  1500K & Min-Energy & C3 & 196 & 1336\\ \hline
+  1500K & Min-Energy & C7 & 195 & 1375\\ \hline
+\end{tabular}
+\caption{Min-Tail refers to configuration of processor speed and interrupt rate where the lowest tail latency was achieved and Min-Energy refers to the configuration with lowest energy use.}
+%\caption{Workload configurations.
+%The column {\em Nature} indicates open-versus-closed loop nature
+%and {\em CPU} indicates application CPU demand.}
+\label{table:mcd_sleep_states}	
+\end{table}
+
+\subsubsection{Finding-5: Sleep states and race-to-halt rarely useful)} \label{sec:f5} 
+Table~\ref{table:mcd_sleep_states} lists a small experiment where different sleep states are explored under the libOS at two extremities when the libOS is lightly loaded (200K QPS) and heavily loaded (1500K QPS). \textit{Min-Tail} is configuring the processor and interrupt rate running fastest while \textit{Min-Energy} is both parameters running slowest. When the libOS is lightly loaded, we find that using different sleep states does make a difference in tail latency and energy. We hypothesize that the small exit latencies of the C1 sleep state results in better tail latencies for memcached. However, we find the effect is lessened when under a heavier load, which seems to indicate that a slowed processor is affecting the efficacy of sleep states given it is already running at a slowed interrupt delay rate, which implies ample opportunities to take advantage of system idling. Moreover, as the load increases for the libOS, selection of different sleep states causes no noticeable differences in either latency nor energy, which implies the constant bursty nature of incoming packets is rendering the idle times non-existent. Lastly, combined with the energy benefits of slowing down the processor versus using sleep states in ~\ref{sec:f2}, we assert that trying to use sleep states for energy savings is largely ineffective. 
 
 \subsubsection{Polling}
 \textbf{Polling - TODO}
