@@ -57,7 +57,8 @@ See 5.2 and 5.3 as the core results that relate to us:
 ## Comment
 This was a very poor experimental evaluation even for USENIX
 
-However, we should note that they fixed sleep state   
+However, we should note that they fixed sleep state as part of their work rather than letting them be managed.  
+   
 
 ## David Brooks: Tradeoffs between Power Management and Tail Latency in WarehouseScale Applications -- 2014
 
@@ -87,7 +88,7 @@ reducing structural OS overheads (path length, single protection domain processi
 ## Distinguishing aspects of our work 
 Cloud service focus -- extends the notion of slowing down to include delaying of request detection using interrupt delaying -- versus only considering power management mechanisms.
 
-We focus on understanding how the OS's structure impacts and interacts with the net performance realized and energy consumed.  
+OS focused analysis: We focus on understanding how the OS's structure impacts and interacts with the net performance realized and energy consumed.  
 (Gernot work examines the knobs but not the impact of changing the OS)
 
 
