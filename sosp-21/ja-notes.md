@@ -62,7 +62,53 @@ However, we should note that they fixed sleep state as part of their work rather
 
 ## David Brooks: Tradeoffs between Power Management and Tail Latency in WarehouseScale Applications -- 2014
 
+"9 of these benchmarks often toggle their cores between short bursts of activity and sleep.  In doing so, they stress sleep selection algorithms and can cause talk latency degradation or missed potential for power savings up to 10% on important workloads like web search" 
+
+"We find the largest potential in DVFS which is cognizant of latency/power tradeoffs on a workload-per-workload basis"
+
+"In an ideal energy-proportional system, server power consumption would perfectly track the arrival patterns of requests"
+ 
+"at full load the processors consume 78% of the system power.  Furthermore, just the dynamic range of processor power between fully idle and fully loaded is 67% of the maximum system power"
+
+"a warehouse scale computer has conflicting requirements between aggressive power savings and aggravated request latency (and missing SLA's)"
+
+"What are the sleep patterns of current WSC applications? Are applications' idle periods short enough to be affected by the choice of a particular sleep state?"
+
+"How much does C-state selection influence request latency and system power on the macro level?  In other words, by how much can proper selection improve latency, and what are the maximal power saving from using idle periods?"
+
+"We evaluate the potential benefits of WSC applications from reducing voltage and frequency during memory-bound phases of execution"
+
+"Finally, we identify that the directions holding the largest promise are workload-specialized and ultra-fine-grained DVFS, which warrant further study."
+
+"SandyBridge microarchitecture exposes 5 sleep states:
+state | residency | wakeup-latency
+-----------------------------------
+C0 | (active) | (active)
+C1 | 1 us | 1 us
+C3 | 106 us | 80 us
+C6 | 345 us | 104 us
+C7 | 345 us | 109 us
+"
+
+"The PCU can ignore software requests for a specific C-state, choosing to enter a shallower one, if it estimates that the residency requirement of the deeper state will note be met ... controlled by a proprietary algorithm set by processor vendors. Furthermore the PCU can choose to transition a core between sleep states without waking it up -- a knob not available in software"
+
+"However, selecting the optimal sleep state requires accurate prediction of sleep lengths... predicting too long may cause a premature wakeup, adding the state wakeup latency to the already time-critical interrupt processing."
+
+Figure 6 seems bogus given that there is no discussion of the sleep state algo/policy
+
+Latency-insensitive applications -- with sleep and active periods well longer than 1ms ... the latency effects of deep sleep are irrelevant"
+
+Latency-sensitive IO-heavy applications -- fraction of sleep and bursts of activity with sub-millisecond lengths
+
+Latency-sensitive CPU-heavy applications -- require very minimal power management
+
+
+"Linux kernel's support for frequency scaling is based on different premise.  Power-saving governors (ondemand, powersave) use OS reported processor utilization as a proxy for the system's latency sensitivity and scale frequency down when processor utilization is low. "  this is not appropriate for WSC workloads -- services can be very sensitive to latency regardless of how high processor utilization is"
+
+
 ## Hank Hoffman: Racing and Pacing to Idle: Theoretical and Empirical Analysis of Energy Optimization Heuristics -- 2015
+
+
 
 ## Daniel Wong: μDPM: Dynamic Power Management for the Microsecond Era -- 2019
 
@@ -80,6 +126,7 @@ Cloud servers can experience a wide range of utilization -- under utilized when 
 
 reducing structural OS overheads (path length, single protection domain processing, run to completion) can lead to an improvement in net request IPC and thus magnify the ability to slowdown to improve energy consumption with little or no impact on performance.
 
+Is our hardware still in commercial data center's such as google?
 
 
 
@@ -90,8 +137,6 @@ Cloud service focus -- extends the notion of slowing down to include delaying of
 
 OS focused analysis: We focus on understanding how the OS's structure impacts and interacts with the net performance realized and energy consumed.  
 (Gernot work examines the knobs but not the impact of changing the OS)
-
-
 
 
 
