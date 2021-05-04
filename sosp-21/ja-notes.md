@@ -186,8 +186,15 @@ Closed loop and open loop model
 
 # Intro
 
-Network driven services are the hallmark of Cloud Computing.  Achieving the required performance while consuming the least amount of energy is a fundamental goal for a provider.   In this paper, we carefully break down and study network driven processing and demonstrate the positive impacts and interactions that the OS can have when slowing down the CPU and delaying interrupt delivery.  Often one can significantly reduce energy consumption with very little impact on performance.  Give an example from results here. 
+Network driven services are the hallmark of Cloud Computing.  Achieving the required performance while consuming the least amount of energy is a fundamental goal for a provider.   In this paper, we carefully break down and study network driven processing and demonstrate the positive impacts and interactions that the OS can have when slowing down the CPU and delaying interrupt delivery.  Often one can significantly reduce energy consumption with very little impact on performance.  For example even under higher loads it is possible to serve memcached request at half the energy cost 
+Memcached
+Best Performance EbbRT      200K QPS  65.9us        @ 1747
+Best Energy      EbbRT      200K QPS  444 us        @ 935
+Good1            EbbRT      200K QPS  67.7us (1.02) @ 1042 (
+Good2            EbbRT      200K QPS  104us         @ 959
 
+EbbRT      200K QPS  
+EbbRT-POLL 200K QPS  
 
 While many have studied power management mechanisms and control from an architectural or application perspective we approach the subject from and OS research vantage point.  Our goal is not the construction of a particular policy or mechanism rather it is to quantify and explain how and why slowing down processing can be beneficial.  Our work extends and builds upon that of Sueur et al. and Mootaz et al.  Sueur et al. noted that to guide an OS designer it is critical to analyses the system as a whole, including the workload, to determine whether using mechanisms such as DVFS [Dynamic Voltage Frequency Scaling to slow processing down] will be effective at reducing energy consumption. While Mootaz et al observed that delaying request processing can result in batching effects that permit power savings while maintaining tail latency requirements for web serving.                                                                                                                                  
 
