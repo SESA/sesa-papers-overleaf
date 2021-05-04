@@ -108,9 +108,29 @@ Latency-sensitive CPU-heavy applications -- require very minimal power managemen
 
 ## Hank Hoffman: Racing and Pacing to Idle: Theoretical and Empirical Analysis of Energy Optimization Heuristics -- 2015
 
+"... These studies suggest there is a need to revisit earlier results and better understand when the race-to-idle strategy is appropriate in practice and how much energy can be saved using more sophisticated resource allocation schemes"
 
+"race-to-idle"
+"pace-to-idle"
+"no-idle"
+"optimal"
+
+"Our empirical results confirm that the pace-to-idle strategy always beats race-to-idle by as much as 20% on x86 and 3X on ARM."
+
+"CMOS voltage and frequency scaling for combinational logic (P is proportional to v squared times f) does not apply to traditional SRAM circuits, as reducing the voltage in these circuits leads to unacceptable error rates. As SRAM circuits are used to implement cache, this means significant portions of the processor do not obey the cube-root law. "
+
+no-idle - finish work exactly on time without idling 
+Pace-to-idle - use best energy efficient configuration then idle
+
+Theoretical framework does not account for latencies/penalties associated with sleep states.
+
+No I/O driven work in which inter-arrival gaps induce spreading out idleness and thus wake penalties have more complex dynamics on latency implications
+
+Computational kernels no OS or significant IO
 
 ## Daniel Wong: μDPM: Dynamic Power Management for the Microsecond Era -- 2019
+
+
 
 ## Bestavros: Peafowl: in-application CPU scheduling to reduce power consumption of in-memory key-value stores -- 2020
 
@@ -138,6 +158,7 @@ Cloud service focus -- extends the notion of slowing down to include delaying of
 OS focused analysis: We focus on understanding how the OS's structure impacts and interacts with the net performance realized and energy consumed.  
 (Gernot work examines the knobs but not the impact of changing the OS)
 
+General model that frames software behavior that can be adapt as hardware tradeoffs change 
 
 
 
