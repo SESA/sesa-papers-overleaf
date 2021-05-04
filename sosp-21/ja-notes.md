@@ -80,15 +80,23 @@ However, we should note that they fixed sleep state as part of their work rather
 
 "Finally, we identify that the directions holding the largest promise are workload-specialized and ultra-fine-grained DVFS, which warrant further study."
 
-"SandyBridge microarchitecture exposes 5 sleep states:
+"SandyBridge microarchitecture exposes 5 sleep states:"
+
+
+
 state | residency | wakeup-latency
------------------------------------
+----------------------------------
 C0 | (active) | (active)
+------------------------
 C1 | 1 us | 1 us
+------------------------
 C3 | 106 us | 80 us
+------------------------
 C6 | 345 us | 104 us
+------------------------
 C7 | 345 us | 109 us
-"
+------------------------
+
 
 "The PCU can ignore software requests for a specific C-state, choosing to enter a shallower one, if it estimates that the residency requirement of the deeper state will note be met ... controlled by a proprietary algorithm set by processor vendors. Furthermore the PCU can choose to transition a core between sleep states without waking it up -- a knob not available in software"
 
@@ -130,7 +138,17 @@ Computational kernels no OS or significant IO
 
 ## Daniel Wong: μDPM: Dynamic Power Management for the Microsecond Era -- 2019
 
+"Unfortunately, the effectiveness of DVFS is diminishing with improved technology scaling as the operating voltage approaches the transistor threshold voltage" -- not sure that this is really true
 
+"While frequency scaling only reduces dynamic power, static power is equally important. To reduce static power, sleep states are designed to save power during idle periods." 
+
+"For example, DVFS-based techniques and sleep-based techniques have been proposed to slow down processing, or delay processing, so that requests finish just-in-time before the target tail latency."
+
+"we find that existing Dynamic Power Management schemes break down -- specifically, DVFS-based schemes cannot find enough opportunities to slow down, and sleep-based schemes cannot enter a deep enough sleep state to be effective."
+
+"The key insight driving uDPM is that by carefully coordinating DVFS, sleep and request delaying, we can achieve energy savings where all others fail.  "
+
+Uses a hardware system and prototype to calibrate a simulator to develop a dvfs, sleep state and batching control policy to minimize energy for a tail latency target.  Notion of delaying processing seems to come from an 2003 IBM USENIX paper on the use of batching to reduce energy consumption of webservers -- defines the notion of a latency slack that can be exploited via batching to bunch up idle time.
 
 ## Bestavros: Peafowl: in-application CPU scheduling to reduce power consumption of in-memory key-value stores -- 2020
 
@@ -159,6 +177,28 @@ OS focused analysis: We focus on understanding how the OS's structure impacts an
 (Gernot work examines the knobs but not the impact of changing the OS)
 
 General model that frames software behavior that can be adapt as hardware tradeoffs change 
+
+We use existing interrupt delay feature to delay packet detection when using interrupts.
+
+Exhaustively document the behaviour of real software
+
+Closed loop and open loop model 
+
+# Intro
+
+Network driven services are the hallmark of Cloud Computing.  Achieving the required performance while consuming the least amount of energy is a fundamental goal for a provider.   In this paper, we carefully break down and study network driven processing and demonstrate the positive impacts and interactions that the OS can have when slowing down the CPU and delaying interrupt delivery.  Often one can significantly reduce energy consumption with very little impact on performance.  Give an example from results here. 
+
+
+While many have studied power management mechanisms and control from an architectural or application perspective we approach the subject from and OS research vantage point.  Our goal is not the construction of a particular policy or mechanism rather it is to quantify and explain how and why slowing down processing can be beneficial.  Our work extends and builds upon that of Sueur et al. and Mootaz et al.  Sueur et al. noted that to guide an OS designer it is critical to analyses the system as a whole, including the workload, to determine whether using mechanisms such as DVFS [Dynamic Voltage Frequency Scaling to slow processing down] will be effective at reducing energy consumption. While Mootaz et al observed that delaying request processing can result in batching effects that permit power savings while maintaining tail latency requirements for web serving.                                                                                                                                  
+
+
+More recently, Chou et al. proposed a dynamic control policy in the context of micro-services that advocates for a mixing both the slowing down of the CPU and delaying processing in a latency sensitive manner.   The authors focus is one of policy development with little insight into the impact that the OS's design and implementation has.    
+
+To our knowledge we are the first to conduct a detailed experimental study that evaluates how the OS structure and choices interact with slowing cores down using hardware power management (DVFS) and delaying interrupt delivery using NIC settings (IDR).  We experimentally gather data for a very large combination of DVFS and IDR setting across four workloads broken down into two categories open loop and closed loop. Each category consists of one workload that is OS centric and the other that is application centric. Further to tease apart the OS impact  in addition to evaluating a general purpose OS (Linux) we use a Library OS, that we can more easily modify to explore a broader range of systemic OS choices.   
+
+Breaking down request processing into phases we construct a mathematical model that allows us to capture and explain the OS's behavior and its impact on both performance and energy.  The model is both intuitive and consistent with our experimental observations.  
+
+Figure~/ref{timeline} illustrates the typical processing timeline for a network service.  
 
 
 
