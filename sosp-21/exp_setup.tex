@@ -1,11 +1,11 @@
 %\section{Experiment Overview}
 %% TODO JA - fill in your thoughts on why we picked these four specific workloads
 
-In this section, we begin to narrate our study.
-We present our chosen hardware platform and the three hardware parameters we explore (\S\ref{sec:knobs}, \S\ref{sec:exp_setup}),
-detail our per-interrupt log collection methodology (\S\ref{sec:log_collect}),
-briefly discuss our two target OSes and their configurations (\S\ref{sec:OS}),
-and describe the application software and workloads we use to exercise this OS software (\S\ref{sec:apps}).
+% In this section, we begin to narrate our study.
+% We present our chosen hardware platform and the three hardware parameters we explore (\S\ref{sec:knobs}, \S\ref{sec:exp_setup}),
+% detail our per-interrupt log collection methodology (\S\ref{sec:log_collect}),
+% briefly discuss our two target OSes and their configurations (\S\ref{sec:OS}),
+% and describe the application software and workloads we use to exercise this OS software (\S\ref{sec:apps}).
 
 %% \begin{figure}
 %%   \includegraphics[width=7.7cm]{itr_figure.png}
@@ -24,32 +24,32 @@ and describe the application software and workloads we use to exercise this OS s
 %outline Linux's default policies for tuning them,
 %and describe how we statically configure them. 
 
-\subsection{NIC Interrupt Delay (ITR-delay)}
-\label{sec:knobs_itr}
-The Intel 82599 datasheet~\cite{82599}
-defines a time-based interrupt throttling mechanism
-which controls the delay (i.e. ITR-delay)
-between fired NIC interrupts on target cores.
-%The value of ITR-delay can range from \texttt{0} to \texttt{1024} \micro s
-%and can be adjusted in increments of \texttt{2} \micro s.
-%By default, Linux's network device driver uses a dynamic policy
-%that seeks to tune ITR-delay to better reflect the resident workload between a range of 2 \micro s and 128 \micro s.
-The policy collects data received from prior interrupts
-about packet counts and bytes-per-packet
-and uses it to classify the current state of the workload
-(i.e. latency-critical or best-effort batch compute).
-It then tunes ITR-delay accordingly
-while abiding by pre-computed theoretical maximum wire speeds.
+% \subsection{NIC Interrupt Delay (ITR-delay)}
+% \label{sec:knobs_itr}
+% The Intel 82599 datasheet~\cite{82599}
+% defines a time-based interrupt throttling mechanism
+% which controls the delay (i.e. ITR-delay)
+% between fired NIC interrupts on target cores.
+% %The value of ITR-delay can range from \texttt{0} to \texttt{1024} \micro s
+% %and can be adjusted in increments of \texttt{2} \micro s.
+% %By default, Linux's network device driver uses a dynamic policy
+% %that seeks to tune ITR-delay to better reflect the resident workload between a range of 2 \micro s and 128 \micro s.
+% The policy collects data received from prior interrupts
+% about packet counts and bytes-per-packet
+% and uses it to classify the current state of the workload
+% (i.e. latency-critical or best-effort batch compute).
+% It then tunes ITR-delay accordingly
+% while abiding by pre-computed theoretical maximum wire speeds.
 
-In Linux, the \textit{ethtool} program can be used
-to statically set ITR-delay values
-such that NIC interrupts fire at a fixed rate.
-We take advantage of this ability in our study and tune ITR-delay values statically for different applications.
-We focus on this NIC hardware setting
-over thousands of others~\cite{82599}
-due, firstly, to its ease of configurability in Linux (via \textit{ethtool}),
-and secondly to its adoption by Linux's dynamic tuning policy
-which we can use as a comparison point.
+% In Linux, the \textit{ethtool} program can be used
+% to statically set ITR  values
+% such that NIC interrupts fire at a fixed rate.
+% We take advantage of this ability in our study and tune ITR  values statically for different applications.
+% We focus on this NIC hardware setting
+% over thousands of others~\cite{82599}
+% due, firstly, to its ease of modification in Linux (via \textit{ethtool}),
+% and secondly to its adoption by Linux's dynamic tuning policy
+% which we can use as a comparison point.
 
 
 %Figure~\ref{fig:itr_figure} illustrates the interaction of interrupt delay
@@ -314,7 +314,7 @@ we disable hyperthreads and Turbo Boost features on all processors.
 \label{sec:OS_linux}
 In order to ensure a fair comparison our single-purpose library OS and general-purpose Linux, we build a set of application-specific Linux \textit{appliances} for our four workloads. Reminiscent of library OSes~\cite{unikernels}, these appliances are specially constructed to run a RAM-based filesystem and contain only a small set of system libraries and kernel modules required to run their constituent applications. We construct these appliances from a base Debian 10.4 distirbution and use a custom 5.5.17 kernel which we build using a modified configuration file created for supporting high performance, following suggestions from previous work that studies Linux core operation costs~\cite{linux-core-ops}. To avoid scheduling overheads and noise, we pin all applications to physical cores. In addition, we disable Linux ~\textit{irqbalance} and affinitize packet receive interrupts to their respective cores.
 
-Given the general-purpose nature of Linux, it contains many policies and mechanisms that interact with overall application and system execution. For example, it contains the CPU Idle Time Management Subsystem which comprises logic integrated into various parts of the system in order to manage when and how to idle. The subsystem itself decomposes further into selectable {\tt CPU idle} governors, of which we use the recommended {\tt intel\_idle} governor to exploit the Intel-specific multi-level sleep states (C1, C1E, C3 and C7). Linux also encorporates NAPI~\cite{napi}, which interacts with the detection and dispatching of network packets for balancing poll and interrupt-driven operation of the network device.
+Given the general-purpose nature of Linux, it contains many policies and mechanisms that interact with overall application and system execution. For example, it contains the CPU Idle Time Management Subsystem which comprises logic integrated into various parts of the system in order to manage when and how to idle. The subsystem itself decomposes further into selectable {\tt CPU idle} governors, of which we use the recommended {\tt intel\_idle} governor to exploit the Intel-specific multi-level sleep states (C1, C1E, C3 and C7). Linux also incorporates NAPI~\cite{NAPI}, which interacts with the detection and dispatching of network packets for balancing poll and interrupt-driven operation of the network device.
 
 %It determines when and how to sleep the processor
 %based on system load measurements
@@ -324,9 +324,9 @@ Given the general-purpose nature of Linux, it contains many policies and mechani
 %Linux networking subsystem (including its management of the ITR
 %value).
 
-All of these performance management components are entangled deeply in Linux's design and implementation, making it difficult to pin down how they interact with each other and with the rest of the system. For example, predicting the time of occurrence of the next interrupt relies on gathering device-level interrupt activity and wake-up statistics and hence interacts with the layered generic interrupt management subsystem of Linux. Moreover, ITR-delay changes can influence NAPI and idle management behavior, which together can affect the selected halt states and the net influence of DVFS and RAPL settings.
+% All of these performance management components are entangled deeply in Linux's design and implementation, making it difficult to pin down how they interact with each other and with the rest of the system. For example, predicting the time of occurrence of the next interrupt relies on gathering device-level interrupt activity and wake-up statistics and hence interacts with the layered generic interrupt management subsystem of Linux. Moreover, ITR-delay changes can influence NAPI and idle management behavior, which together can affect the selected halt states and the net influence of DVFS and RAPL settings.
 
-We posit that application execution can benefit greatly from eliminating the interference and overhead of dynamic policies and mechanisms. In our study, we explore static hardware configurations of performance settings in detail (see \S\ref{sec:knobs} for a quantification of explored values) with the goal of unveiling 1) any headroom that exists for improving the overall performance and energy consumption of application-workloads in Linux and 2) insight about the interaction of these workloads with the system software.
+% We posit that application execution can benefit greatly from eliminating the interference and overhead of dynamic policies and mechanisms. In our study, we explore static hardware configurations of performance settings in detail (see \S\ref{sec:knobs} for a quantification of explored values) with the goal of unveiling 1) any headroom that exists for improving the overall performance and energy consumption of application-workloads in Linux and 2) insight about the interaction of these workloads with the system software.
 
 
 %Describe details of configurations considered and various policies and
@@ -339,14 +339,15 @@ We posit that application execution can benefit greatly from eliminating the int
 
 \subsubsection{Library OS}
 \label{sec:OS_libos}
-We use an existing libOS with specialized components\footnote{ All components are multi-core functional and optimized to aggressively use per-core memory and fine grain locking.}, including a NIC driver, a custom TCP/IP stack, virtual and physical memory allocators\footnote{Memory allocators make aggressive use of large pages and pinned memory to avoid page-faults.}, and a generic I/O buffer\footnote{I/O buffers are designed to enable zero-copy application data processing.} The library OS is packaged as a library of configurable modules and \textit{gcc-5.3.0}-based tool-chain targeting the base components of the OS. 
+The library OS used in this work was previously published at OSDI and is currently open-sourced on github (anonymized for now). The library OS consists of specialized components written in C++\footnote{ All components are multi-core functional and optimized to aggressively use per-core memory and fine grain locking.}, including a NIC driver, a custom TCP/IP stack, virtual and physical memory allocators\footnote{Memory allocators make aggressive use of large pages and pinned memory to avoid page-faults.}, and a generic I/O buffer\footnote{I/O buffers are designed to enable zero-copy application data processing.} The library OS is packaged as a library of configurable modules and \textit{gcc-5.3.0}-based tool-chain targeting the base components of the OS. 
 
-Applications are ported to it by configuring the necessary OS components and compiling the application source along with any dependent libraries using this tool-chain. This process generates a single application-specific binary that is source and link-optimized with the OS code. Prior studies have indicated the benefits of both compile-time and link-time optimization on library OS function dispatching~\cite{ebbrt}. We built a baremetal port of the libOS by writing a network device driver for the Intel 82599 NIC. Our bare-metal port enables application-specific binaries to boot directly on our hardware platform. Once booted, OS and application code is executed under a single supervisor privilege domain. The library OS strictly adopts a run-to-completion, event-driven execution model\footnote{All event handlers are run with interrupts disabled and are expected to return back to the event loop.} and bears similarity to other library OSes designed for high-performance network services\cite{ix,seda,arrakis,ebbrt}. 
+Applications are ported to it by configuring the necessary OS components and compiling the application source along with any dependent libraries using this tool-chain. This process generates a single application-specific binary that is source and link-optimized with the OS code. Prior studies have indicated the benefits of both compile-time and link-time optimization on library OS function dispatching~\cite{ebbrt}. We built a bare-metal port of the library OS by writing a network device driver for the Intel 82599 NIC. Our bare-metal port enables application-specific binaries to boot directly on our hardware platform. Once booted, OS and application code is executed under a single supervisor privilege domain. The library OS strictly adopts a run-to-completion, event-driven execution model\footnote{All event handlers are run with interrupts disabled and are expected to return back to the event loop.} and bears similarity to other library OSes designed for high-performance network services\cite{ix,seda,arrakis,ebbrt}. 
 
-Given the design and implementation for single-application, non-preemptive processing via an optimized OS and application binary, the library OS components can avoid many checks and streamline execution, ranging from interrupt dispatch to application logic. The NIC device driver totals over 3000 lines of code and interfaces with the library OS multicore TCP/IP network stack\footnote{The device driver programs the NIC using per-cpu queues and interrupts, maintaining the affinity of TCP connections to their respective cores.}. It inherently does not have a dynamic policy for updating ITR-delay values, but does provide an interface for statically setting them. We use this interface in our study as we sweep across hardware parameter values. 
+Given the design and implementation for single-application, non-preemptive processing via an optimized OS and application binary, the library OS components can avoid many checks and streamline execution, ranging from interrupt dispatch to application logic. The NIC device driver totals over 3000 lines of code and interfaces with the library OS multi-core TCP/IP network stack\footnote{The device driver programs the NIC using per-cpu queues and interrupts, maintaining the affinity of TCP connections to their respective cores.}. The library OS provides an interface for statically setting ITR delay values. We use this interface in our study as we sweep across hardware parameter space. 
 
-The baremetal library OS follows a simple implementation and idling behavior. If no interrupt events or software events exist, the event-loop of the library OS infers that the system is idle and halts the core to enter the deepest sleep state supported by our hardware (C7). In contrast, upon receiving a packet, the device driver management code, protocol processing code, and application code can be dispatched and run to completion on a single event triggered by a NIC interrupt. The NIC driver also exposes a configurable constant (set to 64 for all our experiments) that is used to control how many packets can be processed in a single interrupt invocation before returning to the event-loop of the core on which the interrupt was processed. This behaviour, in turn, introduces a simple bounded per-cpu device-level poll. The libOS idling and device-polling policies are simple compared to Linux policies. %Our study reveals the contrast between these library OS policies and those applied by Linux through presenting a detailed quantification of execution trends and power events. It uncovers surprising impacts of OS functionality on overall system execution and yields insight on OS-level adaptations for energy-performance goals.
-
+The bare-metal library OS follows a simple implementation and idling behavior. If no interrupt events or software events exist, the event-loop of the library OS infers that the system is idle and halts the core to enter the deepest sleep state supported by our hardware (C7). In contrast, upon receiving a packet, the device driver management code, protocol processing code, and application code can be dispatched and run to completion on a single event triggered by a NIC interrupt. The NIC driver also exposes a configurable constant (set to 64 for all our experiments) that is used to control how many packets can be processed in a single interrupt invocation before returning to the event-loop of the core on which the interrupt was processed. This behaviour, in turn, introduces a simple bounded per-cpu device-level poll. %The library OS' idling and device-polling policies are simple compared to Linux policies. %Our study reveals the contrast between these library OS policies and those applied by Linux through presenting a detailed quantification of execution trends and power events. It uncovers surprising impacts of OS functionality on overall system execution and yields insight on OS-level adaptations for energy-performance goals.
+\subsubsection{NIC polling in the library OS}
+The simple run-to-completion, and lightweight event-driven execution model of the library OS allows us to uniquely explore the performance-energy trade-offs of slowing down the processor in the context of a polling loop for packet processing. Intel's 82599 datasheet~\cite{82599} defines two hardware registers that enable automatic clearing and masking of interrupts per receive and transmit queue. To enable polling, we 1) enable auto clearing of network interrupts in order to receive the very first interrupt of every queue, and we 2) disable auto masking to prevent future interrupts on that particular queue. Next, we wrote a custom network interrupt handler for that very first interrupt which effectively calls the packet processing function in a tight loop. Due to this tight polling loop, the library OS will never halt the processor and thus will not use any sleep states. To enable interrupts, we enable both interrupt clearing and masking and set the interrupt handler to be a packet processing function instead.
 
 %-----------------------------
 %
