@@ -1,13 +1,15 @@
 %\subsection{Workflow}
 \label{sec:workflow}
 
-
+%https://lucid.app/lucidchart/fc20f7aa-529f-44e7-b9b5-8ed52952f7d5/edit?page=l0EzjAKrzgiu#
 \begin{figure}
 \centering
-\includegraphics[width=0.5\textwidth]{figures/timeline_chart}
+\includegraphics[width=1.1\columnwidth]{figures/timeline_chart}
 \caption[]{Request timeline}
 \label{fig:timeline}
+\vspace{-0.25in}
 \end{figure}
+
 
 From an OS perspective we break down network driven processing into stages that allows us to organize and reflect the OS and application interaction with the workload request timeline.  This break down is illustrated in figure~\ref{fig:timeline}.   
 
@@ -50,7 +52,23 @@ By default the Linux device driver attempts to automatically set ITR to reduce i
 
 \subsection{OS Request Processing}
 
-Once the OS detection mechanism identifies that the NIC has data to process several components of OS functionality must be run in accordance with the execution model of the OS.  Specifically device driver code must remove dequeue hardware frames and schedule them for processing by the appropriate network protocol code. This code must ultimately determine the application end point, a port in the case of IP and TCP, and enqueue, encapsulated data,  for application processing.  Ultimately, this can envolve 
+Once the OS detection mechanism identifies that the NIC has data to process several components of OS functionality must be run in accordance with the execution model of the OS.  Specifically device driver code must dequeue layer 2 frames and schedule them for processing by the appropriate network protocol code. This code must ultimately determine the application end point, a port in the case of IP and TCP, and enqueue, the encapsulated data,  for application processing. 
+
+This work, on a general purpose OS, is typically split between two levels of scheduling; 1) interrupt level in which minimal work is done but at the highest critical priority and is run to completion (typically called the top-half processing), 2) the so-called bottom-half uses various kernel facilities to execute both device driver logic and protocol processing in a manner that can be preempted and rate limited.  Regardless all this work is done at the OS privilege domain and ultimately prepares data for the workload specific preemptable    application processing which is independently scheduled at lower privilege and priority. 
+
+Library operating systems that are customized for a specific application and processing model often shed much of the above complexity both shortening the path and eliminating the above privilege scheduling domains\cite{IX,Arrakis,EbbRT}.  Rather they can exploit short-cuts that allow run to completion execution of all the logic, including application, processing in response to detecting device activity.  
+
+\subsubsection{Application Processing}
+Once the OS has completed protocol processing it enables application logic to begin.  Depending on the workload this may be very simple as in the case of a workload like memcached or it require significant cpu activity as in the case of  an application server written in managed runtime such as nodejs or one that does non-trivial work to service a request. 
+
+As illustrated, during application processing the OS logic may be interleaved.  This work roughly falls into two categories, synchronous work done in service of this application request (page-faults, system calls, etc) and asynchronous work not having to do with this request (OS background work, processing of other requests or processes).
+
+Library OS's can often avoid interleaving asynchronous work, unrelated to the request handling,  and thus minimize jitter and improve IPC. 
+
+\subsubsection{OS Reply Processing}
+
+As illustrated At some point during application processing a reply is generated and submitted to the OS for transmission.  This can often be handled in an asynchronous fashion.  Where the OS can initiate protocol processing and device transmission in parallel with the remaining application request processing logic (eg. book keeping, cleanup and preperation for the next request).
+
 
 \subsection{DVFS}
 
@@ -68,6 +86,6 @@ Once the OS detection mechanism identifies that the NIC has data to process seve
 %
 %The amount of energy used during this idle period is dependent upon the OS idling policies; in terms of which level of idle state is selected.
 %
-\subsection{Equations}
+%\subsection{Equations}
 \input{model}
 %\subsection{ITR-Delay algorithm}
