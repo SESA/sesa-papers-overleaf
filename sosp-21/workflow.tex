@@ -1,5 +1,26 @@
 %\subsection{Workflow}
 \label{sec:workflow}
+% Gernot suggests that we must consider entire system
+% Hank quantifies that one must consider complex tradeoff space in energy management as hardware is nolonger simply race-to-halt friendly -- race-to-halt, pace-to-idle, optimal and no-idle -- due to changes in the dynamic and static components of energy consumption driven by differences in CMOS and SRAM composition and usage in processors.
+% Building on prior work Chou suggests that latency sensitive workloads are different and matter
+% Brooks suggest that optimal energy management will require workload specific specialization
+
+% Building on the above observations we uniquely  study performance and energy  impact of slowing down both processors and delaying request processing on network driven workloads from an OS perspective.  Ultimately with the goal of revealing explaining current behavior and guiding future work in both OS and hardware.  
+
+% Using our OS knowledge and prior architectural and application oriented work on power management, we construct a simplified request processing model, that can be expressed mathematically.  We construct the model to reflect what  we believe to be the important interactions that the OS can have on the realized performance and energy when running various types of network oriented workloads.   Specifically,  the model lets us evaluate how slowing down processing and interrupt detection interacts with  variations in the instructions components of OS and Application request processing, the impact of specializing the OS for a single network application, the use of interrupts versus polling and interactions with the use of hardware sleep-states.  Using the model we can predict the general behavior one might observed with respect to both performance and energy.
+
+% We conduct an exhaustive study that sweeps processor slow downs and interrupt delays in the context of four network benchmarks designed to stress different OS and application behaviours.  We evaluate both a general purpose OS and a library OS specialized for to run single network oriented servers.  Doing so lets us vary OS path lengths and efficiencies, differences in interrupt and polling behaviors along with sleep state strategies.
+
+% We then analyze the data to draw validate core observations of how the OS affects the observed combination of performance and energy for the workloads.  We also use the data to evaluate our model.
+
+% model 
+% exhaustive search - interesting points
+% model seems to match data
+% model and data exposes oppunities and shows value of specializain 
+% as advocated by brooks furthur suggest a path via OS specialization that can yield novel performance and energy regiemes 
+% model enables others to validate 
+% model allows both os and hardware designers to evaluate and guide changes
+% model 
 
 %https://lucid.app/lucidchart/fc20f7aa-529f-44e7-b9b5-8ed52952f7d5/edit?page=l0EzjAKrzgiu#
 \begin{figure}
@@ -33,7 +54,7 @@ Fundamental to any operating system is how it detects and schedule processing in
 Using interrupts has three important implications: 1) Interrupts can be used to transition a processor from a halted state which the OS entered to sleep the processor (at some selected HW sleep state (C-state)) in response to external activity, 2)  Interrupts allow an OS to arbitrate processing across competitive devices and processing in a multi-programmed/multi-device setting, 3) interrupt processing has an inherent performance costs associated with it -- in terms of latency in starting handling of a request, either because of the costs associated with preempting currently scheduled work\cite{intelpaper} or exit penalties associated with the C-state that the processors was halted in\cite{}.  Interrupt processing can also have a negative impact on the instruction efficiency, measured in Instructions Per Cycle (IPC), due to induced micro-architecture hazards such as the inability to prefetch or speculatively execute across an interrupt.
 
 \subsubsection{Poll driven IO}
-
+%todo: modify to ack use of halt on cache line in stead of just polling.  
 Most modern high-speed devices expose a memory, if not cache, friendly interface, that permits the processors to read a per-core memory address to determine if the device, such as the Network Interface Card (NIC) has received data that requires processing by the core.  This facility allows software to directly poll the device and initiate software handling without an interrupt.  This approach reduces latency and other performance penalties associated with interrupt driven IO.  However, the period in which the device is checked requires CPU activity and thus limits the ability to halt the cores when there is no work to be done.  In the extreme, a customized OS, supporting a single application can run a poll loop on every core to constantly check for work, conduct the work and then go back to polling for new work and thus never halting the processors due to idleness.   While used in a slightly different context to Kim et al.\cite{hank}, we will refer to this regime as 'no-idle', as it results in a similar energy management strategy albeit in the context of network driven processing.  In general such an aggressive poll approach is assumed to maximize performance by avoiding interrupt overheads and minimizing latency. 
 
 \subsubsection{Hybrid driven IO}
@@ -84,7 +105,7 @@ In our study we allow Linux's scheduler and default idle driver to decide if a c
 
 When we use the Library OS to explore customized behavior we explore two simple configurations.  In the first we when there is no work to process on a core we simply put the processor into the deepest sleep state thus ignoring any tradeoffs in the use of other sleep states.   This allows us to focus on the interaction that slowing down the processor and adjusting the ITR can have with the fixed use of deep sleep.   The second approach we take is the 'no-idle' configuration as discussed above where have no idle policy and simply immediately got back to using poll to implement request detection.
 
-\subsection{DVFS}
+\subsection{Interactions with Slowing Down}
 
 As noted the use of Dynamic Voltage Frequency Scaling or a processors allows software to adjust the energy consumption of CMOS based logic while trading off the rate at which instructions complete.  As noted by gernot, brooks, hank and chou static or leakage energy consumption is not particularly affected by DVFS and induces a based cost for keeping a fix core architecture active.\footnote{Opposed to big-little or reconfigurable core architectures.}
 
@@ -92,10 +113,23 @@ Our study focuses on revealing how "slowing down" processing, using DVFS mechani
 
 From this perspective the three obvious components that can be affected are OS Request, Application and OS Reply processing.  For a given OS their will be a hot-path instruction sequence that will be commonly exercised to process the request packets.  The OS implementation will determine the nature of the instructions that will compose this path for a particular workload.  As such at the fastest DVFS setting their will be a characteristic mean number of cycles that will be required and thus an IPC efficiency realized.  It is important to note that OS IPC does not necessarily imply better or worse performance and energy.   What matters more is the net effect the OS instructions have with respect to application efficiency (eg. request processed per OS cycle). 
 
+\subsubsection{Impact of OS path length and IPC}
 As a matter of fact a core finding is that  shorter OS path length with lower IPC can imply better net efficiency.  If the OS can support the application work in shorter number of cycles using less energy it can lead to an improvement in application IPC and energy efficiency.  In an OS dominate workload, a shorter OS path with lower IPC, can allow one to slow down the core and not impact the performance of the OS code as it is not ALU bound. In the case of an application bound workload such an OS path can result in application efficiency due to a reduction in micro architectural hazards and thus magnify the range of power management configurations that can maintain performance.    
  
- 
+
+\subsubsection{Polling can be energy efficient}
 Another less obvious interaction that can occur is between the use of polling versus interrupts and halting.  Given that polling is a CPU operation it can interact with DVFS settings.  In particular it can be possible that at slower DVFS settings polling can be more efficient and effective with respect to the net performance realized.  
+
+\subsubsection{Race-to-Halt vs Pace-to-idle vs No-idle}
+
+Model is a framework for revealing the effects given OS choices in how to use interrupts, halting and polling.  
+
+\subsection{Interactions with Delaying Interrupts}
+
+While the work of Chou and Mootaz both suggest a energy management policy that rely on delaying processing of application requests for some time given an application specific prediction of the time that will be required to service the request and a specification of the required QoS target.  The expectation is that a controller can exploit a combination of delaying processing and slowing down to find an optimal setting that ensures acceptable tail latencies while reducing the energy consumption.
+
+Our model allows us to explore the impact of using delays in interrupts controlled by the OS to see if similar benefits  might exist while not assuming particular semantic knowledge.  In particular we expect that delaying interrupts can interact with OS code and inherent packetization induced by fixed Message Transmission Unit (MTU) constraints.  Specifically, if a request requires several MTU's then delaying interrupts has the poten
+
 
 %\subsection{Application Perspective}
 %Figure~\ref{fig:timeline} shows the application is waiting to be woken up to process new packets (a). Next, an interrupt (b) is fired and the OS network stack begins processing the received packet (c). The application level work begins, alongside there are also interspersed OS work which may or may not be in direct support of application(d). The tail end of the application work (e) typically entails a response packet being sent, the period of time with which the response packet is physically sent can proceed in parallel with the rest of the application level work. The end of every request handling (f) also revolves a set of OS policies to decide the next state of the software and hardware. Work is time spent executing instructions required to service a request, it is a function of the software, hardware, and workload itself. Whereas, idle time is a function of arrival rate of packets.
