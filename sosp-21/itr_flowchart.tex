@@ -9,9 +9,9 @@
 \resizebox{5cm}{3cm}{%
 \begin{tikzpicture}[node distance=2cm]
 
-\node (start) [startstop] {ITR=\textit{n} us};
+\node (start) [startstop] {ITR=\textit{n} $\mu$s};
 \node (dec1) [decision, below of=start] {ITR==\textit{0}?};
-\node (pro1) [process, right of=dec1, xshift=1.5cm] {ITR-=\textit{2}};
+\node (pro1) [process, right of=dec1, xshift=1.5cm] {ITR-=\textit{2} $\mu$s};
 \node (dec2) [decision, below of=dec1, yshift=-0.5cm] {RX/TX Event?};
 \node (pro2) [startstop, left of=dec2, yshift=1.5cm, xshift=-0.8cm] {Assert Interrupt};
 

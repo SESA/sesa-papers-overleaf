@@ -101,7 +101,7 @@ Even though figure~\ref{fig:mcd_overview} indicates the libOS uses lower energy 
 % MIN-TAIL linux_tuned 600000 30 2.9 135     102.6 2730.61
 
 % Linux's network driver contains a interrupt moderation algorithm is a generic algorithm used to cater the interrupt delay rate towards the current traffic pattern to maximize throughput.
-\subsubsection{Finding-4: Fast interrupt rates induces behavior for low tail latency at high energy use.} \label{sec:f4} Figure~\ref{fig:mcd_overview} also demonstrates the ability to use a fast interrupt rate in order to minimize tail latency. However, our results show that a static setting of a fast interrupt delay rate enables us to further lower tail latency as opposed to the dynamic algorithm by by 40\% at 200K QPS and down to 25\% at 600K QPS. This faster interrupt rate induces a form of polling on Linux's network processing by constantly waking up the processor to do the OS and application work, this results in a greater increase in energy as well, of 38\% at 200K QPS and increase of 5\% at 600K QPS. This also indicates that when a system is lightly loaded, there is greater flexibility in using interrupt rates to increase packet processing efficiency by inducing a poll-like behavior. While some prior research have used statically setting the interrupt delay rate at a low value for experimental stability~\cite{arrakis, shenango}, we are the first to show its energy ramifications.
+\subsubsection{Finding-4: Fast interrupt rates induces behavior for low tail latency at high energy use.} \label{sec:f4} Figure~\ref{fig:mcd_overview} also demonstrates the ability to use a fast interrupt rate in order to minimize tail latency. However, our results show that a static setting of a fast interrupt delay rate enables us to further lower tail latency as opposed to the dynamic algorithm by by 40\% at 200K QPS and down to 25\% at 600K QPS. This faster interrupt rate induces a form of polling on Linux's network processing by constantly waking up the processor to do the OS and application work, this results in a greater increase in energy as well, of 38\% at 200K QPS and increase of 5\% at 600K QPS. This also indicates that when a system is lightly loaded, there is greater flexibility in using interrupt rates to increase packet processing efficiency by inducing a poll-like behavior. While some prior research have used statically setting the interrupt delay rate at a low value for experimental stability~\cite{10.1145/2812806, 10.5555/3323234.3323265}, we are the first to show its energy ramifications.
 
 % MIN-TAIL ebbrt_tuned 200000 2 0x1d00 135        65.9 1747.17
 % MIN-ENERGY ebbrt_tuned 200000 400 0xd00 55     444.3  935.44  
@@ -127,36 +127,36 @@ Even though figure~\ref{fig:mcd_overview} indicates the libOS uses lower energy 
 % ebbrt_tuned c1e 1500000 100 0xf00 135 191.3 1343.54 3557152 312496
 % ebbrt_tuned c3 1500000 100 0xf00 135 196.1 1336.57 3599566 312488
 % ebbrt_tuned c7 1500000 100 0xf00 135 195.9 1375.84 3558380 312495
-\begin{table}[t]
-\centering
-\begin{tabular}{l|c|c|c|c|c|}
-  QPS & Type & Sleep State & Latency (\SI{}{\micro s}) & Energy (\SI{}{\joule})\\ \hline
-  200K & Min-Tail & C1 & 47 & 1910\\ \hline
-  200K & Min-Tail & C1E & 57 & 1772\\ \hline
-  200K & Min-Tail & C3 & 67 & 1770\\ \hline
-  200K & Min-Tail & C7 & 68 & 1774\\ \hline
-  200K & Min-Energy & C1 & 442 & 949\\ \hline
-  200K & Min-Energy & C1E & 445 & 941\\ \hline
-  200K & Min-Energy & C3 & 445 & 941\\ \hline
-  200K & Min-Energy & C7 & 443 & 937\\ \hline
-  1500K & Min-Tail & C1 & 58 & 2633\\ \hline
-  1500K & Min-Tail & C1E & 59 & 2614\\ \hline
-  1500K & Min-Tail & C3 & 59 & 2640\\ \hline
-  1500K & Min-Tail & C7 & 58 & 2631\\ \hline
-  1500K & Min-Energy & C1 & 171 & 1343 \\ \hline
-  1500K & Min-Energy & C1E & 191 & 1343\\ \hline
-  1500K & Min-Energy & C3 & 196 & 1336\\ \hline
-  1500K & Min-Energy & C7 & 195 & 1375\\ \hline
-\end{tabular}
-\caption{Min-Tail refers to configuration of processor speed and interrupt rate where the lowest tail latency was achieved and Min-Energy refers to the configuration with lowest energy use.}
-%\caption{Workload configurations.
-%The column {\em Nature} indicates open-versus-closed loop nature
-%and {\em CPU} indicates application CPU demand.}
-\label{table:mcd_sleep_states}	
-\end{table}
+% \begin{table}[t]
+% \centering
+% \begin{tabular}{l|c|c|c|c|c|}
+%   QPS & Type & Sleep State & Latency (\SI{}{\micro s}) & Energy (\SI{}{\joule})\\ \hline
+%   200K & Min-Tail & C1 & 47 & 1910\\ \hline
+%   200K & Min-Tail & C1E & 57 & 1772\\ \hline
+%   200K & Min-Tail & C3 & 67 & 1770\\ \hline
+%   200K & Min-Tail & C7 & 68 & 1774\\ \hline
+%   200K & Min-Energy & C1 & 442 & 949\\ \hline
+%   200K & Min-Energy & C1E & 445 & 941\\ \hline
+%   200K & Min-Energy & C3 & 445 & 941\\ \hline
+%   200K & Min-Energy & C7 & 443 & 937\\ \hline
+%   1500K & Min-Tail & C1 & 58 & 2633\\ \hline
+%   1500K & Min-Tail & C1E & 59 & 2614\\ \hline
+%   1500K & Min-Tail & C3 & 59 & 2640\\ \hline
+%   1500K & Min-Tail & C7 & 58 & 2631\\ \hline
+%   1500K & Min-Energy & C1 & 171 & 1343 \\ \hline
+%   1500K & Min-Energy & C1E & 191 & 1343\\ \hline
+%   1500K & Min-Energy & C3 & 196 & 1336\\ \hline
+%   1500K & Min-Energy & C7 & 195 & 1375\\ \hline
+% \end{tabular}
+% \caption{Min-Tail refers to configuration of processor speed and interrupt rate where the lowest tail latency was achieved and Min-Energy refers to the configuration with lowest energy use.}
+% %\caption{Workload configurations.
+% %The column {\em Nature} indicates open-versus-closed loop nature
+% %and {\em CPU} indicates application CPU demand.}
+% \label{table:mcd_sleep_states}	
+% \end{table}
 
-\subsubsection{Finding-5: Sleep states and race-to-halt rarely useful)} \label{sec:f5} 
-Table~\ref{table:mcd_sleep_states} lists a small experiment where different sleep states are explored under the libOS at two extremities when the libOS is lightly loaded (200K QPS) and heavily loaded (1500K QPS). \textit{Min-Tail} is configuring the processor and interrupt rate running fastest while \textit{Min-Energy} is both parameters running slowest. When the libOS is lightly loaded, we find that using different sleep states does make a difference in tail latency and energy. We hypothesize that the small exit latencies of the C1 sleep state results in better tail latencies for memcached. However, we find the effect is lessened when under a heavier load, which seems to indicate that a slowed processor is affecting the efficacy of sleep states given it is already running at a slowed interrupt delay rate, which implies ample opportunities to take advantage of system idling. Moreover, as the load increases for the libOS, selection of different sleep states causes no noticeable differences in either latency nor energy, which implies the constant bursty nature of incoming packets is rendering the idle times non-existent. Lastly, combined with the energy benefits of slowing down the processor versus using sleep states in ~\ref{sec:f2}, we assert that trying to use sleep states for energy savings is largely ineffective. 
+% \subsubsection{Finding-5: Sleep states and race-to-halt rarely useful)} \label{sec:f5} 
+% Table~\ref{table:mcd_sleep_states} lists a small experiment where different sleep states are explored under the libOS at two extremities when the libOS is lightly loaded (200K QPS) and heavily loaded (1500K QPS). \textit{Min-Tail} is configuring the processor and interrupt rate running fastest while \textit{Min-Energy} is both parameters running slowest. When the libOS is lightly loaded, we find that using different sleep states does make a difference in tail latency and energy. We hypothesize that the small exit latencies of the C1 sleep state results in better tail latencies for memcached. However, we find the effect is lessened when under a heavier load, which seems to indicate that a slowed processor is affecting the efficacy of sleep states given it is already running at a slowed interrupt delay rate, which implies ample opportunities to take advantage of system idling. Moreover, as the load increases for the libOS, selection of different sleep states causes no noticeable differences in either latency nor energy, which implies the constant bursty nature of incoming packets is rendering the idle times non-existent. Lastly, combined with the energy benefits of slowing down the processor versus using sleep states in ~\ref{sec:f2}, we assert that trying to use sleep states for energy savings is largely ineffective. 
 
 \subsubsection{Polling}
 \textbf{Polling - TODO}
