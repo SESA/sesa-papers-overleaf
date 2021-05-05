@@ -43,31 +43,31 @@ Memcached-silo is a workload built on top of the normal memcached protocol. It i
 % ebbrt_tuned c3 100 0x1900 135 491.8 2209.09
 % ebbrt_tuned c7 100 0x1900 135 492.4 2214.79
 
-\begin{table}[t]
-\centering
-\begin{tabular}{l|c|c|c|c|c|}
-  QPS & Type & Sleep State & Latency (\SI{}{\micro s}) & Energy (\SI{}{\joule})\\ \hline
-  50K & Min-Tail & C1 & 159 & 1954\\ \hline
-  50K & Min-Tail & C1E & 203 & 1789\\ \hline
-  50K & Min-Tail & C3 & 205 & 1779\\ \hline
-  50K & Min-Tail & C7 & 206 & 1789\\ \hline
-  50K & Min-Energy & C1 & 471 & 991\\ \hline
-  50K & Min-Energy & C1E & 483 & 990\\ \hline
-  50K & Min-Energy & C3 & 488 & 987\\ \hline
-  50K & Min-Energy & C7 & 488 & 989\\ \hline
-  300K & Min-Tail & C1 & 304 & 2631\\ \hline
-  300K & Min-Tail & C1E & 312 & 2637\\ \hline
-  300K & Min-Tail & C3 & 322 & 2631\\ \hline
-  300K & Min-Tail & C7 & 326 & 2646\\ \hline
-  300K & Min-Energy & C1 & 481 & 2210\\ \hline
-  300K & Min-Energy & C1E & 486 & 2207\\ \hline
-  300K & Min-Energy & C3 & 491 & 2209\\ \hline
-  300K & Min-Energy & C7 & 492 & 2214\\ \hline
-\end{tabular}
-\caption{Min-Tail refers to configuration of processor speed and interrupt rate where the lowest tail latency was achieved and Min-Energy refers to the configuration with lowest energy use.}
-%\caption{Workload configurations.
-%The column {\em Nature} indicates open-versus-closed loop nature
-%and {\em CPU} indicates application CPU demand.}
-\label{table:mcdsilo_sleep_states}	
-\end{table}
+% \begin{table}[t]
+% \centering
+% \begin{tabular}{l|c|c|c|c|c|}
+%   QPS & Type & Sleep State & Latency (\SI{}{\micro s}) & Energy (\SI{}{\joule})\\ \hline
+%   50K & Min-Tail & C1 & 159 & 1954\\ \hline
+%   50K & Min-Tail & C1E & 203 & 1789\\ \hline
+%   50K & Min-Tail & C3 & 205 & 1779\\ \hline
+%   50K & Min-Tail & C7 & 206 & 1789\\ \hline
+%   50K & Min-Energy & C1 & 471 & 991\\ \hline
+%   50K & Min-Energy & C1E & 483 & 990\\ \hline
+%   50K & Min-Energy & C3 & 488 & 987\\ \hline
+%   50K & Min-Energy & C7 & 488 & 989\\ \hline
+%   300K & Min-Tail & C1 & 304 & 2631\\ \hline
+%   300K & Min-Tail & C1E & 312 & 2637\\ \hline
+%   300K & Min-Tail & C3 & 322 & 2631\\ \hline
+%   300K & Min-Tail & C7 & 326 & 2646\\ \hline
+%   300K & Min-Energy & C1 & 481 & 2210\\ \hline
+%   300K & Min-Energy & C1E & 486 & 2207\\ \hline
+%   300K & Min-Energy & C3 & 491 & 2209\\ \hline
+%   300K & Min-Energy & C7 & 492 & 2214\\ \hline
+% \end{tabular}
+% \caption{Min-Tail refers to configuration of processor speed and interrupt rate where the lowest tail latency was achieved and Min-Energy refers to the configuration with lowest energy use.}
+% %\caption{Workload configurations.
+% %The column {\em Nature} indicates open-versus-closed loop nature
+% %and {\em CPU} indicates application CPU demand.}
+% \label{table:mcdsilo_sleep_states}	
+% \end{table}
 \subsubsection{Finding-1: Implications of OS path length efficiency}

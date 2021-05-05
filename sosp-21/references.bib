@@ -1,14 +1,46 @@
-@INPROCEEDINGS{8675218,
-  author={Chou, Chih-Hsun and Bhuyan, Laxmi N. and Wong, Daniel},
-  booktitle={2019 IEEE International Symposium on High Performance Computer Architecture (HPCA)}, 
-  title={μDPM: Dynamic Power Management for the Microsecond Era}, 
-  year={2019},
-  volume={},
-  number={},
-  pages={120-132},
-  doi={10.1109/HPCA.2019.00032}}
+@inproceedings {ebbrt,
+author = {Dan Schatzberg and James Cadden and Han Dong and Orran Krieger and Jonathan Appavoo},
+title = {EbbRT: A Framework for Building Per-Application Library Operating Systems},
+booktitle = {12th USENIX Symposium on Operating Systems Design and Implementation (OSDI 16)},
+year = {2016},
+isbn = {978-1-931971-33-1},
+address = {GA},
+pages = {671--688},
+url = {https://www.usenix.org/conference/osdi16/technical-sessions/presentation/schatzberg},
+publisher = {USENIX Association},
+}
 
-@inproceedings{10.1145/3419111.3421298,
+@inproceedings{mootaz,
+author = {Elnozahy, Mootaz and Kistler, Michael and Rajamony, Ramakrishnan},
+title = {Energy Conservation Policies for Web Servers},
+year = {2003},
+publisher = {USENIX Association},
+address = {USA},
+abstract = {},
+booktitle = {Proceedings of the 4th Conference on USENIX Symposium on Internet Technologies and Systems - Volume 4},
+pages = {8},
+numpages = {1},
+location = {Seattle, WA},
+series = {USITS'03}
+}
+
+@inproceedings {udpm,
+author = {C. Chou and L. N. Bhuyan and D. Wong},
+booktitle = {2019 IEEE International Symposium on High Performance Computer Architecture (HPCA)},
+title = {Î¼DPM: Dynamic Power Management for the Microsecond Era},
+year = {2019},
+volume = {},
+issn = {},
+pages = {120-132},
+keywords = {power system management;servers;energy consumption;power demand;data centers;market research;linux},
+doi = {10.1109/HPCA.2019.00032},
+url = {https://doi.ieeecomputersociety.org/10.1109/HPCA.2019.00032},
+publisher = {IEEE Computer Society},
+address = {Los Alamitos, CA, USA},
+month = {feb}
+}
+
+@inproceedings{peafowl,
 author = {Asyabi, Esmail and Bestavros, Azer and Sharafzadeh, Erfan and Zhu, Timothy},
 title = {Peafowl: In-Application CPU Scheduling to Reduce Power Consumption of in-Memory Key-Value Stores},
 year = {2020},
@@ -17,7 +49,7 @@ publisher = {Association for Computing Machinery},
 address = {New York, NY, USA},
 url = {https://doi.org/10.1145/3419111.3421298},
 doi = {10.1145/3419111.3421298},
-abstract = {The traffic load sent to key-value (KV) stores varies over long timescales of hours to short timescales of a few microseconds. Long-term variations present the opportunity to save power during low or medium periods of utilization. Several techniques exist to save power in servers, including feedback-based controllers that right-size the number of allocated CPU cores, dynamic voltage and frequency scaling (DVFS), and c-state (idle-state) mechanisms. In this paper, we demonstrate that existing power saving techniques are not effective for KV stores. This is because the high rate of traffic even under low load prevents the system from entering low power states for extended periods of time. To achieve power savings, we must unbalance the load among the CPU cores so that some of them can enter low power states during periods of low load. We accomplish this by introducing the notion of in-application CPU scheduling. Instead of relying on the kernel to schedule threads, we pin threads to bypass the kernel CPU scheduler and then perform the scheduling within the KV store application. Our design, Peafowl, is a KV store that features an in-application CPU scheduler that monitors the load to learn the workload characteristics and then scales the number of active CPU cores when the load drops, leading to notable power savings during low or medium periods of utilization. Our experiments demonstrate that Peafowl uses up to 40--54% lower power than state of the art approaches such as Rubik and μDPM.},
+abstract = {},
 booktitle = {Proceedings of the 11th ACM Symposium on Cloud Computing},
 pages = {150–164},
 numpages = {15},
@@ -35,7 +67,7 @@ publisher = {Association for Computing Machinery},
 address = {New York, NY, USA},
 url = {https://doi.org/10.1145/3173162.3173184},
 doi = {10.1145/3173162.3173184},
-abstract = {Many modern computing systems must provide reliable latency with minimal energy. Two central challenges arise when allocating system resources to meet these conflicting goals: (1) complexity modern hardware exposes diverse resources with complicated interactions and (2) dynamics latency must be maintained despite unpredictable changes in operating environment or input. Machine learning accurately models the latency of complex, interacting resources, but does not address system dynamics; control theory adjusts to dynamic changes, but struggles with complex resource interaction. We therefore propose CALOREE, a resource manager that learns key control parameters to meet latency requirements with minimal energy in complex, dynamic en- vironments. CALOREE breaks resource allocation into two sub-tasks: learning how interacting resources affect speedup, and controlling speedup to meet latency requirements with minimal energy. CALOREE deines a general control system whose parameters are customized by a learning framework while maintaining control-theoretic formal guarantees that the latency goal will be met. We test CALOREE's ability to deliver reliable latency on heterogeneous ARM big.LITTLE architectures in both single and multi-application scenarios. Compared to the best prior learning and control solutions, CALOREE reduces deadline misses by 60% and energy consumption by 13%.},
+abstract = {},
 booktitle = {Proceedings of the Twenty-Third International Conference on Architectural Support for Programming Languages and Operating Systems},
 pages = {184–198},
 numpages = {15},
@@ -60,8 +92,7 @@ year = {2012},
 isbn = {9781618397881},
 publisher = {Society for Computer Simulation International},
 address = {San Diego, CA, USA},
-abstract = {Recognition of the importance of power in the field of High Performance Computing, whether it be as an obstacle, expense or design consideration, has never been greater and more pervasive. In response to this challenge, we exploit the unique power measurement capabilities of the Cray XT architecture to gain an understanding of the power requirements of important DOE/NNSA production scientific computing applications executing at large scale (thousands of nodes). The effect of both CPU frequency and network bandwidth scaling on power usage is characterized in a series of empirical experiments and demonstrates energy savings opportunities of up to 39% with little to no impact on run-time performance. Our results provide strong evidence that next generation large-scale platforms should not only approach CPU frequency scaling differently, but could also benefit from the ability to tune other platform components, such as the network, to achieve energy efficient performance.},
-booktitle = {Proceedings of the 2012 Symposium on High Performance Computing},
+abstract = {},
 articleno = {6},
 numpages = {10},
 keywords = {high performance computing (HPC), frequency scaling, power, energy efficiency},
@@ -69,7 +100,18 @@ location = {Orlando, Florida},
 series = {HPC '12}
 }
 
-@inproceedings{10.5555/2002181.2002197,
+@INPROCEEDINGS{573184,
+  author={Horowitz, M. and Indermaur, T. and Gonzalez, R.},
+  booktitle={Proceedings of 1994 IEEE Symposium on Low Power Electronics}, 
+  title={Low-power digital design}, 
+  year={1994},
+  volume={},
+  number={},
+  pages={8-11},
+doi={10.1109/LPE.1994.573184}}
+
+
+@inproceedings{slowdownorsleep,
 author = {Le Sueur, Etienne and Heiser, Gernot},
 title = {Slow down or Sleep, That is the Question},
 year = {2011},
@@ -83,7 +125,7 @@ location = {Portland, OR},
 series = {USENIXATC'11}
 }
 
-@inproceedings{10.1109/CPSNA.2015.23,
+@inproceedings{pacingtoidle,
 author = {Kim, David H. K. and Imes, Connor and Hoffmann, Henry},
 title = {Racing and Pacing to Idle: Theoretical and Empirical Analysis of Energy Optimization Heuristics},
 year = {2015},
@@ -92,7 +134,7 @@ publisher = {IEEE Computer Society},
 address = {USA},
 url = {https://doi.org/10.1109/CPSNA.2015.23},
 doi = {10.1109/CPSNA.2015.23},
-abstract = {The problem of minimizing energy for a performance constraint (e.g., Real-time deadline or quality-of-service requirement) has been widely studied, both in theory and in practice. Theoretical models have indicated large potential energy savings, but practical concerns have made these savings hard to realize. Instead, practitioners often rely on heuristic solutions, which achieve good results in practice but tend to be system-specific in efficacy. An example is the race-to-idle heuristic, which makes all resources available until a task completes and then idles. Theory predicts poor energy savings, but practitioners have reported good empirical results. To help bridge the gap between theory and practice, this paper presents a geometrical framework for analyzing the energy optimality of resource allocation under performance constraints. The geometry of the problem allows us to derive an optimal strategy and three commonly used heuristics: 1) race-to-idle, 2) pace-to-idle a near-optimal idling strategy, and 3) no-idle which never idles. We then implement all strategies and test them empirically for seven benchmarks on four different multicore systems, including both x86 and ARM. We find that race-to-idle is near optimal on older systems, but can consume as much as 3 more energy than the optimal strategy. In contrast, pace-to-idle is never more than 12% worse than optimal.},
+abstract = {},
 booktitle = {Proceedings of the 2015 IEEE 3rd International Conference on Cyber-Physical Systems, Networks, and Applications},
 pages = {78–85},
 numpages = {8},
@@ -108,7 +150,7 @@ publisher = {Association for Computing Machinery},
 address = {New York, NY, USA},
 url = {https://doi.org/10.1145/381677.381702},
 doi = {10.1145/381677.381702},
-abstract = {The emphasis on processors that are both low power and high performance has resulted in the incorporation of dynamic voltage scaling into processor designs. This feature allows one to make fine granularity trade-offs between power use and performance, provided there is a mechanism in the OS to control that trade-off. In this paper, we describe a novel software approach to automatically controlling dynamic voltage scaling in order to optimize energy use. Our mechanism is implemented in the Linux kernel and requires no modification of user programs. Unlike previous automated approaches, our method works equally well with irregular and multiprogrammed workloads. Moreover, it has the ability to ensure that the quality of interactive performance is within user specified parameters. Our experiments show that as a result of our algorithm, processor energy savings of as much as 75% can be achieved with only a minimal impact on the user experience.},
+abstract = {},
 booktitle = {Proceedings of the 7th Annual International Conference on Mobile Computing and Networking},
 pages = {260–271},
 numpages = {12},
@@ -155,17 +197,24 @@ publisher = {{USENIX} Association},
 month = nov,
 }
 
-@inproceedings {ix,
-author = {Adam Belay and George Prekas and Ana Klimovic and Samuel Grossman and Christos Kozyrakis and Edouard Bugnion},
-title = {{IX}: A Protected Dataplane Operating System for High Throughput and Low Latency},
-booktitle = {11th {USENIX} Symposium on Operating Systems Design and Implementation ({OSDI} 14)},
-year = {2014},
-isbn = { 978-1-931971-16-4},
-address = {Broomfield, CO},
-pages = {49--65},
-url = {https://www.usenix.org/conference/osdi14/technical-sessions/presentation/belay},
-publisher = {{USENIX} Association},
-month = oct,
+@article{10.1145/2997641,
+author = {Belay, Adam and Prekas, George and Primorac, Mia and Klimovic, Ana and Grossman, Samuel and Kozyrakis, Christos and Bugnion, Edouard},
+title = {The IX Operating System: Combining Low Latency, High Throughput, and Efficiency in a Protected Dataplane},
+year = {2016},
+issue_date = {January 2017},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {34},
+number = {4},
+issn = {0734-2071},
+url = {https://doi.org/10.1145/2997641},
+doi = {10.1145/2997641},
+abstract = {The conventional wisdom is that aggressive networking requirements, such as high packet rates for small messages and μs-scale tail latency, are best addressed outside the kernel, in a user-level networking stack. We present ix, a dataplane operating system that provides high I/O performance and high resource efficiency while maintaining the protection and isolation benefits of existing kernels.ix uses hardware virtualization to separate management and scheduling functions of the kernel (control plane) from network processing (dataplane). The dataplane architecture builds upon a native, zero-copy API and optimizes for both bandwidth and latency by dedicating hardware threads and networking queues to dataplane instances, processing bounded batches of packets to completion, and eliminating coherence traffic and multicore synchronization. The control plane dynamically adjusts core allocations and voltage/frequency settings to meet service-level objectives.We demonstrate that ix outperforms Linux and a user-space network stack significantly in both throughput and end-to-end latency. Moreover, ix improves the throughput of a widely deployed, key-value store by up to 6.4\texttimes{} and reduces tail latency by more than 2\texttimes{} . With three varying load patterns, the control plane saves 46%--54% of processor energy, and it allows background jobs to run at 35%--47% of their standalone throughput.},
+journal = {ACM Trans. Comput. Syst.},
+month = dec,
+articleno = {11},
+numpages = {39},
+keywords = {latency-critical applications, workload consolidation, Virtualization, dataplane operating systems, energy-proportionality, microsecond-scale computing}
 }
 
 @article{ixOS,
@@ -187,28 +236,26 @@ numpages = {39},
 keywords = {dataplane operating systems, latency-critical applications, microsecond-scale computing, workload consolidation, Virtualization, energy-proportionality}
 }
 
-@inproceedings {ebbrt,
-author = {Dan Schatzberg and James Cadden and Han Dong and Orran Krieger and Jonathan Appavoo},
-title = {EbbRT: A Framework for Building Per-Application Library Operating Systems},
-booktitle = {12th USENIX Symposium on Operating Systems Design and Implementation (OSDI 16)},
-year = {2016},
-isbn = {978-1-931971-33-1},
-address = {GA},
-pages = {671--688},
-url = {https://www.usenix.org/conference/osdi16/technical-sessions/presentation/schatzberg},
-publisher = {USENIX Association},
-}
 
-@inproceedings {arrakis,
-author = {Simon Peter and Jialin Li and Irene Zhang and Dan R. K. Ports and Doug Woos and Arvind Krishnamurthy and Thomas Anderson and Timothy Roscoe},
-title = {Arrakis: {T}he {O}perating {S}ystem is the {C}ontrol {P}lane},
-booktitle = {11th USENIX Symposium on Operating Systems Design and Implementation (OSDI 14)},
-year = {2014},
-month = Oct,
-isbn = { 978-1-931971-16-4},
-pages = {1--16},
-url = {https://www.usenix.org/conference/osdi14/technical-sessions/presentation/peter},
-publisher = {USENIX Association},
+
+@article{10.1145/2812806,
+author = {Peter, Simon and Li, Jialin and Zhang, Irene and Ports, Dan R. K. and Woos, Doug and Krishnamurthy, Arvind and Anderson, Thomas and Roscoe, Timothy},
+title = {Arrakis: The Operating System Is the Control Plane},
+year = {2015},
+issue_date = {January 2016},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {33},
+number = {4},
+issn = {0734-2071},
+url = {https://doi.org/10.1145/2812806},
+doi = {10.1145/2812806},
+abstract = {Recent device hardware trends enable a new approach to the design of network server operating systems. In a traditional operating system, the kernel mediates access to device hardware by server applications to enforce process isolation as well as network and disk security. We have designed and implemented a new operating system, Arrakis, that splits the traditional role of the kernel in two. Applications have direct access to virtualized I/O devices, allowing most I/O operations to skip the kernel entirely, while the kernel is re-engineered to provide network and disk protection without kernel mediation of every operation. We describe the hardware and software changes needed to take advantage of this new abstraction, and we illustrate its power by showing improvements of 2 to 5 \texttimes{} in latency and 9 \texttimes{} throughput for a popular persistent NoSQL store relative to a well-tuned Linux implementation.},
+journal = {ACM Trans. Comput. Syst.},
+month = nov,
+articleno = {11},
+numpages = {30},
+keywords = {SR-IOV, Kernel bypass, I/O virtualization}
 }
 
 @inproceedings {mtcp,
@@ -506,21 +553,26 @@ series = {HotPower'08}
  series = {ISCA ’07}
 }
 
-@inproceedings{seda,
-author = {Welsh, Matt and Culler, David and Brewer, Eric},
-title = {SEDA: An Architecture for Well-Conditioned, Scalable Internet Services},
-year = {2001},
-isbn = {1581133898},
-publisher = {Association for Computing Machinery},
-address = {New York, NY, USA},
-url = {https://doi.org/10.1145/502034.502057},
-doi = {10.1145/502034.502057},
-booktitle = {Proceedings of the Eighteenth ACM Symposium on Operating Systems Principles},
-pages = {230–243},
-numpages = {14},
-location = {Banff, Alberta, Canada},
-series = {SOSP '01}
-}
+@article{seda,
+    author = {Welsh, Matt and Culler, David and Brewer, Eric},
+    title = {SEDA: An Architecture for Well-Conditioned, Scalable Internet Services},
+    year = {2001},
+    issue_date = {Dec. 2001},
+    publisher = {Association for Computing Machinery},
+    address = {New York, NY, USA},
+    volume = {35},
+    number = {5},
+    issn = {0163-5980},
+    url = {https://doi.org/10.1145/502059.502057},
+    doi = {10.1145/502059.502057},
+    abstract = {We propose a new design for highly concurrent Internet services, which we call the staged event-driven architecture (SEDA). SEDA is intended to support massive concurrency demands and simplify the construction of well-conditioned services. In SEDA, applications consist of a network of event-driven stages connected by explicit queues. This architecture allows services to be well-conditioned to load, preventing resources from being overcommitted when demand exceeds service capacity. SEDA makes use of a set of dynamic resource controllers to keep stages within their operating regime despite large fluctuations in load. We describe several control mechanisms for automatic tuning and load conditioning, including thread pool sizing, event batching, and adaptive load shedding. We present the SEDA design and an implementation of an Internet services platform based on this architecture. We evaluate the use of SEDA through two applications: a high-performance HTTP server and a packet router for the Gnutella peer-to-peer file sharing network. These results show that SEDA applications exhibit higher performance than traditional service designs, and are robust to huge variations in load.},
+    journal = {SIGOPS Oper. Syst. Rev.},
+    month = oct,
+    pages = {230–243},
+    numpages = {14}
+    }
+
+      
 
 @article{napsac,
  author = {Krioukov, Andrew and Mohan, Prashanth and Alspaugh, Sara and Keys, Laura and Culler, David and Katz, Randy},
@@ -728,7 +780,15 @@ series = {SOSP '19}
   howpublished={\url{https://wiki.linuxfoundation.org/networking/napi}}
 }
 
-%--------------------------------------------------------------%
+@inproceedings {whenpollisbetter,
+title = {When Poll Is Better than Interrupt},
+booktitle = {10th {USENIX} Conference on File and Storage Technologies ({FAST} 12)},
+year = {2012},
+address = {San Jose, CA},
+url = {https://www.usenix.org/conference/fast12/when-poll-better-interrupt},
+publisher = {{USENIX} Association},
+month = feb,
+}
 
 @inproceedings{10.1145/2000064.2019527,
 author = {Barroso, Luiz Andre},
@@ -767,7 +827,7 @@ publisher = {Association for Computing Machinery},
 address = {New York, NY, USA},
 url = {https://doi.org/10.1145/2168836.2168842},
 doi = {10.1145/2168836.2168842},
-abstract = {MapReduce workloads have evolved to include increasing amounts of time-sensitive, interactive data analysis; we refer to such workloads as MapReduce with Interactive Analysis (MIA). Such workloads run on large clusters, whose size and cost make energy efficiency a critical concern. Prior works on MapReduce energy efficiency have not yet considered this workload class. Increasing hardware utilization helps improve efficiency, but is challenging to achieve for MIA workloads. These concerns lead us to develop BEEMR (Berkeley Energy Efficient MapReduce), an energy efficient MapReduce workload manager motivated by empirical analysis of real-life MIA traces at Facebook. The key insight is that although MIA clusters host huge data volumes, the interactive jobs operate on a small fraction of the data, and thus can be served by a small pool of dedicated machines; the less time-sensitive jobs can run on the rest of the cluster in a batch fashion. BEEMR achieves 40-50% energy savings under tight design constraints, and represents a first step towards improving energy efficiency for an increasingly important class of datacenter workloads.},
+abstract = {},
 booktitle = {Proceedings of the 7th ACM European Conference on Computer Systems},
 pages = {43–56},
 numpages = {14},
@@ -1638,6 +1698,38 @@ howpublished = {\url{https://www.vmware.com/content/dam/digitalmarketing/vmware/
  address = {New York, NY, USA},
 } 
 
+@misc{gupta2020chasing,
+      title={Chasing Carbon: The Elusive Environmental Footprint of Computing}, 
+      author={Udit Gupta and Young Geun Kim and Sylvia Lee and Jordan Tse and Hsien-Hsin S. Lee and Gu-Yeon Wei and David Brooks and Carole-Jean Wu},
+      year={2020},
+      eprint={2011.02839},
+      archivePrefix={arXiv},
+      primaryClass={cs.AR}
+}
+
+@article{10.1109/40.888701,
+    author = {Brooks, David M. and Bose, Pradip and Schuster, Stanley E. and Jacobson, Hans and Kudva, Prabhakar N. and Buyuktosunoglu, Alper and Wellman, John-David and Zyuban, Victor and Gupta, Manish and Cook, Peter W.},
+    title = {Power-Aware Microarchitecture: Design and Modeling Challenges for Next-Generation Microprocessors},
+    year = {2000},
+    issue_date = {November 2000},
+    publisher = {IEEE Computer Society Press},
+    address = {Washington, DC, USA},
+    volume = {20},
+    number = {6},
+    issn = {0272-1732},
+    url = {https://doi.org/10.1109/40.888701},
+    doi = {10.1109/40.888701},
+    abstract = {Power dissipation limits have emerged as a major constraint in the design of microprocessors. This is true not only at the low end, where cost and battery life are the primary drivers, but also now at the midrange and high-end system (server) level. Thus, the ability to estimate power consumption at the high level, during the early-stage definition and trade-off studies is a key new methodology enhancement sought by design and performance architects. We first review the fundamentals in terms of power estimation and power-performance trade-offs at the microarchitecture level. We then discuss the opportunities of saving power that can be exposed via microarchitecture-level modeling. In particular, the potential savings that can be effected through straightforward clock-gating techniques is cited as an example. We also describe some future ideas and trends in power-efficient processor design. Examples of how microarchitectural observations can be used toward power-saving circuit design optimizations are described. The design and modeling challenges are in the context of work in progress within IBM Research. This research is in support of future, high-end processor development within IBM.},
+    journal = {IEEE Micro},
+    month = nov,
+    pages = {26–44},
+    numpages = {19}
+}
+
+      
+
+
+
 @inproceedings {farm,
 author = {Aleksandar Dragojevi{\'c} and Dushyanth Narayanan and Miguel Castro and Orion Hodson},
 title = {FaRM: Fast Remote Memory},
@@ -2337,18 +2429,19 @@ publisher = {{USENIX} Association},
  keywords = {p4, sdn, reconfigurability, protocol-independent}
 }
 
-@inproceedings{shenango,
- author = {Ousterhout, Amy and Fried, Joshua and Behrens, Jonathan and Belay, Adam and Balakrishnan, Hari},
- title = {Shenango: Achieving High CPU Efficiency for Latency-Sensitive Datacenter Workloads},
- year = {2019},
- isbn = {9781931971492},
- publisher = {USENIX Association},
- address = {USA},
- booktitle = {Proceedings of the 16th USENIX Conference on Networked Systems Design and Implementation},
- pages = {361–377},
- numpages = {17},
- location = {Boston, MA, USA},
- series = {NSDI’19}
+@inproceedings{10.5555/3323234.3323265,
+author = {Ousterhout, Amy and Fried, Joshua and Behrens, Jonathan and Belay, Adam and Balakrishnan, Hari},
+title = {Shenango: Achieving High CPU Efficiency for Latency-Sensitive Datacenter Workloads},
+year = {2019},
+isbn = {9781931971492},
+publisher = {USENIX Association},
+address = {USA},
+abstract = {Datacenter applications demand microsecond-scale tail latencies and high request rates from operating systems, and most applications handle loads that have high variance over multiple timescales. Achieving these goals in a CPU-efficient way is an open problem. Because of the high overheads of today's kernels, the best available solution to achieve microsecond-scale latencies is kernel-bypass networking, which dedicates CPU cores to applications for spin-polling the network card. But this approach wastes CPU: even at modest average loads, one must dedicate enough cores for the peak expected load.Shenango achieves comparable latencies but at far greater CPU efficiency. It reallocates cores across applications at very fine granularity--every 5 µs--enabling cycles unused by latency-sensitive applications to be used productively by batch processing applications. It achieves such fast reallocation rates with (1) an efficient algorithm that detects when applications would benefit from more cores, and (2) a privileged component called the IOKernel that runs on a dedicated core, steering packets from the NIC and orchestrating core reallocations. When handling latency-sensitive applications, such as memcached, we found that Shenango achieves tail latency and throughput comparable to ZygOS, a state-of-the-art, kernel-bypass network stack, but can linearly trade latency-sensitive application throughput for batch processing application throughput, vastly increasing CPU efficiency.},
+booktitle = {Proceedings of the 16th USENIX Conference on Networked Systems Design and Implementation},
+pages = {361–377},
+numpages = {17},
+location = {Boston, MA, USA},
+series = {NSDI'19}
 }
 
 

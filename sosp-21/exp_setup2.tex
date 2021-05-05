@@ -1,0 +1,63 @@
+\subsection{Hardware Platform}
+\label{sec:exp_setup}
+Our experimental cluster consists of seven nodes,
+each having 16-core processors of either 
+Intel(R) Xeon(R) CPU E5-2690 @2.90GHz
+or Intel(R) Xeon(R) CPU E5-2650 @2.60GHz type.
+All processors have Intel Corporation 82599ES 10-Gigabit SFI/SFP+ NICs,
+and all nodes are configured with a mix of 126 GB and 250 GB RAM.
+The node we use to boot into our baremetal library OS and Linux server applications uses a Intel(R) Xeon(R) CPU E5-2690 @2.90GHz processor with 126 GB of RAM.
+
+We ensured hardware hosting Linux and the library OS
+are setup in a similar way by carefully configure IA-32 Architectural MSRs and processor specific MSRs
+(see Tables 35-2 and 35-18 in ~\cite{intel_msr})
+as well as NIC features:
+direct-cache injection (DCA) disabled,
+receive-side scaling (RSS) enabled
+(to distribute packets for multi-core processing),
+and hardware checksum offloading enabled.
+We also match the values of
+the number of NIC transmit and receive descriptors
+and write-back thresholds for packet transmissions.
+Additionally, to minimize system noise, hyperthreads and TurboBoost are disabled on all processors. While prior studies have included TurboBoost in performance-energy studies~\cite{udpm, pacingtoidle, PerAppPower, ixcp}, there have also been reports of energy anomalies when used with different sleep states~\cite{slowdownorsleep}.
+
+\subsection{OS Software}
+\label{sec:OS}
+
+\subsubsection{Linux}
+\label{sec:OS_linux}
+%In order to ensure a fair comparison our single-purpose library OS and general-purpose Linux, 
+We build a set of application-specific Linux \textit{appliances} for our four workloads. Reminiscent of library OSes~\cite{unikernels}, these appliances are specially constructed to run a RAM-based filesystem and contain only a small set of system libraries and kernel modules required to run their constituent applications. We construct these appliances from a base Debian 10.4 distirbution and use a custom 5.5.17 kernel which we build using a modified configuration file created for supporting high performance, following suggestions from previous work that studies Linux core operation costs~\cite{linux-core-ops}. To avoid scheduling overheads and noise, we pin all applications to physical cores. In addition, we disable Linux ~\textit{irqbalance} and affinitize packet receive interrupts to their respective cores.
+
+\subsubsection{Library OS}
+\label{sec:OS_libos}
+%% refer back to timeline, this OS structure lets us do this etc.
+The library OS used in this work was previously published at OSDI and is currently open-sourced on github (anonymized for now). The library OS consists of specialized components written in C++\footnote{ All components are multi-core functional and optimized to aggressively use per-core memory and fine grain locking.}, including a NIC driver, a custom TCP/IP stack, virtual and physical memory allocators\footnote{Memory allocators make aggressive use of large pages and pinned memory to avoid page-faults.}, and a generic I/O buffer\footnote{I/O buffers are designed to enable zero-copy application data processing.} The library OS is packaged as a library of configurable modules and \textit{gcc-5.3.0}-based tool-chain targeting the base components of the OS. 
+
+Applications are ported to it by configuring the necessary OS components and compiling the application source along with any dependent libraries using this tool-chain. This process generates a single application-specific binary that is source and link-optimized with the OS code. Prior studies have indicated the benefits of both compile-time and link-time optimization on library OS function dispatching~\cite{EbbRT}. We built a bare-metal port of the library OS by writing a network device driver for the Intel 82599 NIC. Our bare-metal port enables application-specific binaries to boot directly on our hardware platform. Once booted, OS and application code is executed under a single supervisor privilege domain. The library OS strictly adopts a run-to-completion, event-driven execution model\footnote{All event handlers are run with interrupts disabled and are expected to return back to the event loop.} and bears similarity to other library OSes designed for high-performance network services~\cite{10.1145/2997641, seda, 10.1145/2812806, EbbRT}.
+
+%~\cite{ix,seda,arrakis,ebbrt}. 
+
+Given the design and implementation for single-application, non-preemptive processing via an optimized OS and application binary, the library OS components can avoid many checks and streamline execution, ranging from interrupt dispatch to application logic. The NIC device driver totals over 3000 lines of code and interfaces with the library OS multi-core TCP/IP network stack\footnote{The device driver programs the NIC using per-cpu queues and interrupts, maintaining the affinity of TCP connections to their respective cores.}. The library OS provides an interface for statically setting ITR delay values. We use this interface in our study as we sweep across hardware parameter space. 
+
+The bare-metal library OS follows a simple implementation and idling behavior. If no interrupt events or software events exist, the event-loop of the library OS infers that the system is idle and halts the core to enter the deepest sleep state supported by our hardware (C7). In contrast, upon receiving a packet, the device driver management code, protocol processing code, and application code can be dispatched and run to completion on a single event triggered by a NIC interrupt. The NIC driver also exposes a configurable constant (set to 64 for all our experiments) that is used to control how many packets can be processed in a single interrupt invocation before returning to the event-loop of the core on which the interrupt was processed. This behaviour, in turn, introduces a simple bounded per-cpu device-level poll. %The library OS' idling and device-polling policies are simple compared to Linux policies. %Our study reveals the contrast between these library OS policies and those applied by Linux through presenting a detailed quantification of execution trends and power events. It uncovers surprising impacts of OS functionality on overall system execution and yields insight on OS-level adaptations for energy-performance goals.
+\subsubsection{NIC polling in the library OS}
+%% features of the card that lets us poll - read the in-memory 
+The simple run-to-completion, and lightweight event-driven execution model of the library OS allows us to uniquely explore the performance-energy trade-offs of slowing down the processor in the context of a polling loop for packet processing. Intel's 82599 datasheet~\cite{82599} defines two hardware registers that enable automatic clearing and masking of interrupts per receive and transmit queue. To enable polling, we 1) enable auto clearing of network interrupts in order to receive the very first interrupt of every queue, and we 2) disable auto masking to prevent future interrupts on that particular queue. Next, we wrote a custom network interrupt handler for that very first interrupt which effectively calls the packet processing function in a tight loop. Due to this tight polling loop, the library OS will never halt the processor and thus will not use any sleep states. To enable interrupts, we enable both interrupt clearing and masking and set the interrupt handler to be a packet processing function instead.
+
+\begin{table}[t]
+\centering
+\begin{tabular}{l|c|c|c}
+  Name & Scenarios & Nature & CPU\\
+  \hline
+  NetPIPE & {\small 64B,8KB,64KB,512KB} & CL & Low\\ \hline
+  NodeJS & na & CL & High \\ \hline
+  Memcached & 200K, 400K, 600K & OL & Low \\ \hline
+  Memcached-Silo & 50K, 100K, 200K & OL & High \\ 
+\end{tabular}
+\caption{Workload configurations.
+%NetPIPE and NodeJS are single thread, single connection, closed-loop (CL) workloads. Memcached and Memcached-silo are multiple core, multiple connection, open-loop (OL) workloads.
+The column {\em Nature} indicates open-versus-closed loop nature
+and {\em CPU} indicates application CPU demand.}
+\label{table:wrkcfgs}	
+\end{table}
