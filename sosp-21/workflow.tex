@@ -5,7 +5,7 @@
 \begin{figure}
 \centering
 \includegraphics[width=0.5\textwidth]{figures/timeline_chart}
-\caption[]{W timeline for a single application request}
+\caption[]{Request timeline}
 \label{fig:timeline}
 \end{figure}
 
@@ -48,6 +48,13 @@ A common feature of modern high speed NICs is the ability to delay the delivery 
 
 By default the Linux device driver attempts to automatically set ITR to reduce interrupt overheads.  We disable this feature and manually control its value to explore the impact of delaying the detection of NIC events.  Combining interrupt driven IO and delaying interrupt assertion via ITR setting we can explore the impact of delaying packet detection and thus delaying processing of requests.  Depending of the state of the processor the NIC can buffer packets in its own memory or on the main memory of the host\footnote{According to the data sheet if the processor is in sleep state packets can only be buffered on the card's limited memory and once exhausted packets will be dropped}.  Delaying interrupt detection introduces an OS control that can interact with energy and performance.  The prior work of Mootaz et al\cite{mootaz} and the more recently work of Chou et al{chou} suggests that delaying packet processing can interact with DVFS and C-State control in latency sensitive workloads to yield useful energy performance tradeoffs. To this end we sweep ITR values for all our workloads OS configurations, and DVFS values.
 
+\subsection{OS Request Processing}
+
+Once the OS detection mechanism identifies that the NIC has data to process several components of OS functionality must be run in accordance with the execution model of the OS.  Specifically device driver code must remove dequeue hardware frames and schedule them for processing by the appropriate network protocol code. This code must ultimately determine the application end point, a port in the case of IP and TCP, and enqueue, encapsulated data,  for application processing.  Ultimately, this can envolve 
+
+\subsection{DVFS}
+
+\subsection{C-States}
 
 
 %\subsection{Application Perspective}
@@ -62,5 +69,5 @@ By default the Linux device driver attempts to automatically set ITR to reduce i
 %The amount of energy used during this idle period is dependent upon the OS idling policies; in terms of which level of idle state is selected.
 %
 \subsection{Equations}
-
+\input{model}
 %\subsection{ITR-Delay algorithm}
