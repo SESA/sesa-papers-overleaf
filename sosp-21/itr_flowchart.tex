@@ -6,6 +6,7 @@
 
 \begin{figure}
 \centering
+\resizebox{6cm}{5cm}{%
 \begin{tikzpicture}[node distance=2cm]
 
 \node (start) [startstop] {ITR=\textit{n} us};
@@ -23,7 +24,7 @@
 %\draw [arrow] (pro2) -| node {} (start);
 \draw [arrow] (pro2) |- node[anchor=east] {reset} (start);
 \end{tikzpicture}
-
+}
 \caption{ITR-Delay algorithm flowchart.}
 \label{fig:itr_delay_flowchart}
 \end{figure}
