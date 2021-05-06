@@ -156,6 +156,8 @@ Another less obvious interaction that can occur is between the use of polling ve
 
 Model is a framework for revealing the effects given OS choices in how to use interrupts, halting and polling.  
 
+\em{Core Finding: There is no clear winner on how to behave but there is OS behaviours that can be used to adapt to through a combination of slowing down processing and delaying interrupts.   Further specializing the OS for running a single network driven service on a node magnifies the benefits}
+
 \subsection{Interactions with Delaying Interrupts}
 
 Prior work also suggests that delaying packet processing can interact with DVFS and C-State control in latency sensitive workloads to yield useful energy performance trade-offs~\cite{mootaz, chou}. To this end we sweep interrupt delay values for all our workloads OS configurations, and DVFS values.
