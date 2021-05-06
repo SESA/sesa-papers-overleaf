@@ -1,17 +1,89 @@
 \label{sec:intro}
+% While many have studied power management mechanisms and control from an architectural or application perspective we approach the subject from and OS research vantage point.  Our goal is not the construction of a particular policy or mechanism rather it is to quantify and explain how and why slowing down processing can be beneficial. Gernot suggests that we must consider entire system. Hank quantifies that one must consider complex tradeoff space in energy management as hardware is nolonger simply race-to-halt friendly -- race-to-halt, pace-to-idle, optimal and no-idle -- due to changes in the dynamic and static components of energy consumption driven by differences in CMOS and SRAM composition and usage in processors. Building on prior work Chou suggests that latency sensitive workloads are different and matter. Brooks suggest that optimal energy management will require workload specific specialization
 
-\begin{em} 
-The OS has a bigger role to play in energy management than perhaps, has been realized, by combining its ability to slow down processing, delay interrupts and specialize its paths for network service oriented applications.   Given that it is the OS that controls the core network processing paths, including device management, interrupt versus polling behavior, and halt behavior it is important to understand OS effects on both performance and energy.
-\end{em}
+%Our work extends and builds upon that of Sueur et al. and Mootaz et al.  Sueur et al. noted that to guide an OS designer it is critical to analyses the system as a whole, including the workload, to determine whether using mechanisms such as DVFS [Dynamic Voltage Frequency Scaling to slow processing down] will be effective at reducing energy consumption. While Mootaz et al observed that delaying request processing can result in batching effects that permit power savings while maintaining tail latency requirements for web serving.
 
-The contributions of this work are:
+%More recently, Chou et al. proposed a dynamic control policy in the context of micro-services that advocates for a mixing both the slowing down of the CPU and delaying processing in a latency sensitive manner. The authors focus is one of policy development with little insight into the impact that the OS's design and implementation has.    
+
+%To our knowledge we are the first to conduct a detailed experimental study that evaluates how the OS structure and choices interact with slowing cores down using hardware power management (DVFS) and delaying interrupt delivery using NIC settings (IDR).  We experimentally gather data for a very large combination of DVFS and IDR setting across four workloads broken down into two categories open loop and closed loop. Each category consists of one workload that is OS centric and the other that is application centric. Further to tease apart the OS impact  in addition to evaluating a general purpose OS (Linux) we use a Library OS, that we can more easily modify to explore a broader range of systemic OS choices.   
+
+%Breaking down request processing into phases we construct a mathematical model that allows us to capture and explain the OS's behavior and its impact on both performance and energy.  The model is both intuitive and consistent with our experimental observations.  
+
+% Building on the above observations we uniquely study performance and energy impact of slowing down both processors and delaying request processing on network driven workloads from an OS perspective. Ultimately with the goal of revealing current behavior and guiding future work in both OS and hardware.
+
+% Using our OS knowledge and prior architectural and application oriented work on power management, we construct a simplified request processing model, that can be expressed mathematically.  We construct the model to reflect what  we believe to be the important interactions that the OS can have on the realized performance and energy when running various types of network oriented workloads.   Specifically,  the model lets us evaluate how slowing down processing and interrupt detection interacts with  variations in the instructions components of OS and Application request processing, the impact of specializing the OS for a single network application, the use of interrupts versus polling and interactions with the use of hardware sleep-states.  Using the model we can predict the general behavior one might observed with respect to both performance and energy.
+
+% We conduct an exhaustive study that sweeps processor slow downs and interrupt delays in the context of four network benchmarks designed to stress different OS and application behaviours.  We evaluate both a general purpose OS and a library OS specialized for to run single network oriented servers.  Doing so lets us vary OS path lengths and efficiencies, differences in interrupt and polling behaviors along with sleep state strategies.
+% We then analyze the data to draw validate core observations of how the OS affects the observed combination of performance and energy for the workloads.  We also use the data to evaluate our model.
+
+% We assert that the OS has a bigger role to play in energy management. then perhaps has been realized, by combining its ability to slow down processing, delay interrupts and specialize its paths for network service oriented applications.   Given that it is the OS that controls the core network processing paths, including device management, interrupt versus polling behavior, and halt behavior it is important to understand OS effects in both performance and energy.
+
+% The contributions of this work are:
+% \begin{enumerate}
+% 	\item one
+% 	\item two
+% 	\item three
+% \end{enumerate}
+
+% Section A, B, C, D.
+
+% First we discuss meaning of timeline
+% We discuss how the timeline relates to slowing down w.r.t performance-energy trade-offs
+% \subsubsection{Race-to-Halt vs Pace-to-idle vs No-idle}
+
+%Model is a framework for revealing the effects given OS choices in how to use interrupts, halting and polling.  
+
+The performance and energy consumption of a system are complex emergent properties of the myriad of interactions between application software, operating systems, hardware, and offered loads. 
+
+Our work seeks to broaden the understanding web-centric applications running under different system structures and the performance-energy trade-offs in this space; furthermore, we are interested in how the mechanisms of slowing down both processor and network request processing affect or contribute to this space. Towards that end, we make the following observations and contributions in our work:
+
 \begin{enumerate}
-	\item one
-	\item two
-	\item three
+    \item \textbf{No single strategy for OS to optimize energy and performance:} in both open and closed loop workloads, we find at some request loads it is actually better to use a OS poll than interrupts to improve both performance and energy; these improvements can be as much as 3.3X. (\cref{sec:closed_loop:poll} \cref{sec:mcd:poll}) 
+    \item \textbf{Slowing down processing and interrupt delays can reduce energy use in a workload dependent fashion:} we find this is applicable across both OS structures and careful manual control of both delay mechanisms can result in energy savings up to 2X across the workloads and OSes. (\cref{fig:closed_loop_overview}, \cref{fig:mcd_overview}, \cref{fig:mcdsilo_overview})
+    \item \textbf{Specializing the software magnifies the energy benefits of slowing down:} we find a specialized OS stack can more aggressively slow down processing to save energy by 73\%, with no noticeable impact on performance, this is attributed to: a) shortened OS path length can get same application work done using fewer instructions, and ii) resultant instruction mix not ALU bound, therefore minimal time penalties with a slowed processor. (~\cref{sec:mcd:slowinos})
+    \item \textbf{Specializing the software creates headroom for trade-offs even in application heavy workload:} we find shortened OS paths can both reduce the time spent in the OS processing and improve the application code IPC; this creates additional headroom for both delay mechanisms to ensure additional energy savings between 
+    \item \textbf{}
 \end{enumerate}
 
-Section A, B, C, D.
+% %% TODO: probably move to intro
+% \begin{em}
+% Core Finding: 
+% \begin{enumerate}
+% 	\item There is no single strategy for OS control to optimize energy and performance.
+% 	%% polling is better in some instances 
+	
+% 	\item And yet the OS has sufficient control through slowing down processing and delaying interrupts to achieve dramatic wins in a workload dependent fashion. (give a couple of examples)
+% 	%% applicable to both general purpose and specialized OS
+	
+% 	\item Further specializing the OS for running a single network driven service on a node magnifies the benefits of OS control to optimize energy consumption. 
+% 	%% i.e. memcached -> libOS trade-offs different than linux, even as QPS gets larger
+% 	%% as os designers, specializing is worth it for the
+% \end{enumerate} 
+% \end{em}
+
+% \begin{em} 
+% A core finding is that indeed, in the case of open loop benchmarks OS control of the NIC interrupt delay can be used to slow down request processing and allow one to exploit the latency slack to achieve lower power consumption while maintaining a QoS target.  This control is effective enough that it can server as knob by which the 99\% tail latency target can be selected and energy can be minimize to that target.  In the case of closed loop workloads it can act as a control that allows one to optimize protocol processing to minimize energy while maximizing performance.
+% %% to what extend will it impact OS
+% \end{em}
+
+% \subsection{Interaction with Specializing OS Paths} 
+% \begin{em}
+% Critically we find that optimizing the hot-path of network processing in an OS can lead to valuable energy savings.  If the OS can support the application work in shorter number of cycles using less energy it can lead to an improvement in application IPC and energy efficiency. 
+
+% In an OS dominate workload, a shorter OS path (even if it means lower IPC), can allow one to slow down the core and not impact the performance.  We find that specialized OS networking paths can have lower IPC, due to the nature of the instruction mix, and thus have performance that is less affected by lower DVFS setting and yet still have the benefit of lower power consumption.  In some sense this is the counter point to the extreme IPC efficiency that can be had by running loop of NOPs.    The core point is despite having lower IPC more application work, in this case network processing, is being completed in the same amount of time but consuming less energy.
+% %% by optimizing OS path, created a path with 2 benefits: 1) get more work done, 2) instructions less sensitive than DVFS, not ALU bound, i.e. memory-bound instructions likely
+
+% In the case of a service oriented workload that has significant application computation, such that then fraction of the instructions composed by the OS network processing is small, there is still a potential for improved performance and energy tradeoff.  Customized OS paths can both reduce the time spent in the OS processing and improve the application code IPC due to a reduction in architectural hazards associated with interrupts, protection domain crossing, etc.  This time reduction, effectively increases the headroom in which the benefits of either slowing down processing and or delaying interrupts can be used to find an optimal setting for the workload. 
+% % mcdsilo
+% \end{em}   
+ 
+% \subsubsection{Polling can be energy efficient}
+% Another less obvious interaction that can occur is between the use of polling versus interrupts and halting.  Given that polling is a CPU operation it can interact with DVFS settings.  In particular it can be possible that at slower DVFS settings polling can be more efficient and effective with respect to the net performance realized.  
+
+% \begin{em}
+% A core finding is that aggressive polling can be combined with slowing down processing to find a setting that yields best case performance at a lower energy consumption for some workloads.   An example is when the workload is closed loop and transmission times are small. 
+% \end{em}
+
 
 %Gernot et al.  
 
