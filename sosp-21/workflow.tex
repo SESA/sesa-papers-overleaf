@@ -31,7 +31,12 @@
 \vspace{-0.28in}
 \end{figure}
 
-From an OS perspective we break down network driven processing into stages that allows us to organize and reflect the OS and application interaction with the workload request timeline.  This break down is illustrated in figure~\ref{fig:timeline}.   
+From an OS perspective we break down network driven processing into stages that allows us to organize and reflect the OS and application interaction with the workload request timeline. This break down is illustrated in figure~\ref{fig:timeline}.
+% TODO
+% We believe the important aspects of OS/network loads are shown in figure 1
+% abstraction 
+% how we came up with this, to tease apart the interactions
+%\textbf{TODO:General nature of the timeline graph across system and network hardware}  
 
 \subsection{Quiescent}
 \label{sec:workflow:Quiescent}
@@ -41,15 +46,20 @@ The nature of the workloads drive the length of quiescent period and of course t
 
 \subsubsection{Open Loop:}
 \label{sec:workflow:openloop}
-In an open loop scenario like a Memcached workload, the external request rate induces an inter-arrival gap that will drive the quiescent period -- longer at lighter loads (lower queries per second (QPS)) and shorter at heavier loads (higher QPS). Largely the arrival rate can be considered independent of the time required to service a request.  System performance is typically evaluated in terms of the 99\% tail latency it achieves.  Moreover, providers often set a Service-level Agreement (SLA) target, such as some \% of requests to be completed under a stringent time budget, therefore categorizing system performance into acceptable and unacceptable.
+In an open loop scenario like a Memcached workload, the external request rate induces an inter-arrival gap that will drive the quiescent period -- longer at lighter loads (lower queries per second (QPS)) and shorter at heavier loads (higher QPS). Largely the arrival rate can be considered independent of the time required to service a request.  System performance is typically evaluated in terms of the 99\% tail latency it achieves.  Moreover, providers often set a Service-level Agreement (SLA) target, such as some \% of requests to be completed under a stringent time budget, therefore categorizing system performance into acceptable and unacceptable. There have also been a wealth of research in using these SLA headrooms to lower datacenter energy use mainly by decreasing processor frequencies~\cite{Dynamo, SmoothOperator, oldi-pegasus, adrenaline, heracles, energyproportion, warehouse-power}.
+% others have noted this is ripe to explore the trade-offs
+
 %such as a 99\% tail latency of 500${\mu}$s
 %Many interesting interactions and trade-offs exist in Open Loop workloads to affect the latency below the SLA targets and the energy consumed. 
 
 \subsubsection{Closed Loop:}
 \label{sec:workflow:closed_loop}
 Examples of closed loop workloads are snapshotting a database to a remote server, video streaming or a middle tier service within a data center~\cite{Barroso:2009:DCI:1643608, oldi-study, oldi-pegasus, warehouse-power, energyproportion, WebSearch}.  The work to be done is a sequence of requests that have an inter-dependency on each other. Specifically, the arrival of the next request depends on how fast it takes to service the current request. From a server's perspective, the quiescent period will be bounded by time to transmit both the request and the reply, as well as the time on the client to generate the next request.  
-
 In the closed loop setting, one would like the server to complete every request quickly so that the overall time to complete a task is minimized. However, we find that depending on the nature of the workload and the quiescent period, composed of the network transmission times and client servicing time, there still exist interesting opportunities to reduce energy use.
+% polling in nodejs/netpipe - edp
+% heavy computation vs light computation
+% msg size differences
+% itr delay -> edp
 
 %However, the quiescent period is bounded by the network round trip time, that depends on  the size of a request and reply packets, and the remote processing time. System performance is largely evaluated on how fast a server can complete the entire task given a network link speed and a remote system.  Given workload specific characteristics such as the processing required and round-trip costs it is possible, as we will see, to find configurations in which the OS interacts with slowing down to improve both time and energy. 
 
@@ -59,34 +69,35 @@ In the closed loop setting, one would like the server to complete every request 
 
 % Often research tends to categorize close loop settings as either not representative of cloud computing or imply that energy-performance tradeoffs are not interesting due to the hight utilization closed-loop processing can imply.  
 \subsection{OS Request Detection}
-
 Fundamental to any operating system is how it detects and schedules processing in response to IO device activity.  At the two extremes are interrupt and poll driven detection.  
 
 \subsubsection{Interrupt driven IO}
 \label{sec:workflow:interruptio}
 Using interrupts has three important implications: 1) Interrupts can be used to transition a processor from a halted state which the OS entered to sleep the processor (at some selected HW sleep state (C-state)) in response to external activity, 2)  Interrupts allow an OS to arbitrate processing across competitive devices and processing in a multi-programmed/multi-device setting, 3) interrupt processing has an inherent performance costs associated with it -- in terms of latency in starting to handle a request, either because of the costs associated with preempting currently scheduled work\cite{whenpollisbetter} or exit penalties associated with the C-state that the processors was halted in\cite{cpuidle_policy}. Interrupt processing can also have a negative impact on the instruction efficiency, such as Instructions Per Cycle (IPC), due to induced micro-architecture hazards such as the inability to pre-fetch or speculatively execute across an interrupt.
+%% brings in angle of energy and performance
 
 \subsubsection{Poll driven IO}
 %todo: modify to ack use of halt on cache line in stead of just polling.  
 \label{sec:workflow:pollio}
-Most modern high-speed devices expose a memory, if not cache, friendly interface, that permits the processors to read a per-core memory address to determine if the device, such as the Network Interface Card (NIC) has received data that requires processing by the core.  This facility allows software to directly poll the device and initiate software handling without an interrupt.  This approach reduces latency and other performance penalties associated with interrupt driven IO.  However, the period in which the device is checked requires CPU activity and thus limits the ability to halt the cores when there is no work to be done.  In the extreme, a customized OS supporting a single application can run a poll loop on every core to constantly check for work, conduct the work and then go back to polling for new work and thus never halting the processors. 
+Most modern high-speed devices expose a memory, if not cache, friendly interface, that permits the processors to read a per-core memory address to determine if the device, such as the Network Interface Card (NIC) has received data that requires processing by the core.  This facility allows software to directly poll the device and initiate software handling without an interrupt.  This approach reduces latency and other performance penalties associated with interrupt driven IO.  However, the period in which the device is checked requires CPU activity and thus limits the ability to halt the cores when there is no work to be done.  In the extreme, a customized OS path supporting a single application can run a poll loop on every core to constantly check for work, conduct the work and then go back to polling for new work and thus never halting the processors. 
 
-Kim et al.\cite{pacingtoidle}, referred to a regime in which one keeps the processor busy as 'no-idle', an alternative energy management strategy. In the context of network driven processing we will refer to this as an aggressive polling or simply polling strategy.  In general, such an aggressive poll approach is assumed to maximize performance by avoiding interrupt overheads and minimize latency at a cost to increased energy use.
+Kim et al.\cite{pacingtoidle}, referred to a regime in which one keeps the processor busy as 'no-idle', an alternative energy management strategy. In the context of network driven processing we will refer to this as an aggressive polling or simply polling strategy.  In general, such an aggressive poll approach is assumed to maximize performance by avoiding interrupt overheads and minimize latency at a cost to increased energy use. 
 
-%% Han - in discussion??
-%It is worth noting that given that processors typically support the ability to halt the processor in a way that an update to a cache line will awaken it there exists the possibility to exploit this feature to use of sleep states with out interrupts to detect data arrival.  In this paper, we do not explore this possibility, leaving it for future work.   
+It is worth noting processors typically have the ability to halt in a way that an update to a cache line will awaken it, there exists the possibility of implementing the poll in combination with sleep states\footnote{todo explanation}. In this paper we do not explore this possibility, leaving it for future work.
 
 \subsubsection{Hybrid driven IO}
 \label{sec:workflow:hybridio}
 % https://wiki.linuxfoundation.org/networking/napi
-A general purpose OS typically exploits some form of hybrid IO strategy alternating between interrupts and polling when servicing high speed NICs. A common strategy is to use interrupts when the load is low and switch to polling when load is high and back to interrupts when load reduces.  A general purpose OS, even under sustained high load, bounds the poll phase to avoid the starving  other devices and software. Linux's New API (NAPI)\cite{NAPI} framework implements this hybrid scheme where.
+A general purpose OS typically exploits some form of hybrid IO strategy alternating between interrupts and polling when servicing high speed NICs. A common strategy is to use interrupts when the load is low and switch to polling when load is high and back to interrupts when load reduces.  A general purpose OS, even under sustained high load, bounds the poll phase to avoid the starving other devices and software. Linux's New API (NAPI)\cite{NAPI} framework implements this hybrid scheme.
+%% these ideas help to explain the vertical of slowing down proceessor on Linux netpipe, memcached at really low QPS
 
 %% Han - not sure we need to examine it in this detail, seems like re-explanation of the paragraph above, think NAPI and its implementation is already well known
 %The first arrival of a packet generates an interrupt which switches the servicing of the device to polling if some threshold of packets are present.  If the number of packets drop below the threshold when the device is polled or a time limit for poll is exceeded the device will no longer be polled and interrupts re-enabled in order to detect activity on the NIC.  
 %The NAPI framework, in addition to NIC processing budgets,  supports prioritization across devices. 
 % In Linux the NAPI polls are processed via softirqs.  Checks for and processing of softirqs happens when ever the system returns to userspace or a hardware interrupt exits.
 
-A library OS that is specialized to support the execution of a single application can explore more extreme strategies like the aggressive polling, described above, given that it need not arbitrate the device or cores and can be programmed and integrated with a single application.  
+Specializing an OS to support the execution of a single application can explore more extreme strategies like the aggressive polling, described above, given that it need not arbitrate the device or cores and can be programmed and integrated with a single application.  
+%% a general purpose must not starve out vs specialized os
 
 \subsubsection{Interrupt Delaying}
 \label{sec:workflow:itrdelay}
@@ -95,20 +106,20 @@ A common feature of modern high speed NICs is the ability to delay the delivery 
 
 By default the Linux device driver attempts to automatically set ITR to reduce interrupt overheads.  We disable this feature and manually control its value to explore the impact of delaying the detection of NIC events on performance and energy.
 
-Combining interrupt driven IO and delaying interrupt assertion via ITR setting we can explore the impact of delaying packet detection and thus delaying processing of requests.  %Depending of the state of the processor the NIC can buffer packets in its own memory or on the main memory of the host\footnote{According to the data sheet if the processor is in sleep state packets can only be buffered on the card's limited memory and once exhausted packets will be dropped}.  
+Combining interrupt driven IO and delaying interrupt assertion via ITR setting, we can explore the impact of delaying packet detection and thus delaying processing of requests.  %Depending of the state of the processor the NIC can buffer packets in its own memory or on the main memory of the host\footnote{According to the data sheet if the processor is in sleep state packets can only be buffered on the card's limited memory and once exhausted packets will be dropped}.  
 Delaying interrupt detection introduces an OS control that can interact with energy and performance. For example, delaying a interrupt can induce prolonged quiescence periods, in which processor idle policies can take advantage of.
-
+%% TODO: may move down
 
 \subsection{OS Request Processing}
 \label{sec:workflow:osreqproc}
 
-Once the OS detection mechanism identifies that the NIC has data to process, several components of OS functionality must be run in accordance with the execution model of the OS. Specifically, the OS's network stack parses the received packet to a particular receive queue
+Once the OS detection mechanism identifies that the NIC has data to process, several components of OS functionality must be run in accordance with the execution model of the OS. Specifically, the OS's network stack parses the received packet's layer 2 frames, TCP/IP headers and eventually to the application layer for processing. %% TODO shorten
 
 %%Specifically, device driver code must dequeue layer 2 frames and schedule them for processing by the appropriate network protocol code. This code must ultimately determine the application end point, a port in the case of IP and TCP, and enqueue, the encapsulated data, for application processing. 
 
-This work on a general purpose OS, is typically split between two levels of scheduling; 1) interrupt level in which minimal work is done but at the highest critical priority and is run to completion (typically called the top-half processing), 2) the so-called bottom-half uses various kernel facilities to execute both device driver logic and protocol processing in a manner that can be preempted and rate limited.  Regardless all this work is done at the OS privilege domain and ultimately prepares data for the workload specific preemptable    application processing which is independently scheduled at lower privilege and priority. 
+This work on a general purpose OS, is typically split between two levels of scheduling; 1) interrupt level in which minimal work is done but at the highest critical priority and is run to completion (typically called the top-half processing), 2) the so-called bottom-half uses various kernel facilities to execute both device driver logic and protocol processing in a manner that can be preempted and rate limited.  Regardless, all this work is done at the OS privilege domain and ultimately prepares data for the workload specific pre-emptable application processing which is independently scheduled at lower privilege and priority. %% contrasted with specialized os
 
-Library operating systems that are customized for a specific application and processing model often shed much of the above complexity both shortening the path and eliminating the above privilege scheduling domains\cite{10.1145/2997641,10.1145/2812806,EbbRT}.  Rather they can exploit short-cuts that allow run to completion execution of all the logic, including application, processing in response to detecting device activity.  As such we can use the library OS to explore the impacts of shorter and OS hot-paths customized to running a single network service.  
+Library operating systems that are customized for a specific application and processing model often shed much of the above complexity both shortening the path and eliminating the above privilege scheduling domains\cite{10.1145/2997641,10.1145/2812806,EbbRT}.  Rather, they can exploit short-cuts that allow run to completion execution of all the logic, including application processing in response to detecting device activity.  As such, we can use the library OS to explore the impacts of shorter and OS hot-paths customized to running a single network service.  
 
 \subsubsection{Application Processing}
 \label{sec:workflow:appproc}
@@ -117,14 +128,14 @@ Once the OS has completed protocol processing it enables application logic to be
 
 As illustrated, during application processing the OS logic may be interleaved.  This work roughly falls into two categories, synchronous work done in service of this application request (page-faults, system calls, etc) and asynchronous work not having to do with this request (OS background work, processing of other requests or processes).
 
-Library OS's can often avoid interleaving asynchronous work, unrelated to the request handling,  and thus minimize jitter and improve IPC. 
+Library OS's can often avoid interleaving asynchronous work, unrelated to the request handling,  and thus minimize jitter and improve IPC. %% application work is fixed typically
 
 \subsubsection{OS Reply Processing}
 \label{sec:workflow:osrepproc}
 
 Figure~\ref{fig:timeline} shows that at some point during application processing a reply is generated and submitted to the OS for transmission.  This can often be handled in an asynchronous fashion depending on the OS semantics.  Where the OS can initiate protocol processing and device transmission in parallel with the remaining application request processing logic (eg. book keeping, cleanup and preparation for the next request).
 
-This potential overlap is an important distinction as it reveals that some applications may have an associated opportunity for a performance/energy optimization.  Specifically, it is possible given a particular arrival rate that there maybe settings that permit the remaining application work to overlap with the time for the next request to arrive in both a closed and open loop settings.  As such it maybe possible that trade-offs in sleep state latency, interrupt overheads and polling leads to better performance at lower energy consumption.  
+This potential overlap is an important distinction as it reveals that some applications may have an associated opportunity for a performance/energy optimization.  Specifically, it is possible given a particular arrival rate that there maybe ways of slowing down that permit the remaining application work to overlap with the time for the next request to arrive in both a closed and open loop settings.  As such it maybe possible that trade-offs in sleep state latency, interrupt overheads and polling leads to better performance at lower energy consumption.  
 
 \subsubsection{Idle Policy}
 \label{sec:workflow:idlepolicy}
@@ -137,16 +148,20 @@ There is clearly a relationship between the Idle Policy and Request Detection pr
 
 In our study we allow Linux's scheduler and default idle driver to decide if a core should be halted and to what state.  The software exploits various statistics to estimate how long the core is likely to be idle. It takes into account an estimate of when the next interrupt will likely occur from any source.  This is a subtle implementation that interacts across many layers of the OS software including the device drivers.  The idle driver framework also includes code provided by the processor manufacturer to evaluate the latency penalties and suggested minimum residency times.  This allows us to see the impacts of making informed decisions regarding sleep states.  
 
-When we use the Library OS to explore customized behavior we explore two simple configurations.  In the first we when there is no work to process on a core we simply put the processor into the deepest sleep state thus ignoring any trade-offs in the use of other sleep states.   This allows us to focus on the interaction that slowing down the processor and adjusting the ITR can have with the fixed use of deep sleep.   The second approach we take is the aggressive pool configuration as discussed above where we have no idle policy and simply immediately go back to using poll to implement request detection.
+We use the Library OS to two simple policies.  In the first, when there is no work to process on a core we simply put the processor into the deepest sleep state (C7), thus ignoring any trade-offs in use of other sleep states.   This allows us to focus on the interaction that slowing down the processor and adjusting the ITR can have with the fixed use of a deep sleep.   The second approach we take is the aggressive pool configuration, as discussed above, where we have no idle policy and simply immediately go back to using poll to implement request detection.
+%% discussion section later about alternatve sleep state policies
 
-\subsection{Interactions with Slowing Down}
+\section{Title}
+In this section, we discuss how the decomposition of the timeline in figure~\ref{fig:timeline} relates to slowing down processor, delaying requests, and OS specialization for network processing.
+
+\subsection{Interactions with Slowing Down the processor}
 \label{sec:workflow:dvfs}
 
-As noted the use of Dynamic Voltage Frequency Scaling of a processors allows software to adjust the energy consumption of CMOS based logic while trading off the rate at which instructions complete.  As noted by~\cite{slowdownorsleep, 10.1109/40.888701, pacingtoidle, udpm} static or leakage energy consumption is not particularly affected by DVFS and induces a base cost for keeping a fix core architecture active.\footnote{Opposed to big-little or reconfigurable core architectures.}
+As noted the use of Dynamic Voltage Frequency Scaling of a processors allows software to adjust the energy consumption of CMOS based logic while trading off the rate at which instructions complete.  As noted by~\cite{slowdownorsleep, 10.1109/40.888701, pacingtoidle, udpm} static or leakage energy consumption (i.e. caches, TLBs) is not particularly affected by DVFS and induces a base cost for keeping a fix core architecture active.\footnote{Opposed to big-little or reconfigurable core architectures.}
 
-Our study focuses on revealing how "slowing down" processing, using DVFS mechanisms, interacts with the processing of network driven software stacks and the resultant energy and performance realized. From this perspective we simply view DVFS as a speed control setting that can dilate cpu processing components of the request timeline in exchange for reduction in energy consumption.
+Our study focuses on revealing how "slowing down" processing, using DVFS mechanisms, interacts with the processing of network driven software stacks and the resultant energy and performance realized. From this perspective we simply view DVFS as a speed control setting that can dilate CPU processing components of the request timeline in exchange for reduction in energy consumption.
 
-From this perspective the three obvious components that can be affected are OS Request, Application and OS Reply processing. For a given OS their will be a hot-path instruction sequence that will be commonly exercised to process the request packets.  The OS implementation will determine the nature of the instructions that will compose this path for a particular workload.  As such at the fastest DVFS setting there will be a characteristic mean number of cycles that will be required and thus an IPC efficiency realized.  It is important to note that OS IPC does not necessarily imply better or worse performance and energy. What matters more is the net effect the OS instructions have with respect to application efficiency (eg. request processed per OS cycle). 
+From this perspective the three obvious components that can be affected are OS Request, Application and OS Reply processing. For a given OS their will be a hot-path instruction sequence that will be commonly exercised to process the request packets.  The OS implementation will determine the nature of the instructions that will compose this path for a particular workload.  As such, at the fastest DVFS setting there will be a characteristic mean number of cycles that will be required and thus an IPC efficiency realized.  It is important to note that OS IPC does not necessarily imply better or worse performance and energy. What matters more is the net effect the OS instructions have with respect to application efficiency (eg. request processed per OS cycle). %% cite others 
 
 
 
@@ -154,18 +169,7 @@ From this perspective the three obvious components that can be affected are OS R
 
 % see netpipe 64 bytes and 8k
 
-\subsubsection{Race-to-Halt vs Pace-to-idle vs No-idle}
 
-%Model is a framework for revealing the effects given OS choices in how to use interrupts, halting and polling.  
-
-\begin{em}
-Core Finding: 
-\begin{enumerate}
-	\item There is no single strategy for OS control to optimize energy and performance.
-	\item And yet the OS has sufficient control through slowing down processing and delaying interrupts to achieve dramatic wins in a workload dependent fashion. (give a couple of examples)
-	\item Further specializing the OS for running a single network driven service on a node magnifies the benefits of OS control to optimize energy consumption. 
-\end{enumerate} 
-\end{em}
 
 \subsection{Interactions with Delaying Interrupts}
 
@@ -173,32 +177,27 @@ Prior work suggests that delaying request processing can interact with DVFS and 
 
 As Mootaz et al.\cite{mootaz} observed in latency focused workloads, the "latency-slack" between the mean time to servicing a request and the SLA target creates an opportunity for energy-performance trade-offs.  In particular, it maybe possible to reduce mean performance by not executing requests as fast as possible and or not processing request immediately upon their arrival to reduce energy consumption while not violating the QoS target.  
 
-The work of Chou and Mootaz both suggest an energy management policy that relies on delaying processing of application requests. Both build an application specific prediction of the time that is required to service  requests and take a specification of the required tail latency QoS target.  The  controller strategies exploit a combination of delaying processing and slowing down to find an optimal setting that ensures acceptable tail latencies while reducing the energy consumption.  The intuition is that there are advantages to using batching to consolidate idle time, lengthen the time that the processor can be in deeper sleep state and or saving coming from not slowing down processing given the latency slack.    
+The work of Chou and Mootaz both suggest an energy management policy that relies on delaying processing of application requests. Both build an application specific prediction model of the time that is required to service requests and take a specification of the required tail latency QoS target. The  controller strategies exploit a combination of delaying processing and slowing down to find an optimal setting that ensures acceptable tail latencies while reducing the energy consumption.  The intuition is that there are advantages to using batching to consolidate idle time, lengthen the time that the processor can be in deeper sleep state and/or savings that come from slowing down processing time given the latency slack.    
 
-We uniquely explore how the delaying processing can be enacted by exploiting Interrupt Delay setting of the NIC.   Specifically we explore the impact of using delays in interrupts controlled by the OS to see if similar benefits  might exist while not assuming particular semantic knowledge.  In particular we expect that delaying interrupts can interact with OS code and the inherent packet nature induced by fixed Message Transmission Unit (MTU) constraints.  If a request requires several MTU's then delaying interrupts has the potential to reduce the interrupt overheads.  Similarly if there is advantages to batching request, as the prior work has noted, this too could be this OS control.
+We uniquely explore how delaying processing can be enacted by exploiting Interrupt Delay setting of the NIC. Specifically we explore the impact of slowing interrupt delays, controlled by the OS, to see if similar benefits might exist while not assuming particular workload knowledge.  In particular we expect that delaying interrupts can interact with OS code and the inherent packet nature induced by fixed Message Transmission Unit (MTU) constraints. If a request requires several MTU's then delaying interrupts has the potential to reduce the interrupt overheads. Similarly if there is advantages to batching request, as the prior work has noted, this too could be this OS control.
 
-\begin{em} 
-A core finding is that indeed, in the case of open loop benchmarks OS control of the NIC interrupt delay can be used to slow down request processing and allow one to exploit the latency slack to achieve lower power consumption while maintaining a QoS target.  This control is effective enough that it can server as knob by which the 99\% tail latency target can be selected and energy can be minimize to that target.  In the case of open loop workloads it can act as a control that allows one to optimize protocol processing to minimize energy while maximizing performance.
-\end{em}
+% \subsection{Interaction with Specializing OS Paths} 
+% \begin{em}
+% Critically we find that optimizing the hot-path of network processing in an OS can lead to valuable energy savings.  If the OS can support the application work in shorter number of cycles using less energy it can lead to an improvement in application IPC and energy efficiency. 
 
-\subsection{Interaction with Specializing OS Paths} 
-\begin{em}
- Critically we find that optimizing the hot-path of network processing in an OS can lead to valuable energy savings.  If the OS can support the application work in shorter number of cycles using less energy it can lead to an improvement in application IPC and energy efficiency. 
+% In an OS dominate workload, a shorter OS path (even if it means lower IPC), can allow one to slow down the core and not impact the performance.  We find that specialized OS networking paths can have lower IPC, due to the nature of the instruction mix, and thus have performance that is less affected by lower DVFS setting and yet still have the benefit of lower power consumption.  In some sense this is the counter point to the extreme IPC efficiency that can be had by running loop of NOPs.    The core point is despite having lower IPC more application work, in this case network processing, is being completed in the same amount of time but consuming less energy.
+% %% by optimizing OS path, created a path with 2 benefits: 1) get more work done, 2) instructions less sensitive than DVFS, not ALU bound, i.e. memory-bound instructions likely
 
-In an OS dominate workload, a shorter OS path (even if it means lower IPC), can allow one to slow down the core and not impact the performance.  We find that specialized OS networking paths can have lower IPC, due to the nature of the instruction mix, and thus have performance that is less affected by lower DVFS setting and yet still have the benefit of lower power consumption.  In some sense this is the counter point to the extreme IPC efficiency that can be had by running loop of NOPs.    The core point is despite having lower IPC more application work, in this case network processing, is being completed in the same amount of time but consuming less energy.
-
-
-In the case of a service oriented workload that has significant application computation, such that then fraction of the instructions composed by the OS network processing is small, there is still a potential for improved performance and energy tradeoff.  Customized OS paths can both reduce the time spent in the OS processing and improve the application code IPC due to a reduction in architectural hazards associated with interrupts, protection domain crossing, etc.  This time reduction, effectively increases the headroom in which the benefits of either slowing down processing and or delaying interrupts can be used to find an optimal setting for the workload. 
-\end{em}   
+% In the case of a service oriented workload that has significant application computation, such that then fraction of the instructions composed by the OS network processing is small, there is still a potential for improved performance and energy tradeoff.  Customized OS paths can both reduce the time spent in the OS processing and improve the application code IPC due to a reduction in architectural hazards associated with interrupts, protection domain crossing, etc.  This time reduction, effectively increases the headroom in which the benefits of either slowing down processing and or delaying interrupts can be used to find an optimal setting for the workload. 
+% % mcdsilo
+% \end{em}   
  
-\subsubsection{Polling can be energy efficient}
-Another less obvious interaction that can occur is between the use of polling versus interrupts and halting.  Given that polling is a CPU operation it can interact with DVFS settings.  In particular it can be possible that at slower DVFS settings polling can be more efficient and effective with respect to the net performance realized.  
+% \subsubsection{Polling can be energy efficient}
+% Another less obvious interaction that can occur is between the use of polling versus interrupts and halting.  Given that polling is a CPU operation it can interact with DVFS settings.  In particular it can be possible that at slower DVFS settings polling can be more efficient and effective with respect to the net performance realized.  
 
-
-
-\begin{em}
-A core finding is that aggressive polling can be combined with slowing down processing to find a setting that yields best case performance at a lower energy consumption for some workloads.   An example is when the workload is closed loop and transmission times are small. 
-\end{em}
+% \begin{em}
+% A core finding is that aggressive polling can be combined with slowing down processing to find a setting that yields best case performance at a lower energy consumption for some workloads.   An example is when the workload is closed loop and transmission times are small. 
+% \end{em}
 
 % Netpipe shows best performance and best efficiency is a function packet size and ITR
 
