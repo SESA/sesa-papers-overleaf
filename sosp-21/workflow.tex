@@ -140,9 +140,11 @@ Model is a framework for revealing the effects given OS choices in how to use in
 
 \subsection{Interactions with Delaying Interrupts}
 
-While the work of Chou and Mootaz both suggest a energy management policy that rely on delaying processing of application requests for some time given an application specific prediction of the time that will be required to service the request and a specification of the required QoS target.  The expectation is that a controller can exploit a combination of delaying processing and slowing down to find an optimal setting that ensures acceptable tail latencies while reducing the energy consumption.
+The work of Chou and Mootaz both suggest an energy management policy that relies on delaying processing of application requests. Both build an application specific prediction of the time that is required to service  requests and take a specification of the required tail latency QoS target.  The  controller strategies exploit a combination of delaying processing and slowing down to find an optimal setting that ensures acceptable tail latencies while reducing the energy consumption.  The intuition is that there are advantages to using batching to consolidate idle time, lengthen the time that the processor can be in deeper sleep state and or saving coming from not slowing down processing given the slack between the latency target and the actual time required to service requests.   
 
-Our model allows us to explore the impact of using delays in interrupts controlled by the OS to see if similar benefits  might exist while not assuming particular semantic knowledge.  In particular we expect that delaying interrupts can interact with OS code and inherent packetization induced by fixed Message Transmission Unit (MTU) constraints.  Specifically, if a request requires several MTU's then delaying interrupts has the poten
+Our model allows us to explore the impact of using delays in interrupts controlled by the OS to see if similar benefits  might exist while not assuming particular semantic knowledge.  In particular we expect that delaying interrupts can interact with OS code and inherent packetization induced by fixed Message Transmission Unit (MTU) constraints.  If a request requires several MTU's then delaying interrupts has the potential to reduce the interrupt overheads.  Similarly if their is advantages to batching request this too could be exposed.
+
+
 
 
 %\subsection{Application Perspective}
