@@ -1,4 +1,9 @@
 \label{sec:intro}
+
+{\em The OS has a bigger role to play in energy management than perhaps, has been realized, by combining its ability to slow down processing, delay interrupts and specialize its paths for network service oriented applications.   Given that it is the OS that controls the core network processing paths, including device management, interrupt versus polling behavior, and halt behavior it is important to understand OS effects on both performance and energy.}
+
+%Gernot et al.  
+
 %The hardware nodes of a cloud service provider are often each dedicated to running a single cloud service component~\cite{FB}.
 %As latency-critical tasks become ubiquitous across data centers,
 %deploying them on dedicated nodes is becoming a well studied and favored decision~\cite{ixcp, heracles, PerAppPower, twine}.
@@ -15,9 +20,9 @@
 
 %However, the performance and energy consumption of a system are complex emergent properties of the myriad of interactions between application software, operating systems, hardware, and offered loads. Interestingly, when we take a careful look at overall system execution under different energy profiles, we see that the consequences of tuning energy and performance reach far beyond directly observable quantities and impact the interactions between the aforementioned system components in subtle ways. There is a dizzying array of operating system mechanisms and policies one must consider that could both individually and collaboratively impact the performance and energy use of the system. Rather than focusing on the design and implementation of these mechanisms and policies, we find that we need a greater understanding of their underlying impacts and dynamics on energy and performance.
 
-The trade-offs that exist in application performance and energy is a well studied field: the typical method is by slowing down processor frequencies such that application performance suffers, but with the added benefit of lower energy use~\cite{7349225,rapl2015, rapl2018,hotpower2008, PerAppPower}. These studies typically study Dynamic Voltage and Frequency Scaling (DVFS) and Running Average Power Limit (RAPL) knobs that are provided by modern processors. Furthermore, they also mainly focus on processor and/or memory-centric applications where a slowing processor frequency has a direct impact on application performance.
+%The trade-offs that exist in application performance and energy is a well studied field: the typical method is by slowing down processor frequencies such that application performance suffers, but with the added benefit of lower energy use~\cite{7349225,rapl2015, rapl2018,hotpower2008, PerAppPower}. These studies typically study Dynamic Voltage and Frequency Scaling (DVFS) and Running Average Power Limit (RAPL) knobs that are provided by modern processors. Furthermore, they also mainly focus on processor and/or memory-centric applications where a slowing processor frequency has a direct impact on application performance.
 
-In contrast, datacenter applications tend to have more headroom in this trade-off space as they are typically governed by Service-Level Agreements (SLAs) that provide a ceiling of performance that majority of requests must meet. There have also been a wealth of research in using these SLA headrooms to lower datacenter energy use mainly by decreasing processor frequencies~\cite{Dynamo, SmoothOperator, oldi-pegasus, adrenaline, heracles, energyproportion, warehouse-power}.
+%In contrast, datacenter applications tend to have more headroom in this trade-off space as they are typically governed by Service-Level Agreements (SLAs) that provide a ceiling of performance that majority of requests must meet. There have also been a wealth of research in using these SLA headrooms to lower datacenter energy use mainly by decreasing processor frequencies~\cite{Dynamo, SmoothOperator, oldi-pegasus, adrenaline, heracles, energyproportion, warehouse-power}.
 
 %In this paper, we study an additional parameter, along with processor frequencies, to further slow down network driven workloads - which is the time delay in interrupt notification of the device driver to start processing packets (ITR-Delay). Figure~\ref{fig:itr_delay_flowchart} is a transcription of the actual algorithm in the Intel 82599 NIC datasheet~\cite{82599} used in this study. 
 

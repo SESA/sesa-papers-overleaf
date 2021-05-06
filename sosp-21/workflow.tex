@@ -142,21 +142,38 @@ Our study focuses on revealing how "slowing down" processing, using DVFS mechani
 
 From this perspective the three obvious components that can be affected are OS Request, Application and OS Reply processing. For a given OS their will be a hot-path instruction sequence that will be commonly exercised to process the request packets.  The OS implementation will determine the nature of the instructions that will compose this path for a particular workload.  As such at the fastest DVFS setting there will be a characteristic mean number of cycles that will be required and thus an IPC efficiency realized.  It is important to note that OS IPC does not necessarily imply better or worse performance and energy. What matters more is the net effect the OS instructions have with respect to application efficiency (eg. request processed per OS cycle). 
 
-\subsubsection{Impact of OS path length and IPC}
-{\em A core finding is that  shorter OS path length with lower IPC can imply better net efficiency.  If the OS can support the application work in shorter number of cycles using less energy it can lead to an improvement in application IPC and energy efficiency.  In an OS dominate workload, a shorter OS path with lower IPC, can allow one to slow down the core and not impact the performance of the OS code as it is not ALU bound. In the case of an application bound workload such an OS path can result in application efficiency due to a reduction in micro architectural hazards and thus magnify the range of power management configurations that can maintain performance. }   
+
+
+\subsubsection{Impact of OS paths and IPC} 
+{\em Critically we find that optimizing the hot-path of network processing in an OS can lead to valuable energy savings.  If the OS can support the application work in shorter number of cycles using less energy it can lead to an improvement in application IPC and energy efficiency. 
+
+In an OS dominate workload, a shorter OS path (even if it means lower IPC), can allow one to slow down the core and not impact the performance.  We find that specialized OS networking paths can have lower IPC, due to the nature of the instruction mix, and thus have performance that is less affected by lower DVFS setting and yet still have the benefit of lower power consumption.  In some sense this is the counter point to the extreme IPC efficiency that can be had by running loop of NOPs.    The core point is despite having lower IPC more application work, in this case network processing, is being completed in the same amount of time but consuming less energy.
+
+
+In the case of a service oriented workload that has significant application computation, such that then fraction of the instructions composed by the OS network processing is small, there is still a potential for improved performance and energy tradeoff.  Customized OS paths can both reduce the time spent in the OS processing and improve the application code IPC due to a reduction in architectural hazards associated with interrupts, protection domain crossing, etc.  This time reduction, effectively increases the headroom in which the benefits of either slowing down processing and or delaying interrupts can be used to find an optimal setting for the workload. }   
  
 
 \subsubsection{Polling can be energy efficient}
 Another less obvious interaction that can occur is between the use of polling versus interrupts and halting.  Given that polling is a CPU operation it can interact with DVFS settings.  In particular it can be possible that at slower DVFS settings polling can be more efficient and effective with respect to the net performance realized.  
 
-{\em A core finding is that OS implemented aggressive polling can be combined with slowing down to find a best case performance that at a lower energy consumption  achievable by running as fast as possible.  This scenario occurs when the workload is closed loop and the transmission times are small. }
+
+
+{\em A core finding is that aggressive polling can be combined with slowing down processing to find a setting that yields best case performance at a lower energy consumption for some workloads.   An example is when the workload is closed loop and transmission times are small. }
 % see netpipe 64 bytes and 8k
 
 \subsubsection{Race-to-Halt vs Pace-to-idle vs No-idle}
 
-Model is a framework for revealing the effects given OS choices in how to use interrupts, halting and polling.  
+%Model is a framework for revealing the effects given OS choices in how to use interrupts, halting and polling.  
 
-\em{Core Finding: There is no clear winner on how to behave but there is OS behaviours that can be used to adapt to through a combination of slowing down processing and delaying interrupts.   Further specializing the OS for running a single network driven service on a node magnifies the benefits}
+\em{
+Core Finding: 
+\begin{enumerate}
+	\item There is no single strategy for OS control to optimize energy and performance.
+	\item And yet the OS has sufficient control through slowing down processing and delaying interrupts to achieve dramatic wins in a workload dependent fashion. (give a couple of examples)
+	\item Further specializing the OS for running a single network driven service on a node magnifies the benefits of OS control to optimize energy consumption. 
+\end{enumerate} 
+
+}
 
 \subsection{Interactions with Delaying Interrupts}
 
@@ -168,7 +185,7 @@ The work of Chou and Mootaz both suggest an energy management policy that relies
 
 Our model allows us to explore the impact of using delays in interrupts controlled by the OS to see if similar benefits  might exist while not assuming particular semantic knowledge.  In particular we expect that delaying interrupts can interact with OS code and inherent packet structure induced by fixed Message Transmission Unit (MTU) constraints.  If a request requires several MTU's then delaying interrupts has the potential to reduce the interrupt overheads.  Similarly if there is advantages to batching request this too could be exposed.
 
-{\em A core finding is that indeed, in the case of open loop benchmarks control of the NIC interrupt delays can be used to slow down request processing and allow one to exploit the latency slack to achieve lower power consumption while maintaining a QoS target.  This control is effective enough that it can server as knob by which the 99\% tail latency target can be selected and energy can be minimize to that target.  In the case of open loop workloads it can act as a control that allows one to optimize protocol processing to minimize energy while maximizing performance.}
+{\em A core finding is that indeed, in the case of open loop benchmarks control of the NIC interrupt delay can be used to slow down request processing and allow one to exploit the latency slack to achieve lower power consumption while maintaining a QoS target.  This control is effective enough that it can server as knob by which the 99\% tail latency target can be selected and energy can be minimize to that target.  In the case of open loop workloads it can act as a control that allows one to optimize protocol processing to minimize energy while maximizing performance.}
 
 % Netpipe shows best performance and best efficiency is a function packet size and ITR
 
