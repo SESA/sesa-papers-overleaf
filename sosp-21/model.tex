@@ -48,6 +48,52 @@ where A, B are constants of proportionality, $N_i$ $=$ the total number of instr
 %The core assumption here is that the various terms in figure \ref{timeline} don't overlap. We also assume that $\lambda$ is small enough that the service time is less than the inter-arrival time i.e. $t_{\text{service}} \leq \delta t$. This simple model also applies to the closed-loop case with the restriction that the arrival rate is now dependent on $t_{\text{service}}$. Lastly, this is a qualitative model that ignores stochastic effects (i.e. the full probability distribution of various terms). A quantitative extension of this analysis would cast this problem as a probabilistic graphical model and perform Bayesian inference for the underlying parameters.
 
 Now to use the model we map
+
+% qps = 40*1000 #queries per second
+% p_busy_min = 20
+% p_static = {
+%    'c1':1.5, 
+%    'c3':0.5,
+%    'c4':0.25,
+%    'c7':0,
+%    'busy': 10
+%}
+%chosen_sleep = 'c7'
+
+$f_{\text{itr}}$ is a free parameter between 0 and 1.0 signifying the percentage of time spent in the detection phase. $f_{\text{work}}^{\text{max}}$ is also a free parameter between 0.0 and 1.0 describing the percentage of time spent doing application work at the \textit{lowest DVFS setting}. In other words, the work fraction can at most be $f_{\text{work}}^{\text{max}}$ and when DVFS increases, it decreases.
+
+$t_{\text{detect}} = \text{itr} = \frac{1}{\lambda} f_{\text{itr}}$
+
+$f_{\text{work}}$ is the percentage of time spent working on the application and is a function of DVFS as posited above:
+
+$f_{\text{work}} = \frac{f_{\text{work}}^{\text{max}}}{\Delta^{1+\alpha}}$
+
+These percentages can be converted into times based on a chosen arrival rate, $\lambda$ as follows:
+
+$t_{\text{work}} = \frac{1}{\lambda} f_{\text{work}}$
+
+Any remaining time is the quiescent time and by construction, $t_q \geq 0$.
+
+$t_q = \frac{1}{\lambda} (1 - f_{\text{itr}} - f_{\text{work}})$
+
+Using the definition of latency, we define
+
+$\boxed{t_{\text{latency}} = \text{itr} + t_{\text{work}}}$
+
+We also define the three power terms below.
+
+$P_{\text{busy}} = P_{\text{static['busy']}} + P_{\text{busy_min}} \Delta^{2+\beta}$
+
+$P_q = \text{p_static[chosen_sleep]}$
+
+$P_{\text{detect}} = P_{\text{static[chosen_sleep]}}$.
+
+All of this can be put together to calculate the total energy consumed in each inter-arrival period:
+
+$E = (P_{\text{detect}} \text{itr}) + (P_{\text{busy}} t_{\text{busy}}) + (P_q t_q)$
+
+These calculations can be used to compute numerical values for latency, $t_{\text{latency}}$ and energy, $E$ for various values of detection times $f_{\text{itr}}$, maximum work time $f_{\text{work}}^{\text{max}}$ and DVFS, $\Delta$.
+
 \begin{figure}
 \centering
 \includegraphics[width=.8\columnwidth]{figures/model_plots}
