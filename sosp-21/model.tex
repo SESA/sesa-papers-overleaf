@@ -47,7 +47,21 @@ where A, B are constants of proportionality, $N_i$ $=$ the total number of instr
 
 %The core assumption here is that the various terms in figure \ref{timeline} don't overlap. We also assume that $\lambda$ is small enough that the service time is less than the inter-arrival time i.e. $t_{\text{service}} \leq \delta t$. This simple model also applies to the closed-loop case with the restriction that the arrival rate is now dependent on $t_{\text{service}}$. Lastly, this is a qualitative model that ignores stochastic effects (i.e. the full probability distribution of various terms). A quantitative extension of this analysis would cast this problem as a probabilistic graphical model and perform Bayesian inference for the underlying parameters.
 
-Now to use the model we map
+Now to use the model to explore the following scenario:
+\fbox{\tiny \fbox{\begin{minipage}{15em}
+1. the use of interrupts for detection and two ITR values to delay detection, \\
+	2. an idle policy using a deep sleep state that consumes no energy on the core,\\
+	3. for fixed QPS and two different fractions of work time relative the QPS implied arrival rate,\\
+	4. and finally over three different instruction mixes with respect to DVFS sensitivity (a) time insensitive and power sensitive, b) time sensitive and power insensitive and c) both time and power sensitive
+\end{minipage}}
+\fbox{\begin{minipage}{20em}
+put math here
+\end{minipage}}
+}
+
+
+Figure~\ref{fig:model_values} the mapping of this scenario to the mathematical framework.  
+   
 \begin{figure}
 \centering
 \includegraphics[width=.8\columnwidth]{figures/model_plots}
