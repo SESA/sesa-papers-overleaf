@@ -151,7 +151,7 @@ In our study we allow Linux's scheduler and default idle driver to decide if a c
 We use the Library OS to two simple policies.  In the first, when there is no work to process on a core we simply put the processor into the deepest sleep state (C7), thus ignoring any trade-offs in use of other sleep states.   This allows us to focus on the interaction that slowing down the processor and adjusting the ITR can have with the fixed use of a deep sleep.   The second approach we take is the aggressive pool configuration, as discussed above, where we have no idle policy and simply immediately go back to using poll to implement request detection.
 %% discussion section later about alternatve sleep state policies
 
-\section{Title}
+\section{Implications of slowing down}
 \label{sec:slowdown}
 In this section, we discuss how the decomposition of the timeline in figure~\ref{fig:timeline} relates to slowing down processor, delaying requests, and OS specialization for network processing.
 
