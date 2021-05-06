@@ -100,9 +100,9 @@ Library OS's can often avoid interleaving asynchronous work, unrelated to the re
 \subsubsection{OS Reply Processing}
 \label{sec:workflow:osrepproc}
 
-As illustrated At some point during application processing a reply is generated and submitted to the OS for transmission.  This can often be handled in an asynchronous fashion depending on the OS semantics.  Where the OS can initiate protocol processing and device transmission in parallel with the remaining application request processing logic (eg. book keeping, cleanup and preparation for the next request).
+Figure~\ref{fig:timeline} shows that at some point during application processing a reply is generated and submitted to the OS for transmission.  This can often be handled in an asynchronous fashion depending on the OS semantics.  Where the OS can initiate protocol processing and device transmission in parallel with the remaining application request processing logic (eg. book keeping, cleanup and preparation for the next request).
 
-This potential overlap is an important distinction as it reveals that some applications may have an associated opportunity for a performance/energy optimization.  Specifically, it is possible given a particular arrival rate that there maybe settings that permit the remaining application work to overlap with the time for the next request to arrive in both a closed and open loop settings.  As such it maybe possible that tradeoffs in sleep state latencies, interrupt overheads and polling leads to better performance at lower energy consumption.  
+This potential overlap is an important distinction as it reveals that some applications may have an associated opportunity for a performance/energy optimization.  Specifically, it is possible given a particular arrival rate that there maybe settings that permit the remaining application work to overlap with the time for the next request to arrive in both a closed and open loop settings.  As such it maybe possible that trade-offs in sleep state latency, interrupt overheads and polling leads to better performance at lower energy consumption.  
 
 \subsubsection{Idle Policy}
 \label{sec:workflow:idlepolicy}
