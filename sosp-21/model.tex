@@ -19,7 +19,7 @@ $\delta t$ = time between the arrivals of two consecutive requests, $t_{\text{de
 
 These terms can be grouped together to define:
 
-$t_{\text{work}} \equiv t_{\text{osreq}} + t_{\text{app}} + t_{\text{idlepolicy}}$ for the total time spent on the workload excluding detection and any quiescient time, and $t_{\text{latency}} \equiv t_{\text{detect}} + t_{\text{work}}$ for the total latency for a request.
+$t_{\text{work}} \equiv t_{\text{osreq}} + t_{\text{app}} + t_{\text{idlepolicy}}$ for the total time spent on the workload excluding detection and any quiescient time, and $t_{\text{latency}} \equiv t_{\text{detect}} + t_{\text{work}}$ for the total service time or latency for a request.
 
 Note that: $\delta t = \frac{1}{\lambda}$ or equivalently, $t_q = \left[\frac{1}{\lambda} - t_\text{work} - t_{\text{detect}}\right]^+$ where $[x]^+ = \max(x,0)$.
 
@@ -30,11 +30,19 @@ $\boxed{E = P_\text{detect} t_{\text{detect}} + P_{\text{work}} \left[t_{\text{o
 
 Lastly, we posit power-law dependence of $t_{\text{work}}$ and $P_{\text{work}}$ as follows:
 
-$t_{\text{app}} = A\frac{N_i}{\Delta^{1+\alpha}}$
+$t_{\text{work}} = A\frac{N_i}{\Delta^{1+\alpha}}$
 
 $P_{\text{work}} = B \Delta^{2+\beta}$
 
 where A, B are constants of proportionality, $N_i$ = the total number of instructions and $\alpha$, $\beta$ are real-valued constants that describe the dependence on DVFS, \Delta.
 
-The core assumption here is that the various terms in figure \ref{timeline} don't overlap. We also assume that $\lambda$ is small enough that the latency is less than the inter-arrival time i.e. $t_{\text{latency}} \leq \delta t$. This simple model also applies to the closed-loop case with the restriction that the arrival rate is now dependent on $t_{\text{latency}}$. Lastly, this is a qualitative model that ignores stochastic effects (i.e. the full probability distribution of various terms). A quantitative extension of this analysis would cast this problem as a probabilistic graphical model and perform Bayesian inference for the underlying parameters.
+The core assumption here is that the various terms in figure \ref{timeline} don't overlap. We also assume that $\lambda$ is small enough that the service time is less than the inter-arrival time i.e. $t_{\text{service}} \leq \delta t$. This simple model also applies to the closed-loop case with the restriction that the arrival rate is now dependent on $t_{\text{service}}$. Lastly, this is a qualitative model that ignores stochastic effects (i.e. the full probability distribution of various terms). A quantitative extension of this analysis would cast this problem as a probabilistic graphical model and perform Bayesian inference for the underlying parameters.
+
+\begin{figure}
+\centering
+\includegraphics[width=1.1\columnwidth]{figures/model_plots}
+\caption[]{Simulated Plots}
+\label{fig:simplots}
+\vspace{-0.28in}
+\end{figure}
 
