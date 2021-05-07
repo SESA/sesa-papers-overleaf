@@ -26,12 +26,13 @@
 \begin{figure}
 \centering
 \includegraphics[width=1.1\columnwidth]{figures/timeline_chart}
-\caption[]{Request timeline}
+\caption{Breakdown of application request timeline.}
 \label{fig:timeline}
 \vspace{-0.28in}
 \end{figure}
 
-From an OS perspective we break down network driven processing into stages that allows us to organize and reflect the OS and application interaction with the workload request timeline. This break down is illustrated in figure~\ref{fig:timeline}.
+From an OS perspective we break down network driven processing into stages that allows us to organize and reflect the OS and application interaction with the workload request timeline. This break down is illustrated in figure~\ref{fig:timeline}. We believe this abstract timeline is applicable across software and modern networking hardware.
+
 % TODO
 % We believe the important aspects of OS/network loads are shown in figure 1
 % abstraction 
@@ -42,20 +43,21 @@ From an OS perspective we break down network driven processing into stages that 
 \label{sec:workflow:Quiescent}
 Given the packet and transactional nature of network driven services, a quiescent period, in which no requests are present at the server, precedes activity on the server. 
 
-The nature of the workloads drive the length of quiescent period and of course the nature of the work required to service the request (the additional components of the diagram that will be discussed next).  Network services tends to fall into two broad categories Open and Closed Loop.   
+The nature of the workload drives the length of quiescent period and the nature of the work required to service the request (additional components of the diagram will be discussed next).  Network services tends to fall into two broad categories: Open and Closed Loop.   
 
 \subsubsection{Open Loop:}
 \label{sec:workflow:openloop}
-In an open loop scenario like a Memcached workload, the external request rate induces an inter-arrival gap that will drive the quiescent period -- longer at lighter loads (lower queries per second (QPS)) and shorter at heavier loads (higher QPS). Largely the arrival rate can be considered independent of the time required to service a request.  System performance is typically evaluated in terms of the 99\% tail latency it achieves.  Moreover, providers often set a Service-level Agreement (SLA) target, such as some \% of requests to be completed under a stringent time budget, therefore categorizing system performance into acceptable and unacceptable. There have also been a wealth of research in using these SLA headrooms to lower datacenter energy use mainly by decreasing processor frequencies~\cite{Dynamo, SmoothOperator, oldi-pegasus, adrenaline, heracles, energyproportion, warehouse-power}.
+In an open loop scenario, such as in-memory key-value stores, the external request rate induces an inter-arrival gap that will drive the quiescent period -- longer at lighter loads (lower queries per second (QPS)) and shorter at heavier loads (higher QPS). The arrival rate can largely be considered independent of the time required to service a request. Moreover, providers often set a Service-level Agreement (SLA) target, where some percentage of requests must be completed under a stringent time budget. In addition, there have been a wealth of research in using these SLA headrooms to lower datacenter energy use mainly by decreasing processor speeds~\cite{Dynamo, SmoothOperator, oldi-pegasus, adrenaline, heracles, energyproportion, warehouse-power}.
 % others have noted this is ripe to explore the trade-offs
-
+% System performance is typically evaluated in terms of the 99\% tail latency it achieves
 %such as a 99\% tail latency of 500${\mu}$s
 %Many interesting interactions and trade-offs exist in Open Loop workloads to affect the latency below the SLA targets and the energy consumed. 
+%herefore categorizing system performance into acceptable and unacceptable.
 
 \subsubsection{Closed Loop:}
 \label{sec:workflow:closed_loop}
-Examples of closed loop workloads are snapshotting a database to a remote server, video streaming or a middle tier service within a data center~\cite{Barroso:2009:DCI:1643608, oldi-study, oldi-pegasus, warehouse-power, energyproportion, WebSearch}.  The work to be done is a sequence of requests that have an inter-dependency on each other. Specifically, the arrival of the next request depends on how fast it takes to service the current request. From a server's perspective, the quiescent period will be bounded by time to transmit both the request and the reply, as well as the time on the client to generate the next request.  
-In the closed loop setting, one would like the server to complete every request quickly so that the overall time to complete a task is minimized. However, we find that depending on the nature of the workload and the quiescent period, composed of the network transmission times and client servicing time, there still exist interesting opportunities to reduce energy use.
+Examples of closed loop workloads include snapshotting a database to a remote server, video streaming or a middle tier service within a data center~\cite{Barroso:2009:DCI:1643608, oldi-study, oldi-pegasus, warehouse-power, energyproportion, WebSearch}. In this case, the total work to be done is a sequence of requests that have an inter-dependency on each other. Specifically, the arrival of the next request depends on how fast it takes to service the current request. From a server's perspective, the quiescent period will be bounded by the time to transmit both the request and the reply, as well as the time on the client to generate the next request.  
+In the closed loop setting, one would like the server to complete every request quickly so that the overall time to complete a task is minimized. However, we find that depending on the nature of the workload and the quiescent period, composed of the network transmission times and client servicing time, there still exist interesting opportunities to reduce energy use dependent upon OS structure and careful manual control of the hardware delay mechanisms.
 % polling in nodejs/netpipe - edp
 % heavy computation vs light computation
 % msg size differences
@@ -81,14 +83,14 @@ Using interrupts has three important implications: 1) Interrupts can be used to 
 \label{sec:workflow:pollio}
 Most modern high-speed devices expose a memory, if not cache, friendly interface, that permits the processors to read a per-core memory address to determine if the device, such as the Network Interface Card (NIC) has received data that requires processing by the core.  This facility allows software to directly poll the device and initiate software handling without an interrupt.  This approach reduces latency and other performance penalties associated with interrupt driven IO.  However, the period in which the device is checked requires CPU activity and thus limits the ability to halt the cores when there is no work to be done.  In the extreme, a customized OS path supporting a single application can run a poll loop on every core to constantly check for work, conduct the work and then go back to polling for new work and thus never halting the processors. 
 
-Kim et al.\cite{pacingtoidle}, referred to a regime in which one keeps the processor busy as 'no-idle', an alternative energy management strategy. In the context of network driven processing we will refer to this as an aggressive polling or simply polling strategy.  In general, such an aggressive poll approach is assumed to maximize performance by avoiding interrupt overheads and minimize latency at a cost to increased energy use. 
+Kim et al.\cite{pacingtoidle}, referred to a regime in which one keeps the processor busy as 'no-idle', an alternative energy management strategy. In the context of network driven processing we will refer to this as an aggressive polling strategy.  In general, such a poll approach is assumed to maximize performance by avoiding interrupt overheads and minimize latency at a cost to increased energy use. 
 
-It is worth noting processors typically have the ability to halt in a way that an update to a cache line will awaken it, there exists the possibility of implementing the poll in combination with sleep states\footnote{todo explanation}. In this paper we do not explore this possibility, leaving it for future work.
+\textit{It is worth noting processors typically have the ability to halt in a way that an update to a cache line will awaken it, there exists the possibility of implementing the poll in combination with sleep states\footnote{todo explanation}. In this paper we do not explore this possibility, leaving it for future work.}
 
 \subsubsection{Hybrid driven IO}
 \label{sec:workflow:hybridio}
 % https://wiki.linuxfoundation.org/networking/napi
-A general purpose OS typically exploits some form of hybrid IO strategy alternating between interrupts and polling when servicing high speed NICs. A common strategy is to use interrupts when the load is low and switch to polling when load is high and back to interrupts when load reduces.  A general purpose OS, even under sustained high load, bounds the poll phase to avoid the starving other devices and software. Linux's New API (NAPI)\cite{NAPI} framework implements this hybrid scheme.
+A general purpose OS typically exploits some form of hybrid IO strategy alternating between interrupts and polling when servicing high speed NICs. A common strategy is to use interrupts when the load is low and switch to polling when load is high and back to interrupts when load reduces.  A general purpose OS, even under sustained high load, bounds the poll phase to avoid the starving other devices and software. Linux's New API (NAPI)\cite{NAPI} framework is one example implementation of this hybrid scheme.
 %% these ideas help to explain the vertical of slowing down proceessor on Linux netpipe, memcached at really low QPS
 
 %% Han - not sure we need to examine it in this detail, seems like re-explanation of the paragraph above, think NAPI and its implementation is already well known
@@ -96,13 +98,13 @@ A general purpose OS typically exploits some form of hybrid IO strategy alternat
 %The NAPI framework, in addition to NIC processing budgets,  supports prioritization across devices. 
 % In Linux the NAPI polls are processed via softirqs.  Checks for and processing of softirqs happens when ever the system returns to userspace or a hardware interrupt exits.
 
-Specializing an OS to support the execution of a single application can explore more extreme strategies like the aggressive polling, described above, given that it need not arbitrate the device or cores and can be programmed and integrated with a single application.  
+Specializing an OS to support the execution of a single application can explore more extreme strategies like the aggressive polling (\cref{sec:workflow:pollio}), given that it need not arbitrate the device or cores and can be programmed and integrated into a single application.  
 %% a general purpose must not starve out vs specialized os
 
 \subsubsection{Interrupt Delaying}
 \label{sec:workflow:itrdelay}
 \input{itr_flowchart}
-A common feature of modern high speed NICs is the ability to delay the delivery of interrupt when an event such as packet arrival or transmission completion. By manipulating this setting, software can limit the minimum time between interrupts or in other words the maximum rate at which the NIC events can interrupt the CPUs. The NIC we use in this study exposes this mechanism via an Interrupt Throttling (ITR) setting.  We flowchart the algorithm from the NIC's datasheet~\cite{82599} in  Figure~\ref{fig:itr_delay_flowchart}. Software uses the ITR register to configure a delay in 2$\mu$s increments.  If the spacing of events, such as packet reception, is less than  $2{\mu}s \times ITR$ the NIC will delay assertion.  If on the other hand events are sufficiently separated an interrupt will be asserted immediately.   
+A common feature of modern high speed NICs is the ability to delay the delivery of interrupt when an event such as packet receive or transmission completion. By manipulating this setting, software can limit the minimum time between interrupts or in other words the maximum rate at which the NIC events can interrupt the processor. The NIC used in our work exposes this mechanism via an Interrupt Throttling (ITR) setting.  We flowchart the algorithm from the NIC's datasheet~\cite{82599} in  Figure~\ref{fig:itr_delay_flowchart}. Software uses the ITR register to configure a delay in 2$\mu$s increments.  If the spacing of events, such as packet reception, is less than  $2{\mu}s \times ITR$ the NIC will delay assertion.  If on the other hand events are sufficiently separated an interrupt will be asserted immediately.   
 
 By default the Linux device driver attempts to automatically set ITR to reduce interrupt overheads.  We disable this feature and manually control its value to explore the impact of delaying the detection of NIC events on performance and energy.
 
@@ -119,21 +121,19 @@ Once the OS detection mechanism identifies that the NIC has data to process, sev
 
 This work on a general purpose OS, is typically split between two levels of scheduling; 1) interrupt level in which minimal work is done but at the highest critical priority and is run to completion (typically called the top-half processing), 2) the so-called bottom-half uses various kernel facilities to execute both device driver logic and protocol processing in a manner that can be preempted and rate limited.  Regardless, all this work is done at the OS privilege domain and ultimately prepares data for the workload specific pre-emptable application processing which is independently scheduled at lower privilege and priority. %% contrasted with specialized os
 
-Library operating systems that are customized for a specific application and processing model often shed much of the above complexity both shortening the path and eliminating the above privilege scheduling domains\cite{10.1145/2997641,10.1145/2812806,EbbRT}.  Rather, they can exploit short-cuts that allow run to completion execution of all the logic, including application processing in response to detecting device activity.  As such, we can use the library OS to explore the impacts of shorter and OS hot-paths customized to running a single network service.  
+Library OS's that are customized for a specific application and processing model often shed much of the above complexity; both shortening the path and eliminating the privileged scheduling domains\cite{10.1145/2997641,10.1145/2812806,EbbRT}.  Further, they can exploit short-cuts that enable a run-to-completion execution model, including application processing in response to detecting device activity.  As such, we use the library OS to explore the impacts of shorter OS hot-paths customized to running a single network service.  
 
 \subsubsection{Application Processing}
 \label{sec:workflow:appproc}
+Once the OS has completed protocol processing, the work now transitions to application logic. \textit{Depending on the workload, this may be very simple as in the case of a workload like memcached or it require significant cpu activity as in the case of  an application server written in managed runtime such as nodejs or one that does non-trivial computational work to service a request.} %% needs shortening
 
-Once the OS has completed protocol processing it enables application logic to begin.  Depending on the workload this may be very simple as in the case of a workload like memcached or it require significant cpu activity as in the case of  an application server written in managed runtime such as nodejs or one that does non-trivial computational work to service a request. 
+As illustrated in figure~\ref{fig:timeline}, during application processing the OS logic may be interleaved.  This work roughly falls into two broad categories, synchronous work done in service of this application request (page-faults, system calls, etc) and asynchronous work not having to do with this request (OS background work, processing of other requests or processes).
 
-As illustrated, during application processing the OS logic may be interleaved.  This work roughly falls into two categories, synchronous work done in service of this application request (page-faults, system calls, etc) and asynchronous work not having to do with this request (OS background work, processing of other requests or processes).
-
-Library OS's can often avoid interleaving asynchronous work, unrelated to the request handling,  and thus minimize jitter and improve IPC. %% application work is fixed typically
+Library OS's can often avoid interleaving asynchronous work, unrelated to the request handling, and thus minimize jitter and improve IPC. %% application work is fixed typically
 
 \subsubsection{OS Reply Processing}
 \label{sec:workflow:osrepproc}
-
-Figure~\ref{fig:timeline} shows that at some point during application processing a reply is generated and submitted to the OS for transmission.  This can often be handled in an asynchronous fashion depending on the OS semantics.  Where the OS can initiate protocol processing and device transmission in parallel with the remaining application request processing logic (eg. book keeping, cleanup and preparation for the next request).
+Figure~\ref{fig:timeline} also shows that at some point during application processing, a reply is generated by OS for transmission.  This can often be handled in an asynchronous fashion depending on the OS semantics. \textit{Where the OS initiates protocol processing and device transmission in parallel with the remaining application request processing logic (eg. book keeping, cleanup and preparation for the next request).}
 
 This potential overlap is an important distinction as it reveals that some applications may have an associated opportunity for a performance/energy optimization.  Specifically, it is possible given a particular arrival rate that there maybe ways of slowing down that permit the remaining application work to overlap with the time for the next request to arrive in both a closed and open loop settings.  As such it maybe possible that trade-offs in sleep state latency, interrupt overheads and polling leads to better performance at lower energy consumption.  
 
