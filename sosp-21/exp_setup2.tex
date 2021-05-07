@@ -19,7 +19,7 @@ and hardware checksum offloading enabled.
 We also match the values of
 the number of NIC transmit and receive descriptors
 and write-back thresholds for packet transmissions.
-Additionally, to minimize system noise, hyperthreads and TurboBoost are disabled on all processors. While prior studies have included TurboBoost in performance-energy studies~\cite{udpm, pacingtoidle, PerAppPower, ixcp}, there have also been reports of energy anomalies when used with different sleep states~\cite{slowdownorsleep}.
+Additionally, to minimize system noise, hyperthreads and TurboBoost are disabled on all processors. While prior studies have included TurboBoost in performance-energy studies~\cite{udpm, pacingtoidle, PerAppPower, ixcp}, there have also been reports of energy anomalies when used with different sleep states~\cite{slowdownorsleep}. We use the standard RAPL hardware registers on Intel processors to read per package energy values~\cite{intel_rapl, rapl}.
 
 \subsection{OS Software}
 \label{sec:OS}

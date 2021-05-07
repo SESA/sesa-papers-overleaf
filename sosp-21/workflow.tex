@@ -140,7 +140,7 @@ This potential overlap is an important distinction as it reveals that some appli
 \subsubsection{Idle Policy}
 \label{sec:workflow:idlepolicy}
 
-If all processing is complete, no traffic is pending and aggressive polling is not in use the OS can enact a policy that select a hardware sleep state (C-State) to halt the core to.  The sleep states and various policies has been extensively studied\cite{}.  Each sleep state is has an associated reduction in static power consumption. In the extreme, the deepest sleep states can flush micro-architectural state such as caches and power down these structures. However, each sleep state also imposes a progressively larger wakeup latency and potential impact on execution efficiency given the possible flushing of state. See \cite{brooks,udpm} for more information regarding C-States. 
+If all processing is complete, no traffic is pending and aggressive polling is not in use the OS can enact a policy that select a hardware sleep state (C-State) to halt the core to.  The sleep states and various policies has been extensively studied\cite{dynsleep,dreamweaver,slowdownorsleep}.  Each sleep state is has an associated reduction in static power consumption. In the extreme, the deepest sleep states can flush micro-architectural state such as caches and power down these structures. However, each sleep state also imposes a progressively larger wake-up latency and potential impact on execution efficiency given the possible flushing of state~\cite{7425206}. %See \cite{brooks,udpm} for more information regarding C-States. 
 
 %If there is space we might want to add the c-state for our processor similar to what was done in Brooks
 
@@ -174,7 +174,7 @@ From this perspective the three obvious components that can be affected are OS R
 
 \subsection{Interactions with Delaying Interrupts}
 
-Prior work suggests that delaying request processing can interact with DVFS and C-State control in latency sensitive workloads to yield useful energy performance trade-offs~\cite{mootaz, chou}. To this end we sweep interrupt delay values for all our workloads OS configurations, and DVFS values.
+Prior work suggests that delaying request processing can interact with DVFS and C-State control in latency sensitive workloads to yield useful energy performance trade-offs~\cite{mootaz, udpm}. To this end we sweep interrupt delay values for all our workloads OS configurations, and DVFS values.
 
 As Mootaz et al.\cite{mootaz} observed in latency focused workloads, the "latency-slack" between the mean time to servicing a request and the SLA target creates an opportunity for energy-performance trade-offs.  In particular, it maybe possible to reduce mean performance by not executing requests as fast as possible and or not processing request immediately upon their arrival to reduce energy consumption while not violating the QoS target.  
 

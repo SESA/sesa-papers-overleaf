@@ -24,6 +24,17 @@ location = {Seattle, WA},
 series = {USITS'03}
 }
 
+@ARTICLE{7425206,
+  author={Zhan, Xin and Azimi, Reza and Kanev, Svilen and Brooks, David and Reda, Sherief},
+  journal={IEEE Computer Architecture Letters}, 
+  title={CARB: A C-State Power Management Arbiter for Latency-Critical Workloads}, 
+  year={2017},
+  volume={16},
+  number={1},
+  pages={6-9},
+  doi={10.1109/LCA.2016.2537802}}
+
+
 @inproceedings {udpm,
 author = {C. Chou and L. N. Bhuyan and D. Wong},
 booktitle = {2019 IEEE International Symposium on High Performance Computer Architecture (HPCA)},
@@ -197,45 +208,48 @@ publisher = {{USENIX} Association},
 month = nov,
 }
 
-@article{10.1145/2997641,
-author = {Belay, Adam and Prekas, George and Primorac, Mia and Klimovic, Ana and Grossman, Samuel and Kozyrakis, Christos and Bugnion, Edouard},
-title = {The IX Operating System: Combining Low Latency, High Throughput, and Efficiency in a Protected Dataplane},
-year = {2016},
-issue_date = {January 2017},
+@inproceedings{10.1145/2830772.2830779,
+author = {Vamanan, Balajee and Sohail, Hamza Bin and Hasan, Jahangir and Vijaykumar, T. N.},
+title = {TimeTrader: Exploiting Latency Tail to Save Datacenter Energy for Online Search},
+year = {2015},
+isbn = {9781450340342},
 publisher = {Association for Computing Machinery},
 address = {New York, NY, USA},
-volume = {34},
-number = {4},
-issn = {0734-2071},
-url = {https://doi.org/10.1145/2997641},
-doi = {10.1145/2997641},
-abstract = {The conventional wisdom is that aggressive networking requirements, such as high packet rates for small messages and μs-scale tail latency, are best addressed outside the kernel, in a user-level networking stack. We present ix, a dataplane operating system that provides high I/O performance and high resource efficiency while maintaining the protection and isolation benefits of existing kernels.ix uses hardware virtualization to separate management and scheduling functions of the kernel (control plane) from network processing (dataplane). The dataplane architecture builds upon a native, zero-copy API and optimizes for both bandwidth and latency by dedicating hardware threads and networking queues to dataplane instances, processing bounded batches of packets to completion, and eliminating coherence traffic and multicore synchronization. The control plane dynamically adjusts core allocations and voltage/frequency settings to meet service-level objectives.We demonstrate that ix outperforms Linux and a user-space network stack significantly in both throughput and end-to-end latency. Moreover, ix improves the throughput of a widely deployed, key-value store by up to 6.4\texttimes{} and reduces tail latency by more than 2\texttimes{} . With three varying load patterns, the control plane saves 46%--54% of processor energy, and it allows background jobs to run at 35%--47% of their standalone throughput.},
-journal = {ACM Trans. Comput. Syst.},
-month = dec,
-articleno = {11},
-numpages = {39},
-keywords = {latency-critical applications, workload consolidation, Virtualization, dataplane operating systems, energy-proportionality, microsecond-scale computing}
+url = {https://doi.org/10.1145/2830772.2830779},
+doi = {10.1145/2830772.2830779},
+abstract = {Online Search (OLS) is a key component of many popular Internet services. Datacenters running OLS consume significant amounts of energy. However, reducing their energy is challenging due to their tight response time requirements. A key aspect of OLS is that each user query goes to all or many of the nodes in the cluster, so that the overall time budget is dictated by the tail of the replies' latency distribution; replies see latency variations both in the network and compute. Previous work proposes to achieve load-proportional energy by slowing down the computation at lower datacenter loads based directly on response times (i.e., at lower loads, the proposal exploits the average slack in the time budget provisioned for the peak load). In contrast, we propose TimeTrader to reduce energy by exploiting the latency slack in the sub-critical replies which arrive before the deadline (e.g., 80% of replies are 3-4x faster than the tail). This slack is present at all loads and subsumes the previous work's load-related slack. While the previous work shifts the leaves' response time distribution to consume the slack at lower loads, TimeTrader reshapes the distribution at all loads by slowing down individual sub-critical nodes without increasing missed deadlines. TimeTrader exploits slack in both the network and compute budgets. Further, TimeTrader leverages Earliest Deadline First scheduling to largely decouple critical requests from the queuing delays of sub-critical requests which can then be slowed down without hurting critical requests. A combination of real-system measurements and at-scale simulations shows that without adding to missed deadlines, TimeTrader saves 15% and 40% energy at 90% and 30% loading, respectively, in a datacenter with 512 nodes, whereas previous work saves 0% and 30%. Further, as a proof-of-concept, we build a small-scale real implementation to evaluate TimeTrader and show 10-30% energy savings.},
+booktitle = {Proceedings of the 48th International Symposium on Microarchitecture},
+pages = {585–597},
+numpages = {13},
+keywords = {datacenter, incast, latency tail, online search (OLS), online data-intensive (OLDI) applications},
+location = {Waikiki, Hawaii},
+series = {MICRO-48}
 }
 
-@article{ixOS,
-author = {Belay, Adam and Prekas, George and Primorac, Mia and Klimovic, Ana and Grossman, Samuel and Kozyrakis, Christos and Bugnion, Edouard},
-title = {The IX Operating System: Combining Low Latency, High Throughput, and Efficiency in a Protected Dataplane},
-year = {2016},
-issue_date = {January 2017},
-publisher = {Association for Computing Machinery},
-address = {New York, NY, USA},
-volume = {34},
-number = {4},
-issn = {0734-2071},
-url = {https://doi.org/10.1145/2997641},
-doi = {10.1145/2997641},
-journal = {ACM Trans. Comput. Syst.},
-month = dec,
-articleno = {11},
-numpages = {39},
-keywords = {dataplane operating systems, latency-critical applications, microsecond-scale computing, workload consolidation, Virtualization, energy-proportionality}
+@inproceedings{ix,
+author = {Belay, Adam and Prekas, George and Klimovic, Ana and Grossman, Samuel and Kozyrakis, Christos and Bugnion, Edouard},
+title = {IX: A Protected Dataplane Operating System for High Throughput and Low Latency},
+year = {2014},
+isbn = {9781931971164},
+publisher = {USENIX Association},
+address = {USA},
+abstract = {The conventional wisdom is that aggressive networking requirements, such as high packet rates for small messages and microsecond-scale tail latency, are best addressed outside the kernel, in a user-level networking stack. We present IX, a dataplane operating system that provides high I/O performance, while maintaining the key advantage of strong protection offered by existing kernels. IX uses hardware virtualization to separate management and scheduling functions of the kernel (control plane) from network processing (dataplane). The data-plane architecture builds upon a native, zero-copy API and optimizes for both bandwidth and latency by dedicating hardware threads and networking queues to data-plane instances, processing bounded batches of packets to completion, and by eliminating coherence traffic and multi-core synchronization. We demonstrate that IX outperforms Linux and state-of-the-art, user-space network stacks significantly in both throughput and end-to-end latency. Moreover, IX improves the throughput of a widely deployed, key-value store by up to 3.6x and reduces tail latency by more than 2x.},
+booktitle = {Proceedings of the 11th USENIX Conference on Operating Systems Design and Implementation},
+pages = {49–65},
+numpages = {17},
+location = {Broomfield, CO},
+series = {OSDI'14}
 }
 
+@INPROCEEDINGS{4273098,
+  author={Lefurgy, Charles and Wang, Xiaorui and Ware, Malcolm},
+  booktitle={Fourth International Conference on Autonomic Computing (ICAC'07)}, 
+  title={Server-Level Power Control}, 
+  year={2007},
+  volume={},
+  number={},
+  pages={4-4},
+  doi={10.1109/ICAC.2007.35}}
 
 
 @article{10.1145/2812806,
@@ -459,6 +473,24 @@ location = {San Jose, California, USA},
 series = {ISCA '11}
 }
 
+@inproceedings{10.1145/1629911.1629926,
+author = {Lee, Jungseob and Kim, Nam Sung},
+title = {Optimizing Throughput of Power- and Thermal-Constrained Multicore Processors Using DVFS and per-Core Power-Gating},
+year = {2009},
+isbn = {9781605584973},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/1629911.1629926},
+doi = {10.1145/1629911.1629926},
+abstract = {Process variability from a range of sources is growing as technology scales below 65nm, resulting in increasingly nonuniform transistor delay and leakage power both within a die and across dies. As a result, the negative impact of process variations on the maximum operating frequency and the total power consumption of a processor is expected to worsen. Meanwhile, manufacturers have integrated more cores in a single die, substantially improving the throughput of a processor running highly-parallel applications. However, many existing applications do not have high enough parallelism to exploit multiple cores in a die. In this paper, first, we analyze the throughput impact of applying per-core power gating and dynamic voltage and frequency scaling to power- and thermal-constrained multicore processors. To optimize the throughput of the multicore processors running applications with limited parallelism, we exploit power- and thermal-headroom resulted from power-gated idle cores, allowing active cores to increase operating frequency through supply voltage scaling. Our analysis using a 32nm predictive technology model shows that optimizing the number of active cores and operating frequency within power, thermal, and supply voltage scaling limits improves the throughput of a 16-core processor by ~16%. Furthermore, we extend our throughput analysis and optimization to consider the impact of within-die process variations leading to core-to-core frequency (and leakage power) variations in a multicore processor. Our analysis shows that exploiting core-to-core frequency variations improves the throughput of a 16-core processor by ~75%.},
+booktitle = {Proceedings of the 46th Annual Design Automation Conference},
+pages = {47–50},
+numpages = {4},
+keywords = {DVFS, power gating, multicore processor},
+location = {San Francisco, California},
+series = {DAC '09}
+}
+
 @inproceedings{oldi-pegasus,
 author = {Lo, David and Cheng, Liqun and Govindaraju, Rama and Barroso, Luiz Andr\'{e} and Kozyrakis, Christos},
 title = {Towards Energy Proportionality for Large-Scale Latency-Critical Workloads},
@@ -571,8 +603,89 @@ series = {HotPower'08}
     pages = {230–243},
     numpages = {14}
     }
+@INPROCEEDINGS{4658633,
+  author={Wonyoung Kim and Gupta, Meeta S. and Wei, Gu-Yeon and Brooks, David},
+  booktitle={2008 IEEE 14th International Symposium on High Performance Computer Architecture}, 
+  title={System level analysis of fast, per-core DVFS using on-chip switching regulators}, 
+  year={2008},
+  volume={},
+  number={},
+  pages={123-134},
+  doi={10.1109/HPCA.2008.4658633}}
+
+@inproceedings{10.1109/IGCC.2011.6008552,
+author = {Spiliopoulos, V. and Kaxiras, S. and Keramidas, G.},
+title = {Green Governors: A Framework for Continuously Adaptive DVFS},
+year = {2011},
+isbn = {9781457712227},
+publisher = {IEEE Computer Society},
+address = {USA},
+url = {https://doi.org/10.1109/IGCC.2011.6008552},
+doi = {10.1109/IGCC.2011.6008552},
+abstract = {We present Continuously Adaptive Dynamic Voltage/Frequency scaling in Linux systems running on Intel i7 and AMD Phenom II processors. By exploiting slack, inherent in memory-bound programs, our approach aims to improve power efficiency even when the processor does not sit idle. Our underlying methodology is based on a simple first-order processor performance model in which frequency scaling is expressed as a change (in cycles) of the main memory latency. Utilizing available monitoring hardware we show that our model is powerful enough to i) predict with reasonable accuracy the effect of frequency scaling (in terms of performance loss) and ii) predict the core energy under different V/f combinations. To validate our approach we perform highly accurate, fine-grained power measurements directly on the off-chip voltage regulators. We use our model to implement various DVFS policies as Linux "green" governors to continuously optimize for various power-efficiency metrics such as EDP or ED^2P, or achieve energy savings with a user-specified limit on performance loss. Our evaluation shows that, for SPEC2006 workloads, our governors achieve dynamically the same optimal EDP or ED$^2$P (within 2% on avg.) as an exhaustive search of all possible frequencies. Energy savings can reach up to 56% in memory-bound workloads with corresponding improvements of about 55% for EDP or ED$^2$P.},
+booktitle = {Proceedings of the 2011 International Green Computing Conference and Workshops},
+pages = {1–8},
+numpages = {8},
+keywords = {continuously adaptive dynamic voltage-frequency scaling, memory bound workloads, EDP, memory bound programs, frequency scaling, AMD Phenom II processors, off chip voltage regulators, Linux systems, green governors, ED$^2$P, power efficiency, Intel i7},
+series = {IGCC '11}
+}
+
+@INPROCEEDINGS{4343825,
+  author={Ge, Rong and Feng, Xizhou and Feng, Wu-chun and Cameron, Kirk W.},
+  booktitle={2007 International Conference on Parallel Processing (ICPP 2007)}, 
+  title={CPU MISER: A Performance-Directed, Run-Time System for Power-Aware Clusters}, 
+  year={2007},
+  volume={},
+  number={},
+  pages={18-18},
+  doi={10.1109/ICPP.2007.29}}
+
+@article{10.1145/1241601.1241609,
+author = {Kondo, Masaaki and Sasaki, Hiroshi and Nakamura, Hiroshi},
+title = {Improving Fairness, Throughput and Energy-Efficiency on a Chip Multiprocessor through DVFS},
+year = {2007},
+issue_date = {March 2007},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {35},
+number = {1},
+issn = {0163-5964},
+url = {https://doi.org/10.1145/1241601.1241609},
+doi = {10.1145/1241601.1241609},
+abstract = {Recently, a single chip multiprocessor (CMP) is becoming an attractive architecture for improving throughput of program execution. In CMPs, multiple processor cores share several hardware resources such as cache memory and memory bus. Therefore, the resource contention significantly degrades performance of each thread and also loses fairness between threads.In this paper, we propose a Dynamic Frequency and Voltage Scaling (DVFS) algorithm for improving total instruction throughput, fairness, and energy efficiency of CMPs. The proposed technique periodically observes the utilization ratio of shared resources and controls the frequency and the voltage of each processor core individually to balance the ratio between threads. We evaluate our technique and the evaluation results show that fairness between threads are greatly improved by the technique. Moreover, the total instruction throughput increases in many cases while reducing energy consumption.},
+journal = {SIGARCH Comput. Archit. News},
+month = mar,
+pages = {31–38},
+numpages = {8}
+}
+
+@INPROCEEDINGS{6983037,
+  author={Kanev, Svilen and Hazelwood, Kim and Wei, Gu-Yeon and Brooks, David},
+  booktitle={2014 IEEE International Symposium on Workload Characterization (IISWC)}, 
+  title={Tradeoffs between power management and tail latency in warehouse-scale applications}, 
+  year={2014},
+  volume={},
+  number={},
+  pages={31-40},
+  doi={10.1109/IISWC.2014.6983037}}
 
       
+@inproceedings{packandcap,
+author = {Cochran, Ryan and Hankendi, Can and Coskun, Ayse K. and Reda, Sherief},
+title = {Pack & Cap: Adaptive DVFS and Thread Packing under Power Caps},
+year = {2011},
+isbn = {9781450310536},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2155620.2155641},
+doi = {10.1145/2155620.2155641},
+abstract = {The ability to cap peak power consumption is a desirable feature in modern data centers for energy budgeting, cost management, and efficient power delivery. Dynamic voltage and frequency scaling (DVFS) is a traditional control knob in the tradeoff between server power and performance. Multi-core processors and the parallel applications that take advantage of them introduce new possibilities for control, wherein workload threads are packed onto a variable number of cores and idle cores enter low-power sleep states. This paper proposes Pack & Cap, a control technique designed to make optimal DVFS and thread packing control decisions in order to maximize performance within a power budget. In order to capture the workload dependence of the performance-power Pareto frontier, a multinomial logistic regression (MLR) classifier is built using a large volume of performance counter, temperature, and power characterization data. When queried during runtime, the classifier is capable of accurately selecting the optimal operating point. We implement and validate this method on a real quad-core system running the PARSEC parallel benchmark suite. When varying the power budget during runtime, Pack & Cap meets power constraints 82% of the time even in the absence of a power measuring device. The addition of thread packing to DVFS as a control knob increases the range of feasible power constraints by an average of 21% when compared to DVFS alone and reduces workload energy consumption by an average of 51.6% compared to existing control techniques that achieve the same power range.},
+booktitle = {Proceedings of the 44th Annual IEEE/ACM International Symposium on Microarchitecture},
+pages = {175–185},
+numpages = {11},
+location = {Porto Alegre, Brazil},
+series = {MICRO-44}
+}
 
 @article{napsac,
  author = {Krioukov, Andrew and Mohan, Prashanth and Alspaugh, Sara and Keys, Laura and Culler, David and Katz, Randy},
@@ -1155,6 +1268,51 @@ author = {{Intel}},
  acmid = {1713276},
  publisher = {ACM},
  address = {New York, NY, USA},
+}
+
+@inproceedings{dreamweaver,
+author = {Meisner, David and Wenisch, Thomas F.},
+title = {DreamWeaver: Architectural Support for Deep Sleep},
+year = {2012},
+isbn = {9781450307598},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2150976.2151009},
+doi = {10.1145/2150976.2151009},
+abstract = {Numerous data center services exhibit low average utilization leading to poor energy efficiency. Although CPU voltage and frequency scaling historically has been an effective means to scale down power with utilization, transistor scaling trends are limiting its effectiveness and the CPU is accounting for a shrinking fraction of system power. Recent research advocates the use of full-system idle low-power modes to combat energy losses, as such modes provide the deepest power savings with bounded response time impact. However, the trend towards increasing cores per die is undermining the effectiveness of these sleep modes, particularly for request-parallel data center applications, because the independent idle periods across individual cores are unlikely to align by happenstance.We propose DreamWeaver, architectural support to facilitate deep sleep for request-parallel applications on multicore servers. DreamWeaver comprises two elements: Weave Scheduling, a scheduling policy to coalesce idle and busy periods across cores to create opportunities for system-wide deep sleep; and the Dream Processor, a light-weight co-processor that monitors incoming network traffic and suspended work during sleep to determine when the system must wake. DreamWeaver is based on two key concepts: (1) stall execution and sleep anytime any core is unoccupied, but (2) constrain the maximum time any request may be stalled. Unlike prior scheduling approaches, DreamWeaver will preempt execution to sleep, maximizing time spent at the systems' most efficient operating point. We demonstrate that DreamWeaver can smoothly trade-off bounded, predictable increases in 99th-percentile response time for increasing power savings, and strictly dominates the savings available with voltage and frequency scaling and timeout-based request batching schemes.},
+booktitle = {Proceedings of the Seventeenth International Conference on Architectural Support for Programming Languages and Operating Systems},
+pages = {313–324},
+numpages = {12},
+keywords = {power management, servers},
+location = {London, England, UK},
+series = {ASPLOS XVII}
+}
+
+@INPROCEEDINGS{4228267,
+  author={Freeh, Vincent W. and Bletsch, Tyler K. and Rawson, Freeman L.},
+  booktitle={2007 IEEE International Parallel and Distributed Processing Symposium}, 
+  title={Scaling and Packing on a Chip Multiprocessor}, 
+  year={2007},
+  volume={},
+  number={},
+  pages={1-8},
+  doi={10.1109/IPDPS.2007.370539}}
+
+
+@inproceedings{10.1109/MICRO.2006.8,
+author = {Isci, Canturk and Buyuktosunoglu, Alper and Cher, Chen-Yong and Bose, Pradip and Martonosi, Margaret},
+title = {An Analysis of Efficient Multi-Core Global Power Management Policies: Maximizing Performance for a Given Power Budget},
+year = {2006},
+isbn = {0769527329},
+publisher = {IEEE Computer Society},
+address = {USA},
+url = {https://doi.org/10.1109/MICRO.2006.8},
+doi = {10.1109/MICRO.2006.8},
+abstract = {Chip-level power and thermal implications will continue to rule as one of the primary design constraints and performance limiters. The gap between average and peak power actually widens with increased levels of core integration. As such, if per-core control of power levels (modes) is possible, a global power manager should be able to dynamically set the modes suitably. This would be done in tune with the workload characteristics, in order to always maintain a chip-level power that is below the specified budget. Furthermore, this should be possible without significant degradation of chip-level throughput performance. We analyze and validate this concept in detail in this paper. We assume a per-core DVFS (dynamic voltage and frequency scaling) knob to be available to such a conceptual global power manager. We evaluate several different policies for global multi-core power management. In this analysis, we consider various different objectives such as prioritization and optimized throughput. Overall, our results show that in the context of a workload comprised of SPEC benchmark threads, our best architected policies can come within 1% of the performance of an ideal oracle, while meeting a given chip-level power budget. Furthermore, we show that these global dynamic management policies perform significantly better than static management, even if static scheduling is given oracular knowledge.},
+booktitle = {Proceedings of the 39th Annual IEEE/ACM International Symposium on Microarchitecture},
+pages = {347–358},
+numpages = {12},
+series = {MICRO 39}
 }
 
 @inproceedings{Hendrickson2016Serverless,
@@ -1939,6 +2097,49 @@ publisher = {USENIX Association},
  keywords = {MMU, SVM, TLB, VT, dynamic binary translation, nested paging, virtual machine monitor, virtualization, x86},
 }
 
+@INPROCEEDINGS{1598114,
+  author={Li, J. and Martinez, J.F.},
+  booktitle={The Twelfth International Symposium on High-Performance Computer Architecture, 2006.}, 
+  title={Dynamic power-performance adaptation of parallel computation on chip multiprocessors}, 
+  year={2006},
+  volume={},
+  number={},
+  pages={77-87},
+  doi={10.1109/HPCA.2006.1598114}}
+
+@inproceedings{10.5555/2523721.2523732,
+author = {Sasaki, Hiroshi and Imamura, Satoshi and Inoue, Koji},
+title = {Coordinated Power-Performance Optimization in Manycores},
+year = {2013},
+isbn = {9781479910212},
+publisher = {IEEE Press},
+abstract = {Optimizing the performance in multiprogrammed environments, especially for workloads composed of multithreaded programs is a desired feature of runtime management system in future manycore processors. At the same time, power capping capability is required in order to improve the reliability of microprocessor chips while reducing the costs of power supply and thermal budgeting. This paper presents a sophisticated runtime coordinated power-performance management system called C-3PO, which optimizes the performance of manycore processors under a power constraint by controlling two software knobs: thread packing, and dynamic voltage and frequency scaling~(DVFS). The proposed solution distributes the power budget to each program by controlling the workload threads to be executed with appropriate number of cores and operating frequency. The power budget is distributed carefully in different forms (number of allocated cores or operating frequency) depending on the power-performance characteristics of the workload so that each program can effectively convert the power into performance. The proposed system is based on a heuristic algorithm which relies on runtime prediction of power and performance via hardware performance monitoring units. Empirical results on a 64-core platform show that C-3PO well outperforms traditional counterparts across various PARSEC workload mixes.},
+booktitle = {Proceedings of the 22nd International Conference on Parallel Architectures and Compilation Techniques},
+pages = {51–62},
+numpages = {12},
+keywords = {thread packing, power-performance optimization, manycore processor, DVFs, power budget allocation, scalability, runtime system},
+location = {Edinburgh, Scotland, UK},
+series = {PACT '13}
+}
+
+@inproceedings{dynsleep,
+author = {Chou, Chih-Hsun and Wong, Daniel and Bhuyan, Laxmi N.},
+title = {DynSleep: Fine-Grained Power Management for a Latency-Critical Data Center Application},
+year = {2016},
+isbn = {9781450341851},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2934583.2934616},
+doi = {10.1145/2934583.2934616},
+abstract = {Servers running in datacenters are commonly kept underutilized to meet stringent latency targets. Due to poor energy-proportionality in commodity servers, the low utilization results in wasteful power consumption that cost millions of dollars. Applying dynamic power management on datacenter workloads is challenging, especially when tail latency requirements often fall in the sub-millisecond level. The fundamental issue is randomness due to unpredictable request arrival times and request service times. Prior techniques applied per-core DVFS to have fine-grain control of slowing down request processing without violating the tail latency target. However, most commodity servers only support per-core DFS, which greatly limits potential energy saving. In this paper, we propose DynSleep, a fine-grain power management scheme for datacenter workloads through the use of per-core sleep states (C-states). DynSleep dynamically postpones the processing of some requests, creating longer idle periods, which allow the use of deeper C-states to save energy. We design and implement DynSleep with Mem-cached, a popular key-value store application used in datacenters. The experimental results show that DynSleep achieves up to 65% core power saving, and 27% better than the per-core DVFS power management scheme, while still satisfying the tail latency constraint. To the best of our knowledge, this is the first work to analyze and develop power management technique with CPU C-states in latency-critical datacenter workloads},
+booktitle = {Proceedings of the 2016 International Symposium on Low Power Electronics and Design},
+pages = {212–217},
+numpages = {6},
+keywords = {Power management, quality of service, sleep states, datacenter workload, memcached application, tail latency},
+location = {San Francisco Airport, CA, USA},
+series = {ISLPED '16}
+}
+
 @inproceedings{Barham:2003:XAV:945445.945462,
  author = {Barham, Paul and Dragovic, Boris and Fraser, Keir and Hand, Steven and Harris, Tim and Ho, Alex and Neugebauer, Rolf and Pratt, Ian and Warfield, Andrew},
  title = {Xen and the Art of Virtualization},
@@ -2077,6 +2278,17 @@ month={Jan},}
  address = {New York, NY, USA},
  keywords = {scalable multiprocessors, virtual machines},
 } 
+
+@inproceedings {268014,
+author = {Niraj Tolia and Zhikui Wang and Manish Marwah and Cullen Bash and Parthasarathy Ranganathan and Xiaoyun Zhu},
+title = {Delivering Energy Proportionality with Non Energy-Proportional Systems{\textemdash}Optimizing the Ensemble},
+booktitle = {Workshop on Power Aware Computing and Systems (HotPower 08)},
+year = {2008},
+address = {San Diego, CA},
+url = {https://www.usenix.org/conference/hotpower-08/delivering-energy-proportionality-non-energy-proportional-systems{\textemdash}optimizing},
+publisher = {{USENIX} Association},
+month = dec,
+}
 
 @article{Ousterhout1988,
  author = {Ousterhout, John K. and Cherenson, Andrew R. and Douglis, Frederick and Nelson, Michael N. and Welch, Brent B.},
