@@ -2,10 +2,10 @@
 \centering
 %\vspace*{-0.3cm}  
 \includegraphics[width=1\textwidth]{figures/mcdsilo_overview}
-\vspace*{-5mm}
+\vspace*{-8mm}
 \caption[]
 %{\small 
-{Memcached-silo across different QPS.}
+{Overview of memcached-silo experiments across 50K, 100K, 200Km and 300K QPS. The larger the size of a point equates to slower interrupt delay. The darkening of color gradient indicates slowing down processor more. The \textbf{x} indicate lowest energy consumption. The \textbf{+} indicate lowest tail latency.}
 \label{fig:mcdsilo_overview}
 \end{figure*}
 
@@ -14,9 +14,10 @@
 \includegraphics[width=0.5\textwidth]{figures/mcdsilo_detail}
 %\hspace*{-10.0cm} 
 %\vspace*{-1.0cm}  
-\caption[]{}
+\vspace*{-8mm}
+\caption[]{Detailed plots of some gathered statistics of the above QPS loads. Compares LibOS-tuned and Linux-tuned.}
 \label{fig:mcdsilo_detail}
-\vspace*{-.25in}
+%\vspace*{-.25in}
 \end{figure}
 
 \subsection{Memcached-silo}

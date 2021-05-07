@@ -5,26 +5,27 @@
 \centering
 %\vspace*{-0.3cm}  
 \includegraphics[width=1\textwidth]{figures/mcd_overview}
+\vspace*{-8mm}
 \caption[]
 %{\small 
-{Overview of memcached experiments across 200K, 400K, and 600K QPS. Each circle represents an experimental run of tuning ITR-delay and DVFS. The larger the size of a circle equates to larger ITR-delay value. The darkening of color gradient indicates slowing down processor frequency. The \textbf{x} indicate lowest energy consumption. The \textbf{+} indicate lowest tail latency.}
+{Overview of memcached experiments across 200K, 400K, and 600K QPS. The larger the size of a point equates to slower interrupt delay. The darkening of color gradient indicates slowing down processor more. The \textbf{x} indicate lowest energy consumption. The \textbf{+} indicate lowest tail latency.}
 \label{fig:mcd_overview}
 \end{figure*}
 \begin{figure}
 %\centering
 \includegraphics[width=0.5\textwidth]{figures/mcd_detail_1}
-%\hspace*{-10.0cm} 
-%\vspace*{-1.0cm}  
-\caption[]{}
+\vspace*{-8mm}
+\caption[]{Detailed plots of some gathered statistics of the above QPS loads. Compares LibOS-tuned and Linux-tuned.}
 \label{fig:mcd_detail_1}
 \end{figure}
 \begin{figure}
 %\centering
 \includegraphics[width=0.5\textwidth]{figures/mcd_overview2}
-%\vspace*{-1.0cm}  
-\caption[]{}
+%\vspace*{-1.0cm} 
+\vspace*{-8mm}
+\caption[]{Overview of memcached experiments at 1000K and 1500K QPS.}
 \label{fig:mcd_overview2}
-\vspace*{-.2in}
+%\vspace*{-.2in}
 \end{figure}
 % 200000 ebbrt_tuned 
 %  	 SLOW-ITR-diff-Min-Max-DVFS= 702.25 J
