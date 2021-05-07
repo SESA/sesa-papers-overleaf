@@ -1,4 +1,4 @@
-\label{sec:model}
+%\label{sec:model}
 
 %\begin{figure}
 %\centering
@@ -7,16 +7,19 @@
 %\label{fig:timeline}
 %\end{figure}
 
-\subsection{Motivating the Simple Model}
+\newpage
+%\appendix{\bf{Appendix:}  Mathematical Framework}
+\section{\bf{Appendix:}  Mathematical Framework}
+\label{sec:appendix}
 
-Under the assumption that the various time-segments in figure \ref{timeline} don't overlap, one can break down a full cycle from one request to another into disjoint time-intervals:
+Under the assumption that the various time-segments in figure~\ref{fig:timeline} don't overlap, one can break down a full cycle from one request to another into disjoint time-intervals:
 
 \begin{equation}
 \delta t = t_{\text{detect}} + t_{\text{osreq}} + t_{\text{app}} + t_{\text{idlepolicy}} + t_q = \frac{1}{\lambda}
 \label{eq:time}
 \end{equation}
 
-where, $\delta t$ = time between the arrivals of two consecutive requests. The other terms represent the various intervals in figure \ref{timeline}.
+where, $\delta t$ = time between the arrivals of two consecutive requests. The other terms represent the various intervals in figure~\ref{fig:timeline}.
 
 Each term is treated as a deterministic and fixed quantity (dependent on workload, hardware, OS, parameters) as opposed to a random variable following some underlying probability distribution. This is sufficient for a qualitative treatment but a full quantitative treatment would treat these terms as part of a probabilistic graphical model.
 
@@ -52,7 +55,7 @@ Given this time decomposition, one can compute the total energy consumed for eac
 \end{equation}
 The assumption is that there are three power regimes, one each for the detection phase, the work phase and the quiescent phase, respectively.
 
-For the open-loop case, since we are studying energy, $E$ vs latency, $t_{\text{latency}}$ plots for various itr ($t_{\detect}$) and DVFS values, we need to posit the dependence of these terms on DVFS. Suppose the workload needs $N_i$ instructions. One would expect $t_\text{work}$ to scale as:
+For the open-loop case, since we are studying energy, $E$ vs latency, $t_{\text{latency}}$ plots for various itr ($t_{detect}$) and DVFS values, we need to posit the dependence of these terms on DVFS. Suppose the workload needs $N_i$ instructions. One would expect $t_\text{work}$ to scale as:
 
 $$t_{\text{work}} \propto \frac{N_i}{f}$$
 
@@ -64,7 +67,7 @@ where A is a constant of proportionality and $\alpha'$ is an arbitrary parameter
 
 $$t_{\text{work}} = A\frac{N_i}{\Delta^{1+\alpha}}$$
 
-where $\Delta$ = the chosen DVFS value and $\alpha$ is some scaling power that can be inferred from data. The other time values don't depend on DVFS in this simple model (although that assumption can be added in a straighforward way).
+where $\Delta$ = the chosen DVFS value and $\alpha$ is some scaling power that can be inferred from data. The other time values don't depend on DVFS in this simple model (although that assumption can be added in a straightforward way).
 
 The total energy consumed depends on various power values which in turn can depend on DVFS. Here, we posit that $P_{\text{work}}$ has a power law dependence on DVFS, $\Delta$. To motivate this, the power consumed by a processor scales as:
 
