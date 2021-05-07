@@ -178,7 +178,7 @@ From this perspective the three obvious components that can be affected are OS R
 
 
 \subsection{Interactions with Delaying Interrupts}
-
+\label{sec:workflow:itr}
 Prior work suggests that delaying request processing can interact with DVFS and C-State control in latency sensitive workloads to yield useful energy performance trade-offs~\cite{mootaz, udpm}. To this end we sweep interrupt delay values for all our workloads OS configurations, and DVFS values.
 
 As Mootaz et al.\cite{mootaz} observed in latency focused workloads, the "latency-slack" between the mean time to servicing a request and the SLA target creates an opportunity for energy-performance trade-offs.  In particular, it maybe possible to reduce mean performance by not executing requests as fast as possible and or not processing request immediately upon their arrival to reduce energy consumption while not violating the QoS target.  
@@ -188,6 +188,7 @@ The work of Chou and Mootaz both suggest an energy management policy that relies
 We uniquely explore how delaying processing can be enacted by exploiting Interrupt Delay setting of the NIC. Specifically we explore the impact of slowing interrupt delays, controlled by the OS, to see if similar benefits might exist while not assuming particular workload knowledge.  In particular we expect that delaying interrupts can interact with OS code and the inherent packet nature induced by fixed Message Transmission Unit (MTU) constraints. If a request requires several MTU's then delaying interrupts has the potential to reduce the interrupt overheads. Similarly if there is advantages to batching request, as the prior work has noted, this too could be this OS control.
 
 \subsection{Interaction with Specializing OS Paths} 
+\label{sec:workflow:osspec}
 % \begin{em}
  Critically we find that optimizing the hot-path of network processing in an OS can lead to valuable energy savings.  
  %If the OS can support the application work in shorter number of cycles using less energy it can lead to an improvement in application IPC and energy efficiency. 
