@@ -118,6 +118,17 @@ and
 \end{split}
 \end{equation}
 
-For various choices of detection loads ($0 \leq f_{\text{detect}} \leq 1$), maximal work loads ($0 \leq f_{\text{work}}^{\text{max}} \leq 1$), time-scaling ($\alpha$), power-scaling ($\beta$), we can plot energy (E) vs latency ($t_{\text{latency}}$) curves as DVFS ($\Delta$) varies.
+For various choices of detection loads ($0 \leq f_{\text{detect}} \leq 1$), maximal work loads ($0 \leq f_{\text{work}}^{\text{max}} \leq 1$), time-scaling ($\alpha$), power-scaling ($\beta$), we can plot energy (E) vs latency ($t_{\text{latency}}$) curves as DVFS ($\Delta$) varies. An example is shown in figure \ref{fig:simplotsfull}. Power sensitivity to DVFS, $\beta$ increases across columns (left to right) and time sensitivity to DVFS, $\alpha$ increases across rows (top to bottom).
+
+While these qualitative plots indicate the ability of the model to replicate curves observed in real data, a natural next step would be to perform fits to infer the values of the model parameters including $\alpha$ and $\beta$ and reason about them in terms of both the workload application and the underlying OS structure.
+
+\begin{figure}
+\centering
+\includegraphics[width=1.1\columnwidth]{figures/full_model_plots.png}
+\vspace*{-10mm}
+\caption[]{Simulated Energy vs Latency Curves for Open-Loop Workloads. Power sensitivity to DVFS increase across columns and time/latency sensitivity to DVFS increases across rows}
+\label{fig:simplotsfull}
+\vspace{-0.20in}
+\end{figure}
 
 %\subsection{ITR-Delay algorithm}
