@@ -1,7 +1,3 @@
-\subsection{Memcached-silo}
-\label{sec:mcdsilo}
-Memcached-silo is a open loop workload built on top of the normal memcached protocol. It is computationally and memory more intensive than regular memcached as it incorporates both latency-sensitive network compute and memory-intensive TPC-C style transaction processing. The workload is structured such that on every memcached request, it triggers a corresponding set of TPC-C transaction processing logic on a in-memory database~\cite{silo}. We ported the memcached-silo implementation~\cite{mcdsilo, zygos} to our library OS interfaces. The workload mix and SLA constraints of memcached-silo follow from those used in the memcached experiments in \cref{sec:mcd}. Given its application heavier nature, we only needed two 16-core client nodes at 16 connections per core to saturate a single 16-core memcached-silo server. 
-
 \begin{figure*}
 \centering
 %\vspace*{-0.3cm}  
@@ -21,11 +17,17 @@ Memcached-silo is a open loop workload built on top of the normal memcached prot
 \label{fig:mcdsilo_detail}
 \end{figure}
 
-\subsubsection{similar trade-offs in OSes when application gets heavier}
-\label{sec:mcdsilo:dvfstradeoff}
+\subsection{Memcached-silo}
+\label{sec:mcdsilo}
+Memcached-silo is a open loop workload built on top of the normal memcached protocol. It is computationally and memory more intensive than regular memcached as it incorporates both latency-sensitive network compute and memory-intensive TPC-C style transaction processing. The workload is structured such that on every memcached request, it triggers a corresponding set of TPC-C transaction processing logic on a in-memory database~\cite{silo}. We ported the memcached-silo implementation~\cite{mcdsilo, zygos} to our library OS interfaces. The workload mix and SLA constraints of memcached-silo follow from those used in the memcached experiments in \cref{sec:mcd}. Given its application heavier nature, we only needed two 16-core client nodes at 16 connections per core to saturate a single 16-core memcached-silo server. 
 
-\subsubsection{IPC efficiency, libOS has more headroom}
+\subsubsection{Slowing down has benefits even in computationally heavy workloads}
+\label{sec:mcdsilo:dvfstradeoff}
+In contrast to figure~\ref{fig:mcd_overview}, figure~\ref{fig:mcdsilo_overview} illustrates that as application logic becomes larger in each memcached request; the trade-offs of tail latency and energy become discernible in both Linux and the library OS (color gradient darkens in horizontal manner). Even in a computation heavy workload under a stringent SLA, it is still possible to use delay both processor and interrupts to further save energy (shown in figure~\ref{fig:mcdsilo_detail}(a)). Similar to figure~\ref{fig:mcd_detail_1}(a), figure~\ref{fig:mcdsilo_detail}(a) shows that slowing the processor results in the most energy savings and using interrupt delays on top leads to additional savings. However, in contrast to figure~\ref{fig:mcd_detail_1}(a), the effects of delayed interrupts is greatly diminished as the QPS load increases. One can also see this effect in the 100K and 200K QPS where the configuration that yielded Min-Energy for the library OS uses a small dot. This observation harkens back to the implications of a slowed processor on the packet processing path (\cref{sec:workflow:dvfs}); furthermore, this effect is exacerbated as application logic is heavier.
+
+\subsubsection{Library OS IPC efficiency surprises}
 \label{sec:mcdsilo:ipc}
+Even though figure~\ref{fig:mcdsilo_detail}(a) demonstrate similar number of instructions between Linux and the library OS, the IPC measurement in figure~\ref{fig:mcdsilo_detail}(c) reveals a specialized OS can execute instructions more efficiently even in a application bound workload. This IPC benefit not only leads to energy efficiency but also creates more slack for the library OS to take advantage of slow down. Figure~\ref{fig:mcdsilo_detail}(a) shows that at faster processor speeds in the 50K and 100K QPS, the library OS was still able to slow down interrupt delays to save more energy than Linux by 50\% even in computationally heavy workload.
 
 %\subsubsection{Finding-1: Implications of OS path length efficiency}
 
