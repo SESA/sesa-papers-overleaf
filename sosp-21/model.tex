@@ -32,17 +32,15 @@ Similarly the total energy consumed during the inter-arrival time, $\delta t$ is
 
 $\boxed{E = P_\text{detect} t_{\text{detect}} + P_{\text{work}} \left[t_{\text{osreq}} + t_{\text{app}} + t_{\text{idlepolicy}}\right] + P_q t_q} = P_\text{detect} t_{\text{detect}} + P_{\text{work}} t_{\text{work}} + P_q t_q$
 
-This separation lets us explore independent power regimes for $t_{\text{detect}}$ and $t_q$.  In particular we will be assuming interrupts for detection and a deep sleep state as our idle policy.    
+%This separation lets us explore independent power regimes for $t_{\text{detect}}$ and $t_q$.  In particular we will be assuming interrupts for detection and a deep sleep state as our idle policy.    
 
 An important aspect of our model is our physically motivated abstraction of a processor's DVFS setting, $\Delta$.  While it is a single value we model its ability to have an independent impact on time (as a possible function of frequency) and power (as a possible function of voltage and frequency).  Specifically, we posit 
 %power-law dependence of 
 $t_{\text{work}}$ and $P_{\text{work}}$ as follows:
 
-$t_{\text{work}} = A\frac{N_i}{\Delta^{1+\alpha}}$
+$t_{\text{work}} = A\frac{N_i}{\Delta^{1+\alpha}}$ and $P_{\text{work}} = B \Delta^{2+\beta}$
 
-$P_{\text{work}} = B \Delta^{2+\beta}$
-
-where A, B are constants of proportionality, $N_i$ $=$ the total number of instructions and $\alpha$, $\beta$ are real-valued constants that describe the dependence on DVFS.  This allows us, though $\alpha$ and $\beta$, to explore effects in which different instruction mixes, of the software, are affected in different ways with respect to time and energy by DVFS settings.  
+where A, B are constants of proportionality, $N_i$ $=$ the total number of instructions and $\alpha$, $\beta$ are real-valued constants that describe the dependence on DVFS.  This allows us, through $\alpha$ and $\beta$, to explore effects in which different instruction mixes of the software, are affected in different ways with respect to time and energy by DVFS settings.  
 
 %The core assumption here is that the various terms in figure \ref{timeline} don't overlap. We also assume that $\lambda$ is small enough that the service time is less than the inter-arrival time i.e. $t_{\text{service}} \leq \delta t$. This simple model also applies to the closed-loop case with the restriction that the arrival rate is now dependent on $t_{\text{service}}$. Lastly, this is a qualitative model that ignores stochastic effects (i.e. the full probability distribution of various terms). A quantitative extension of this analysis would cast this problem as a probabilistic graphical model and perform Bayesian inference for the underlying parameters.
 
@@ -57,13 +55,13 @@ where A, B are constants of proportionality, $N_i$ $=$ the total number of instr
 %}
 %chosen_sleep = 'c7'
 
-Figures~\ref{fig:simdesc} and~\ref{fig:simplots} illustrates using the framework to explore the described scenario.  In figure~\ref{fig:simplots}, plot a) shows that when instructions are less affected by frequency one expects to see a vertical structure.  Plots b) and c) show that as the paths are composed of instructions that are more frequency sensitive DVFS changes result in a more curved structure in the energy vs latency.  As expected slowing the instructions starts to affect latency in these instruction mixes.   Additionally in all three plots one sees that delaying interrupts via ITR, for a busy fraction, increases latency with not much improvement in energy.  Remembering that for this configuration deep sleep has been configured to use zero energy.  In section~\ref{exp:mcd} we will examine such a scenario in practice.  
+Figures~\ref{fig:simdesc} and~\ref{fig:simplots} illustrates using the framework to explore the described scenario.  In figure~\ref{fig:simplots}, plot a) shows that when instructions are less affected by frequency one expects to see a vertical structure.  Plots b) and c) show that as the paths are composed of instructions that are more frequency sensitive DVFS changes result in a more curved structure in the energy vs latency.  As expected slowing the instructions starts to affect latency in these instruction mixes.   Additionally in all three plots one sees that delaying interrupts via ITR, for a busy fraction, increases latency with not much improvement in energy.  Remembering that for this configuration deep sleep has been configured to use zero energy.  In section~\ref{sec:mcd} we will examine a scenario that arises in practice that displays similar behavior. 
 \begin{figure}
-\fbox{\tiny \fbox{\begin{minipage}{17em}
-The following describes the scenario to be studied mathematically:
+\fbox{\tiny \fbox{\begin{minipage}{20em}
+The following describes the scenario to be studied mathematically.  The constants for this scenario and their relative magnitudes are purely synthetic and not meant to model a particular system.  Eg. Energy consumption rates (power) are arbitrarily set.
 \begin{enumerate}[leftmargin=*]
     \item An open loop workload with a load of 40000 queries per second
-    \item A processor static Energy consumption rate of 10 Watts and an Energy consumption rate at the lowest DVFS setting of 20 Watts,
+    \item A processor static Energy consumption rate (power) of 10 Watts and an Energy consumption rate (power) at the lowest DVFS setting of 20 Watts,
     \item an idle policy using a deep sleep state that consumes no energy,
 	\item the use of interrupts for detection and examining two ITR scenarios to delay detection -- 5\% and 15\% of the inter-arrival time. 
 	\item A work time dominated by the OS processing, examining work time scenarios -- 30\% and 70\% of the inter-arrival time when using the lowest DVFS setting.
@@ -130,6 +128,7 @@ We plot $E$ vs $t_{\text{latency}}$ for each pair.
 }
 \caption[]{Example analysis scenario. Left box describes the scenario the right shows the mapping to the equations }
 \label{fig:simdesc}
+%\vspace{-.8in}
 \end{figure}
 
 %Figure~\ref{fig:model_values} the mapping of this scenario to the mathematical framework.  
@@ -141,6 +140,6 @@ We plot $E$ vs $t_{\text{latency}}$ for each pair.
 \includegraphics[width=.8\columnwidth]{figures/model_plots}
 \caption[]{Simulated Plots}
 \label{fig:simplots}
-\vspace{-0.28in}
+\vspace{-0.1in}
 \end{figure}
 
