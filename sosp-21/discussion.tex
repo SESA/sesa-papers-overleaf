@@ -1,14 +1,29 @@
 \label{sec:dis}
-\begin{itemize}
-    \item energy data should be elevated and always shown next to performance data, advocated by mudge~\cite{917539}
-    \item all data is on github, we built a dynamic Python Dash web app to look at data
-\end{itemize}
+Through this study, we conducted tens of thousands of experimental runs and accumulated over four terabytes of experimental data.  Summaries of the data along with all our software is available on github.  Our data also includes fine-grained timeline of various hardware/software statistics (not covered here).  We have built a web visualization tool that allows any researcher to access and navigate our entire data set and we are in the process of releasing it to the community. We believe that this paper only scratches the surface of what can be distilled from the data. Our study has taught us not only the value of considering energy in OS design and implementation but also demonstrated the ease and value of always gathering energy consumption data.  We encourage all OS research to explore and frame performance results in context of energy as advocated for by mudge~\cite{917539}.
 
-future work:
-\begin{itemize}
-    \item cacheline-based halting
-    \item complex dvfs use when in os and application
-\end{itemize}
+% cut if needed
+
+
+% % cut if needed -- reference in paper different locations
+% Our data and it exhaustive sweep based approach reveals several opportunities to construct alternative OS energy management strategies.  For example we now see how valuable it might be to identify when too switch from aggressive polling back to interrupts.  Or how we might switch from using low DVFS settings while on OS paths and then elevate to higher DVFS settings for application code for the application centric workloads.  Additionally it is clear that the phenomena, arising in real settings, of instruction mixes having differing DVFS sensitivities deserves further investigation. 
+
+% % cut if needed -- references in paper
+% We have presented our mathematical framework in hopes to encourage other researches to continue to build upon it so that both hardware and software researches can identify how changes in behavior can enable better performance while reducing energy.  In appendix~\ref{sec:appendix} we discuss some of th next steps to be take in the development of the framework and usage. 
+
+% % cut if needed -- discussed potentially
+% Our work also suggests several immediate next steps to enhance our data and mathematical model.  For example it is worth using the library OS to explore a configuration between aggressive polling and interrupts.  In particular using the ability to have the NIC directly awaken a core by writing to a cache-line rather than using an interrupt.   Similarly, the use of different fixed and dynamic sleep states with the library OS.   And finally adding data that documents the behavior of changing DVFS settings at the boundary of OS and application code.  
+
+
+%\begin{itemize}
+%    \item energy data should be elevated and always shown next to performance data, advocated by mudge~\cite{917539}
+%    \item all data is on github, we built a dynamic Python Dash web app to look at data
+%\end{itemize}
+%
+%future work:
+%\begin{itemize}
+%    \item cacheline-based halting
+%    \item complex dvfs use when in os and application
+%\end{itemize}
 
 % \begin{itemize}
 %     \item ITR-delay can be extended up to 1 ms, effect of this on SLAs with 1 ms budget instead?
