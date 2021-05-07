@@ -1,22 +1,63 @@
 \label{sec:intro}
-% While many have studied power management mechanisms and control from an architectural or application perspective we approach the subject from and OS research vantage point.  Our goal is not the construction of a particular policy or mechanism rather it is to quantify and explain how and why slowing down processing can be beneficial. Gernot suggests that we must consider entire system. Hank quantifies that one must consider complex tradeoff space in energy management as hardware is nolonger simply race-to-halt friendly -- race-to-halt, pace-to-idle, optimal and no-idle -- due to changes in the dynamic and static components of energy consumption driven by differences in CMOS and SRAM composition and usage in processors. Building on prior work Chou suggests that latency sensitive workloads are different and matter. Brooks suggest that optimal energy management will require workload specific specialization
 
 %Our work extends and builds upon that of Sueur et al. and Mootaz et al.  Sueur et al. noted that to guide an OS designer it is critical to analyses the system as a whole, including the workload, to determine whether using mechanisms such as DVFS [Dynamic Voltage Frequency Scaling to slow processing down] will be effective at reducing energy consumption. While Mootaz et al observed that delaying request processing can result in batching effects that permit power savings while maintaining tail latency requirements for web serving.
 
-%More recently, Chou et al. proposed a dynamic control policy in the context of micro-services that advocates for a mixing both the slowing down of the CPU and delaying processing in a latency sensitive manner. The authors focus is one of policy development with little insight into the impact that the OS's design and implementation has.    
+%More recently, Chou et al. proposed a dynamic control policy in the context of micro-services that advocates for  mixing both the slowing down of the CPU and delaying processing in a latency sensitive manner. The authors focus is one of policy development with little insight into the impact that the OS's design and implementation has.  
 
-%To our knowledge we are the first to conduct a detailed experimental study that evaluates how the OS structure and choices interact with slowing cores down using hardware power management (DVFS) and delaying interrupt delivery using NIC settings (IDR).  We experimentally gather data for a very large combination of DVFS and IDR setting across four workloads broken down into two categories open loop and closed loop. Each category consists of one workload that is OS centric and the other that is application centric. Further to tease apart the OS impact  in addition to evaluating a general purpose OS (Linux) we use a Library OS, that we can more easily modify to explore a broader range of systemic OS choices.   
+%Breaking down request processing into phases we construct a mathematical model that allows us to capture and explain the OS's behavior and its impact on both performance and energy.  The model is both intuitive and consistent with our experimental observations. 
+%Specifically,  the model lets us evaluate how slowing down processing and interrupt detection interacts with  variations in the instructions components of OS and Application request processing, the impact of specializing the OS for a single network application, the use of interrupts versus polling and interactions with the use of hardware sleep-states.  Using the model we can predict the general behavior one might observed with respect to both performance and energy.
 
-%Breaking down request processing into phases we construct a mathematical model that allows us to capture and explain the OS's behavior and its impact on both performance and energy.  The model is both intuitive and consistent with our experimental observations.  
+% We assert that the OS has a bigger role to play in energy management, than perhaps has been realized, by combining its ability to slow down processing, delay interrupts and specialize its paths for network service oriented applications.   Given that it is the OS that controls the core network processing paths, including device management, interrupt versus polling behavior, and halt behavior it is important to understand OS effects in both performance and energy.
 
-% Building on the above observations we uniquely study performance and energy impact of slowing down both processors and delaying request processing on network driven workloads from an OS perspective. Ultimately with the goal of revealing current behavior and guiding future work in both OS and hardware.
+Le Sueur et al\cite{slowdownorsleep} demonstrated the need to consider the entire software stack and workload when evaluating
+
+ the performance and energy consumption when trying to optimize a system given the changing tradeoffs in the hardware and subtle nature of IO drive workloads.  Since then several authors have noted the importance and subtly in optimizing service oriented workloads and more generally network driven server workloads\cite{pace-to-idle,profilewhscomputer,udpm,dynsleep,mootaz,SmoothOperator}.  Largely this work has been done from either an architecture or application perspective and focused on identifying the need for and development of control strategies often acknowledging the OS has a role to play.  
+
+Building on the above observations we uniquely study the performance and energy tradeoff from an OS perspective.  
+%While many have studied power management mechanisms and control from an architectural or application perspective we approach the subject from an OS research vantage point.  Our goal is not the construction of a particular policy or mechanism rather it is to quantify and explain how and why slowing down processing can be beneficial. Gernot suggests that we must consider entire system. Hank quantifies that one must consider complex tradeoff space in energy management as hardware is nolonger simply race-to-halt friendly -- race-to-halt, pace-to-idle, optimal and no-idle -- due to changes in the dynamic and static components of energy consumption driven by differences in CMOS and SRAM composition and usage in processors. Building on prior work Chou suggests that latency sensitive workloads are different and matter. Brooks suggest that optimal energy management will require workload specific specialization
+
+
+% Gernot suggests that we must consider entire system
+% Hank quantifies that one must consider complex tradeoff space in energy management as hardware is nolonger simply race-to-halt friendly -- race-to-halt, pace-to-idle, optimal and no-idle -- due to changes in the dynamic and static components of energy consumption driven by differences in CMOS and SRAM composition and usage in processors.
+% Building on prior work Chou suggests that latency sensitive workloads are different and matter
+% Brooks suggest that optimal energy management will require workload specific specialization
+
+% Building on the above observations we uniquely  study performance and energy  impact of slowing down both processors and delaying request processing on network driven workloads from an OS perspective.  Ultimately with the goal of revealing explaining current behavior and guiding future work in both OS and hardware.  
 
 % Using our OS knowledge and prior architectural and application oriented work on power management, we construct a simplified request processing model, that can be expressed mathematically.  We construct the model to reflect what  we believe to be the important interactions that the OS can have on the realized performance and energy when running various types of network oriented workloads.   Specifically,  the model lets us evaluate how slowing down processing and interrupt detection interacts with  variations in the instructions components of OS and Application request processing, the impact of specializing the OS for a single network application, the use of interrupts versus polling and interactions with the use of hardware sleep-states.  Using the model we can predict the general behavior one might observed with respect to both performance and energy.
 
 % We conduct an exhaustive study that sweeps processor slow downs and interrupt delays in the context of four network benchmarks designed to stress different OS and application behaviours.  We evaluate both a general purpose OS and a library OS specialized for to run single network oriented servers.  Doing so lets us vary OS path lengths and efficiencies, differences in interrupt and polling behaviors along with sleep state strategies.
+
 % We then analyze the data to draw validate core observations of how the OS affects the observed combination of performance and energy for the workloads.  We also use the data to evaluate our model.
 
-% We assert that the OS has a bigger role to play in energy management. then perhaps has been realized, by combining its ability to slow down processing, delay interrupts and specialize its paths for network service oriented applications.   Given that it is the OS that controls the core network processing paths, including device management, interrupt versus polling behavior, and halt behavior it is important to understand OS effects in both performance and energy.
+% model 
+% exhaustive search - interesting points
+% model seems to match data
+% model and data exposes oppunities and shows value of specializain 
+% as advocated by brooks furthur suggest a path via OS specialization that can yield novel performance and energy regiemes 
+% model enables others to validate 
+% model allows both os and hardware designers to evaluate and guide changes
+% model 
+
+
+
+%Our work extends and builds upon that of Sueur et al. and Mootaz et al.  Sueur et al. noted that to guide an OS designer it is critical to analyses the system as a whole, including the workload, to determine whether using mechanisms such as DVFS [Dynamic Voltage Frequency Scaling to slow processing down] will be effective at reducing energy consumption. While Mootaz et al observed that delaying request processing can result in batching effects that permit power savings while maintaining tail latency requirements for web serving.
+
+%More recently, Chou et al. proposed a dynamic control policy in the context of micro-services that advocates for  mixing both the slowing down of the CPU and delaying processing in a latency sensitive manner. The authors focus is one of policy development with little insight into the impact that the OS's design and implementation has.    
+
+%To our knowledge we are the first to conduct a detailed experimental study that evaluates how the OS structure and choices interact with slowing cores down using hardware power management (DVFS) and delaying interrupt delivery using NIC settings (IDR).  We experimentally gather data for a very large combination of DVFS and IDR setting across four workloads broken down into two categories open loop and closed loop. Each category consists of one workload that is OS centric and the other that is application centric. 
+
+%Further to tease apart the OS impact  in addition to evaluating a general purpose OS (Linux) we use a Library OS, that we can more easily modify to explore a broader range of systemic OS choices.   
+
+ 
+
+% Building on the above observations we uniquely study performance and energy impact of slowing down both processors and delaying request processing on network driven workloads from an OS perspective. Ultimately with the goal of revealing current behavior and guiding future work in both OS and hardware.
+
+% Using our OS knowledge and prior architectural and application oriented work on power management, we construct a simplified request processing model, that can be expressed mathematically.  We construct the model to reflect what  we believe to be the important interactions that the OS can have on the realized performance and energy when running various types of network oriented workloads.   
+
+% We conduct an exhaustive study that sweeps processor slow downs and interrupt delays in the context of four network benchmarks designed to stress different OS and application behaviours.  We evaluate both a general purpose OS and a library OS specialized for to run single network oriented servers.  Doing so lets us vary OS path lengths and efficiencies, differences in interrupt and polling behaviors along with sleep state strategies.
+% We then analyze the data to draw validate core observations of how the OS affects the observed combination of performance and energy for the workloads.  We also use the data to evaluate our model.
+
 
 % The contributions of this work are:
 % \begin{enumerate}
