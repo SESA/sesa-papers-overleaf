@@ -9,11 +9,11 @@
 
 % We assert that the OS has a bigger role to play in energy management, than perhaps has been realized, by combining its ability to slow down processing, delay interrupts and specialize its paths for network service oriented applications.   Given that it is the OS that controls the core network processing paths, including device management, interrupt versus polling behavior, and halt behavior it is important to understand OS effects in both performance and energy.
 
-Le Sueur et al\cite{slowdownorsleep} demonstrated the need to consider the entire software stack and workload when evaluating
+%Le Sueur et al\cite{slowdownorsleep} demonstrated the need to consider the entire software stack and workload when evaluating
 
- the performance and energy consumption when trying to optimize a system given the changing tradeoffs in the hardware and subtle nature of IO drive workloads.  Since then several authors have noted the importance and subtly in optimizing service oriented workloads and more generally network driven server workloads\cite{pace-to-idle,profilewhscomputer,udpm,dynsleep,mootaz,SmoothOperator}.  Largely this work has been done from either an architecture or application perspective and focused on identifying the need for and development of control strategies often acknowledging the OS has a role to play.  
+% the performance and energy consumption when trying to optimize a system given the changing tradeoffs in the hardware and subtle nature of IO drive workloads.  Since then several authors have noted the importance and subtly in optimizing service oriented workloads and more generally network driven server workloads\cite{pace-to-idle,profilewhscomputer,udpm,dynsleep,mootaz,SmoothOperator}.  Largely this work has been done from either an architecture or application perspective and focused on identifying the need for and development of control strategies often acknowledging the OS has a role to play.  
 
-Building on the above observations we uniquely study the performance and energy tradeoff from an OS perspective.  
+%Building on the above observations we uniquely study the performance and energy tradeoff from an OS perspective.  
 %While many have studied power management mechanisms and control from an architectural or application perspective we approach the subject from an OS research vantage point.  Our goal is not the construction of a particular policy or mechanism rather it is to quantify and explain how and why slowing down processing can be beneficial. Gernot suggests that we must consider entire system. Hank quantifies that one must consider complex tradeoff space in energy management as hardware is nolonger simply race-to-halt friendly -- race-to-halt, pace-to-idle, optimal and no-idle -- due to changes in the dynamic and static components of energy consumption driven by differences in CMOS and SRAM composition and usage in processors. Building on prior work Chou suggests that latency sensitive workloads are different and matter. Brooks suggest that optimal energy management will require workload specific specialization
 
 
@@ -75,25 +75,42 @@ Building on the above observations we uniquely study the performance and energy 
 %Model is a framework for revealing the effects given OS choices in how to use interrupts, halting and polling.  
 
 %The performance and energy consumption of a system are complex emergent properties of a myriad of interactions between application software, operating systems, hardware, and request loads. 
-Summary intro: This paper is about how slowing down processor and interrupt delay affect performance and energy of web-centric applications. Also, how do different OS structures affect this as well.
+%Summary intro: This paper is about how slowing down processor and interrupt delay affect performance and energy of web-centric applications. Also, how do different OS structures affect this as well.
 
-Our work seeks to broaden the understanding of web-centric applications running under different OS structures and their performance-energy trade-offs in this space; furthermore, we are interested in how the mechanisms of slowing down both processor and network request processing, by interrupt delay, affect performance and energy. We did a exhaustive search through this in both Linux and a library OS on different applications with different request loads.
+A gap exists in the OS and energy management literature for network oriented services.  Our work seeks to start filling it by offering a detailed OS centric study of how the performance and energy tradeoff interacts with an OS.  We focus on three core aspects; 1) the impacts of using DVFS to "slow" processing, 2) the impacts of delaying interrupt detection using NIC features, and 3) the impact and value of specializing OS paths.
 
-From our experimental analysis, we summarize the following observations and contributions in our work:
-\begin{enumerate}
-    \item \textbf{No single strategy for OS to optimize energy and performance:} previous works have advocated for full-system and hardware optimizations for energy~\cite{slowdownorsleep,powernap}, our work builds on their observations and assert that the OS itself plays a big role as well. For example, we find it is sometimes better to use a OS poll rather than interrupts; this approach improves performance and save energy by as much as 3X. (\cref{sec:closed_loop:poll} \cref{sec:mcd:poll}) 
-    %% OS plays a big role in, builds on prior work, 
-    \item \textbf{Slowing down processing and interrupt delays can reduce energy use in a workload dependent fashion:} we present novel findings from using a hardware mechanism in modern NICs to slow interrupt delays as an additional method to reduce energy use; we find this is applicable across both OS structures and careful manual control of both delay processor and interrupt can result in energy savings up to 2X across the workloads and OSes.  (\cref{sec:closed_loop:speedup}, \cref{sec:mcd:slowprocvssleep},
-    \cref{sec:mcdsilo:dvfstradeoff})
-    %% interrupt delay is a unique contribution
-    \item \textbf{Specializing the software magnifies the energy benefits of slowing down:} we find a specialized OS stack can more aggressively slow down processing to save energy by up to 76\%, with no noticeable impact on performance, we attribute this to: a) shortened OS path length can get same application work done using fewer instructions, and ii) given that resultant instruction mix are not ALU bound, therefore causes minimal time penalties with a slowed processor. (~\cref{sec:mcd:slowinos})
-    \item \textbf{Specializing the software creates headroom for trade-offs, even in application heavy workloads:} we find a specialized OS can reduce time spent in the OS processing by improving application code IPC; this creates additional headroom to use both delay mechanisms to further reduce energy use by 6\%-43\%. (\cref{sec:mcdsilo:ipc}) 
-    \item \textbf{A mathematical framework that can be used to explain and explore software and hardware effects of slowing down:} \textit{we cross-validated our framework with experimental results and discuss potential implications towards better policy designs.} (\cref{sec:model})
-    \item \textbf{Energy use in a bare-metal library OS:} we are the first to present a detailed study of energy use of a broad range of web-centric applications in a bare-metal specialized stack; our findings reveal new insights in how a different OS structure interacts with slowing down processors and interrupts; we believe these findings will help guide future energy optimization research in the OS.
-\end{enumerate}
+Our contributions stem from a detailed and exhaustive experimental study from which we; a) demonstrate that using a combination of the above three techniques the OS has sufficient control to navigate the large space of performance-energy optimization (see \cref{fig:closed_loop_overview,fig:mcd_overview,fig:mcdsilo_overview}), b) slowing down processing interacts with OS code paths and IO detection mechanism in unique and surprising ways (see \cref{sec:workflow:dvfs,sec:closed_loop:poll,sec:mcd:slowprocvssleep,sec:mcdsilo:dvfstradeoff}), c) uniquely using NIC support for delaying interrupts enable the OS to enact energy optimizations (see \cref{sec:workflow:itr,sec:closed_loop:speedup,sec:mcd:slowinos,sec:mcdsilo:ipc}) including  application level request delaying\cite{mootaz,udpm}, d) specializing OS paths for network processing can yield dramatic improvements including the surprising ability to "slow" the processor to save energy while having little to no impact on time (\cref{sec:workflow:osspec,sec:closed_loop:poll,sec:closed_loop:slowtostaybusy,sec:mcd:poll,sec:mcd:slowinos,sec:mcdsilo}).   
 
-We begin by constructing a generic timeline of how packets are processed in a typical system in \cref{sec:workflow}, this breakdown will help seed the discussion of how different system components are affected by slowing down mechanism in \cref{sec:slowdown}. Next, we discuss our experimental and software setup in \cref{sec:exp_setup} and then go into a deeper analysis of our experimental data in \cref{sec:exp}. We discuss where our work sit in literature in \cref{sec:related} and end with a discussion of implications and future work in \cref{sec:dis} and finally conclude in \cref{sec:conc}. 
+In addition to the above we develop a mathematical framework as a starting point for analytical exploration of how the OS, application and workload interact with the hardware.  
+% potential cut
+This framework is a starting point for future OS and hardware researchers to investigate causality and explore alternatives. 
 
+We begin by constructing a generic timeline of how packets are processed in a typical system in \cref{sec:workflow}, 
+we then discuss performance and energy in context of how we break the timeline down in~\cref{sec:slowdown}.
+%this breakdown will help seed the discussion of how different system components are affected by slowing down mechanism in \cref{sec:slowdown}. 
+Section~\cref{sec:model} briefly describes our mathematical framework and demonstrates its use. Next, we discuss our experimental and software setup in \cref{sec:exp_setup} and then present our experimental data in \cref{sec:exp}.  
+ Related work is discussed in ~\cref{sec:related} 
+ and  we conclude with  a discussion of implications and future work in \cref{sec:dis}.
+
+
+
+%Our work seeks to broaden the understanding of web-centric applications running under different OS structures and their performance-energy trade-offs in this space; furthermore, we are interested in how the mechanisms of slowing down both processor and network request processing, by interrupt delay, affect performance and energy. We did a exhaustive search through this in both Linux and a library OS on different applications with different request loads.
+
+%From our experimental analysis, we summarize the following observations and contributions in our work:
+%\begin{enumerate}
+%    \item \textbf{No single strategy for OS to optimize energy and performance:} previous works have advocated for full-system and hardware optimizations for energy~\cite{slowdownorsleep,powernap}, our work builds on their observations and assert that the OS itself plays a big role as well. For example, we find it is sometimes better to use a OS poll rather than interrupts; this approach improves performance and save energy by as much as 3X. (\cref{sec:closed_loop:poll} \cref{sec:mcd:poll}) 
+%    %% OS plays a big role in, builds on prior work, 
+%    \item \textbf{Slowing down processing and interrupt delays can reduce energy use in a workload dependent fashion:} we present novel findings from using a hardware mechanism in modern NICs to slow interrupt delays as an additional method to reduce energy use; we find this is applicable across both OS structures and careful manual control of both delay processor and interrupt can result in energy savings up to 2X across the workloads and OSes.  (\cref{sec:closed_loop:speedup}, \cref{sec:mcd:slowprocvssleep},
+%    \cref{sec:mcdsilo:dvfstradeoff})
+%    %% interrupt delay is a unique contribution
+%    \item \textbf{Specializing the software magnifies the energy benefits of slowing down:} we find a specialized OS stack can more aggressively slow down processing to save energy by up to 76\%, with no noticeable impact on performance, we attribute this to: a) shortened OS path length can get same application work done using fewer instructions, and ii) given that resultant instruction mix are not ALU bound, therefore causes minimal time penalties with a slowed processor. (~\cref{sec:mcd:slowinos})
+%    \item \textbf{Specializing the software creates headroom for trade-offs, even in application heavy workloads:} we find a specialized OS can reduce time spent in the OS processing by improving application code IPC; this creates additional headroom to use both delay mechanisms to further reduce energy use by 6\%-43\%. (\cref{sec:mcdsilo:ipc}) 
+%    \item \textbf{A mathematical framework that can be used to explain and explore software and hardware effects of slowing down:} \textit{we cross-validated our framework with experimental results and discuss potential implications towards better policy designs.} (\cref{sec:model})
+%    \item \textbf{Energy use in a bare-metal library OS:} we are the first to present a detailed study of energy use of a broad range of web-centric applications in a bare-metal specialized stack; our findings reveal new insights in how a different OS structure interacts with slowing down processors and interrupts; we believe these findings will help guide future energy optimization research in the OS.
+%\end{enumerate}
+%
+%We begin by constructing a generic timeline of how packets are processed in a typical system in \cref{sec:workflow}, this breakdown will help seed the discussion of how different system components are affected by slowing down mechanism in \cref{sec:slowdown}. Next, we discuss our experimental and software setup in \cref{sec:exp_setup} and then go into a deeper analysis of our experimental data in \cref{sec:exp}. We discuss where our work sit in literature in \cref{sec:related} and end with a discussion of implications and future work in \cref{sec:dis} and finally conclude in \cref{sec:conc}. 
+%
 % %% TODO: probably move to intro
 % \begin{em}
 % Core Finding: 
