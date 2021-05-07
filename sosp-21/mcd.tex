@@ -107,7 +107,7 @@ We find that across the QPS loads and the two OSes, the average energy savings f
  we get a average energy savings of \SI{342}{\joule}.
 Detailed in section~\ref{sec:workflow:dvfs}, the effect of slowing down the processor results in the lengthening of the application and OS work in memcached.
 This reduces the energy savings that are brought about by taking advantage of sleep states during prolonged idle periods.
-Such slow-down is further undesirable due to SLA requirements which result in string time budgets that requests must adhere to.
+Such slow-down is further undesirable due to SLA requirements which result in stringent time budgets that requests must adhere to.
 
 Even though slowing down interrupt delay does not contribute to energy savings as much as slowing down the processor, figure~\ref{fig:mcd_overview} shows that it is  a combination of both that results in the lowest energy use across both Linux and the library OS.
 Figure~\ref{fig:mcd_detail_1}(d) shows the direct effect of interrupt delay on tail latency.
