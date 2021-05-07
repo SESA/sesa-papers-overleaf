@@ -1,4 +1,4 @@
-\label{sec:model}
+%\label{sec:model}
 
 %\begin{figure}
 %\centering
@@ -7,16 +7,18 @@
 %\label{fig:timeline}
 %\end{figure}
 
-\subsection{Motivating the Simple Model}
+\newpage
+\appendix{\bf{Appendix:}  Mathematical Framework}
+\label{sec:appendix}
 
-Under the assumption that the various time-segments in figure \ref{timeline} don't overlap, one can break down a full cycle from one request to another into disjoint time-intervals:
+Under the assumption that the various time-segments in figure~\ref{fig:timeline} don't overlap, one can break down a full cycle from one request to another into disjoint time-intervals:
 
 \begin{equation}
 \delta t = t_{\text{detect}} + t_{\text{osreq}} + t_{\text{app}} + t_{\text{idlepolicy}} + t_q = \frac{1}{\lambda}
 \label{eq:time}
 \end{equation}
 
-where, $\delta t$ = time between the arrivals of two consecutive requests. The other terms represent the various intervals in figure \ref{timeline}.
+where, $\delta t$ = time between the arrivals of two consecutive requests. The other terms represent the various intervals in figure~\ref{fig:timeline}.
 
 Each term is treated as a deterministic and fixed quantity (dependent on workload, hardware, OS, parameters) as opposed to a random variable following some underlying probability distribution. This is sufficient for a qualitative treatment but a full quantitative treatment would treat these terms as part of a probabilistic graphical model.
 
