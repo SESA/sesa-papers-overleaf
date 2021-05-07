@@ -57,6 +57,8 @@ where A, B are constants of proportionality, $N_i$ $=$ the total number of instr
 
 Figures~\ref{fig:simdesc} and~\ref{fig:simplots} illustrates using the framework to explore the described scenario.  In figure~\ref{fig:simplots}, plot a) shows that when instructions are less affected by frequency one expects to see a vertical structure.  Plots b) and c) show that as the paths are composed of instructions that are more frequency sensitive DVFS changes result in a more curved structure in the energy vs latency.  As expected slowing the instructions starts to affect latency in these instruction mixes.   Additionally in all three plots one sees that delaying interrupts via ITR, for a busy fraction, increases latency with not much improvement in energy.  Remembering that for this configuration deep sleep has been configured to use zero energy.  In section~\ref{sec:mcd} we will examine a scenario that arises in practice that displays similar behavior. 
 \begin{figure}
+\vspace*{-10mm}
+\caption[]{Example analysis.} 
 \fbox{\tiny \fbox{\begin{minipage}{20em}
 The following describes the scenario to be studied mathematically.  The constants for this scenario and their relative magnitudes are purely synthetic and not meant to model a particular system.  Eg. Energy consumption rates (power) are arbitrarily set.
 \begin{enumerate}[leftmargin=*]
@@ -126,9 +128,9 @@ We plot $E$ vs $t_{\text{latency}}$ for each pair.
 \end{minipage}
 }
 }
-\caption[]{Example analysis scenario. Left box describes the scenario the right shows the mapping to the equations }
+%Left box describes the scenario the right shows the mapping to the equations }
 \label{fig:simdesc}
-%\vspace{-.8in}
+\vspace*{-.2in}
 \end{figure}
 
 %Figure~\ref{fig:model_values} the mapping of this scenario to the mathematical framework.  
@@ -138,8 +140,9 @@ We plot $E$ vs $t_{\text{latency}}$ for each pair.
 \begin{figure}
 \centering
 \includegraphics[width=.8\columnwidth]{figures/model_plots}
+\vspace*{-6mm}
 \caption[]{Simulated Plots}
 \label{fig:simplots}
-\vspace{-0.1in}
+\vspace{-0.2in}
 \end{figure}
 
